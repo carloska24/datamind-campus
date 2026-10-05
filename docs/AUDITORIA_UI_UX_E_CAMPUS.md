@@ -2,8 +2,6 @@
 
 Data: 05/10/2026. Estado funcional preservado no commit `5ff9c4d`.
 
-**Atualização de direção:** após esta auditoria, o usuário autorizou uma transformação visual premium e forneceu o Coolage como referência para estudantes. A recomendação de conservar a paleta foi substituída. A implementação, as correções e a validação estão em [Direção visual premium](DIRECAO_VISUAL_PREMIUM.md). Os achados abaixo registram o estado anterior ao redesenho.
-
 **Conclusão:** o DataMind é um ambiente pessoal de estudo funcional, com identidade visual própria e boa interpretação do material da Aula 01. Para atender vários alunos, a maior mudança é passar de dados salvos em um navegador para contas, matrículas, progresso individual e acompanhamento por turma. A interface pode evoluir preservando a marca e dando mais espaço à tarefa de aprender.
 
 Esta auditoria registra problemas reproduzidos, limitações verificadas no código e oportunidades de melhoria. Não altera o comportamento do campus nem representa aprovação de um novo desenho de produto.
