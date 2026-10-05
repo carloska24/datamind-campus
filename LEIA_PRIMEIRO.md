@@ -8,7 +8,9 @@ Um ambiente de estudo visual e narrado da aula de Data Science e Big Data na Ind
 2. Entre na pasta `aula01-studio/dist`.
 3. Abra `ABRIR.html` no Chrome ou Edge.
 
-Esta versão contém a aplicação React compilada e funciona sem instalar dependências. Os desenhos, ícones e conteúdo estão incorporados. Mantenha a pasta `materiais` ao lado do arquivo para abrir PDFs e notebook. A narração usa as vozes do navegador/sistema, quando disponíveis.
+Esta versão contém a aplicação React compilada e funciona sem instalar dependências. Os ícones, diagramas e conteúdo estão incorporados; mantenha a pasta `assets` ao lado do arquivo para as imagens e a pasta `materiais` para abrir PDFs e notebook. A narração usa as vozes do navegador/sistema, quando disponíveis.
+
+O visual do campus foi renovado com uma direção editorial, arte exclusiva, temas claro/escuro e atalhos no celular. Consulte [Direção visual premium](docs/DIRECAO_VISUAL_PREMIUM.md) para referências, decisões e validação. A auditoria para evolução em plataforma com vários alunos permanece em [Auditoria do campus](docs/AUDITORIA_UI_UX_E_CAMPUS.md).
 
 ## Usar narração da OpenAI ou Gemini
 

@@ -92,146 +92,222 @@ export function FactoryArt({ compact = false }: { compact?: boolean }) {
   );
 }
 const tones = ["#8b6cff", "#22d3ee", "#60a5fa", "#34d399", "#fbbf24"];
-export function TopicArt({
-  kind = 0,
-  tone,
-}: {
-  kind?: number;
-  tone?: number;
-}) {
-  const strong = tones[(tone ?? kind) % tones.length];
-  const colors = [`${strong}40`, strong];
-  const paper = "var(--art-paper)";
+export function TopicArt({ kind = 0, tone }: { kind?: number; tone?: number }) {
+  const accent = [
+    "var(--blue)",
+    "var(--blue)",
+    "var(--blue)",
+    "var(--mint)",
+    "var(--amber)",
+  ][(tone ?? kind) % 5];
+  const labels = [
+    "Fontes de dados industriais conectadas",
+    "Cinco etapas da descoberta de conhecimento",
+    "Tabela com linhas e colunas para análise com Pandas",
+    "Indicadores e análise de dados industriais",
+  ];
   return (
     <svg
       viewBox="0 0 240 130"
       className="topic-art"
       role="img"
-      aria-label={
-        [
-          "Dados industriais conectados",
-          "Processo de descoberta de conhecimento",
-          "Tabela e análise com Pandas",
-          "Análise de indicadores",
-        ][kind % 4]
-      }
+      aria-label={labels[kind % 4]}
     >
-      <ellipse
-        cx="120"
-        cy="110"
-        rx="80"
-        ry="11"
-        fill={colors[1]}
-        opacity=".25"
-      />
+      <g fill="none" stroke="var(--border-strong)" strokeWidth="1">
+        <path d="M20 15v8m-4-4h8M220 15v8m-4-4h8M20 107v8m-4-4h8M220 107v8m-4-4h8" />
+      </g>
       {kind % 4 === 0 ? (
-        <>
-          <path d="M70 58 117 32l53 29-49 29Z" fill={colors[1]} />
-          <path d="M70 58v32l51 29V90Z" fill={paper} />
-          <path d="m121 90 49-29v32l-49 26Z" fill={colors[0]} />
-          <path d="M91 72v24m16-15v24" stroke={colors[1]} strokeWidth="7" />
-          <circle cx="53" cy="37" r="15" fill={colors[0]} />
-          <circle cx="190" cy="41" r="20" fill={colors[0]} />
+        <g>
           <path
-            d="M53 52v30h17m100-10h20V61"
+            d="M56 36 120 65 183 33M56 96 120 65 183 97"
+            stroke="var(--border-strong)"
             fill="none"
-            stroke={colors[1]}
-            strokeWidth="2"
-            strokeDasharray="4 4"
+            strokeDasharray="3 4"
           />
-        </>
-      ) : kind % 4 === 1 ? (
-        <>
-          <path d="M47 77h147" stroke={colors[1]} strokeWidth="3" />
-          {[0, 1, 2, 3, 4].map((n) => (
-            <g key={n}>
+          {[
+            [56, 36],
+            [56, 96],
+            [183, 33],
+            [183, 97],
+          ].map(([x, y], i) => (
+            <g key={i}>
               <rect
-                x={35 + n * 37}
-                y={50 - (n % 2) * 14}
+                x={x - 14}
+                y={y - 13}
                 width="28"
-                height="46"
-                rx="8"
-                fill={n === 4 ? colors[1] : colors[0]}
-              />
-              <circle
-                cx={49 + n * 37}
-                cy={68 - (n % 2) * 14}
-                r="6"
-                fill={n === 4 ? "#b2f0df" : colors[1]}
-              />
-            </g>
-          ))}
-          <path d="m101 24 18-13 20 13-19 12Z" fill="#ffcd85" />
-        </>
-      ) : kind % 4 === 2 ? (
-        <>
-          <rect
-            x="49"
-            y="23"
-            width="147"
-            height="87"
-            rx="10"
-            fill={paper}
-            stroke={colors[1]}
-            strokeWidth="2"
-          />
-          <path d="M49 45h147" stroke={colors[1]} strokeWidth="2" />
-          <circle cx="61" cy="34" r="3" fill="#ec9c80" />
-          <circle cx="73" cy="34" r="3" fill="#eac473" />
-          <circle cx="85" cy="34" r="3" fill="#77caae" />
-          {[0, 1, 2].map((n) => (
-            <g key={n}>
-              <rect
-                x="62"
-                y={55 + n * 16}
-                width="26"
-                height="8"
-                rx="3"
-                fill={colors[0]}
+                height="26"
+                rx="5"
+                fill="var(--surface)"
+                stroke="var(--border-strong)"
               />
               <path
-                d={`M101 ${59 + n * 16}h28m10 0h42`}
-                stroke={colors[1]}
-                strokeWidth="5"
-                opacity={0.35 + n * 0.2}
+                d={`M${x - 6} ${y - 3}h12M${x - 6} ${y + 3}h8`}
+                stroke="var(--text-3)"
+                strokeWidth="1.5"
               />
             </g>
           ))}
-          <rect x="28" y="78" width="43" height="33" rx="8" fill={colors[1]} />
-          <path
-            d="m40 89-5 5 5 5m19-10 5 5-5 5"
-            stroke="#fff"
-            fill="none"
-            strokeWidth="2"
+          <circle
+            cx="120"
+            cy="65"
+            r="25"
+            fill="var(--surface)"
+            stroke={accent}
+            strokeWidth="1.5"
           />
-        </>
-      ) : (
-        <>
-          <rect x="45" y="24" width="150" height="89" rx="12" fill={paper} />
-          <path d="M65 91V43m0 48h104" stroke="#c8d4e7" strokeWidth="2" />
+          <circle cx="120" cy="65" r="14" fill={accent} opacity=".12" />
+          <path d="M111 65h18M120 56v18" stroke={accent} strokeWidth="2" />
+        </g>
+      ) : kind % 4 === 1 ? (
+        <g>
           <path
-            d="m76 81 20-10 23 6 23-23 24-11"
-            stroke={colors[1]}
-            strokeWidth="4"
+            d="M35 65h170"
+            stroke="var(--border-strong)"
+            strokeDasharray="3 4"
+          />
+          {[35, 77, 120, 163, 205].map((x, i) => (
+            <g key={x}>
+              <circle
+                cx={x}
+                cy="65"
+                r="14"
+                fill={i === 2 ? accent : "var(--surface)"}
+                stroke={i === 2 ? accent : "var(--border-strong)"}
+              />
+              <text
+                x={x}
+                y="69"
+                fontSize="9"
+                textAnchor="middle"
+                fill={i === 2 ? "var(--surface)" : "var(--text-3)"}
+                fontFamily="monospace"
+              >
+                {i + 1}
+              </text>
+            </g>
+          ))}
+          <path d="M77 84v14h86V84" stroke="var(--border-strong)" fill="none" />
+          <path d="m81 90-4-6-4 6" stroke="var(--border-strong)" fill="none" />
+          <rect
+            x="101"
+            y="25"
+            width="38"
+            height="13"
+            rx="3"
+            fill={accent}
+            opacity=".12"
+          />
+          <path d="M111 32h18" stroke={accent} />
+        </g>
+      ) : kind % 4 === 2 ? (
+        <g>
+          <rect
+            x="45"
+            y="22"
+            width="150"
+            height="87"
+            rx="6"
+            fill="var(--surface)"
+            stroke="var(--border-strong)"
+          />
+          <path
+            d="M45 46h150M45 67h150M45 88h150M75 46v63M119 22v87M159 22v87"
+            stroke="var(--border-strong)"
+          />
+          <rect
+            x="120"
+            y="23"
+            width="38"
+            height="85"
+            fill={accent}
+            opacity=".09"
+          />
+          <text
+            x="60"
+            y="37"
+            fontSize="8"
+            fill="var(--text-3)"
+            fontFamily="monospace"
+          >
+            #
+          </text>
+          {["A", "B", "C"].map((n, i) => (
+            <text
+              x={91 + i * 40}
+              y="37"
+              key={n}
+              fontSize="8"
+              fill={accent}
+              fontFamily="monospace"
+            >
+              {n}
+            </text>
+          ))}
+          {[0, 1, 2].map((n) => (
+            <g key={n}>
+              <text
+                x="57"
+                y={60 + n * 21}
+                fontSize="8"
+                fill="var(--text-3)"
+                fontFamily="monospace"
+              >
+                {n}
+              </text>
+              <path
+                d={`M86 ${57 + n * 21}h18M128 ${57 + n * 21}h17M168 ${57 + n * 21}h13`}
+                stroke="var(--text-3)"
+                opacity=".7"
+              />
+            </g>
+          ))}
+        </g>
+      ) : (
+        <g>
+          <path
+            d="M45 27v77h153M45 44h150M45 65h150M45 85h150"
+            stroke="var(--border-strong)"
+            fill="none"
+          />
+          <path
+            d="M62 88 93 69 120 78 150 45 184 32"
+            stroke={accent}
+            strokeWidth="2"
             fill="none"
           />
           {[
-            [76, 81],
-            [96, 71],
-            [119, 77],
-            [142, 54],
-            [166, 43],
+            [62, 88],
+            [93, 69],
+            [120, 78],
+            [150, 45],
+            [184, 32],
           ].map(([x, y]) => (
-            <circle key={x} cx={x} cy={y} r="5" fill={colors[1]} />
+            <circle
+              key={x}
+              cx={x}
+              cy={y}
+              r="4"
+              fill="var(--surface)"
+              stroke={accent}
+              strokeWidth="1.5"
+            />
           ))}
-          <circle cx="184" cy="95" r="20" fill="#a9e6d4" />
           <path
-            d="m174 95 7 7 13-15"
-            stroke="#277966"
-            strokeWidth="3"
-            fill="none"
+            d="M62 91v12M93 72v31M120 81v22M150 48v55M184 35v68"
+            stroke={accent}
+            opacity=".12"
+            strokeWidth="12"
           />
-        </>
+          <text
+            x="45"
+            y="119"
+            fontSize="7"
+            fill="var(--text-3)"
+            fontFamily="monospace"
+          >
+            OBSERVAR → INVESTIGAR
+          </text>
+        </g>
       )}
     </svg>
   );
