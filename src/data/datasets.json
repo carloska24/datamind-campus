@@ -1,0 +1,71 @@
+{
+  "df": [
+    {
+      "produto": "Motor A",
+      "producao": 100,
+      "defeitos": 5,
+      "temperatura": 70,
+      "taxa_defeitos": 5.0
+    },
+    {
+      "produto": "Motor B",
+      "producao": 120,
+      "defeitos": 12,
+      "temperatura": 82,
+      "taxa_defeitos": 10.0
+    },
+    {
+      "produto": "Motor A",
+      "producao": 110,
+      "defeitos": 6,
+      "temperatura": 73,
+      "taxa_defeitos": 5.454545454545454
+    },
+    {
+      "produto": "Motor C",
+      "producao": 90,
+      "defeitos": 3,
+      "temperatura": 68,
+      "taxa_defeitos": 3.3333333333333335
+    },
+    {
+      "produto": "Motor B",
+      "producao": 130,
+      "defeitos": 15,
+      "temperatura": 85,
+      "taxa_defeitos": 11.538461538461538
+    }
+  ],
+  "m": [
+    {
+      "maquina": "A",
+      "producao": 1250,
+      "energia": 420,
+      "eficiencia": 2.9761904761904763
+    },
+    {
+      "maquina": "B",
+      "producao": 1380,
+      "energia": 465,
+      "eficiencia": 2.967741935483871
+    },
+    {
+      "maquina": "C",
+      "producao": 1190,
+      "energia": 390,
+      "eficiencia": 3.051282051282051
+    },
+    {
+      "maquina": "D",
+      "producao": 1450,
+      "energia": 510,
+      "eficiencia": 2.843137254901961
+    },
+    {
+      "maquina": "E",
+      "producao": 1320,
+      "energia": 405,
+      "eficiencia": 3.259259259259259
+    }
+  ]
+}

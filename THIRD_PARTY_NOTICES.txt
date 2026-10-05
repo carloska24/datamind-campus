@@ -1,0 +1,7 @@
+React / React DOM — Meta Platforms, Inc. and affiliates — MIT.
+Lucide — Lucide Contributors — ISC; Feather-derived icons — MIT.
+Vite — Evan You and Vite contributors — MIT.
+TypeScript — Microsoft — Apache-2.0.
+The complete licenses of installed packages are available in their respective npm distributions.
+Source lecture material is the user-provided Aula 01 by Prof. Me Daniel Vieira and is included for the user's study.
+All learning-studio illustrations are code-authored SVG for this project.
