@@ -51,9 +51,13 @@ export function narration(m: Module) {
 export default function AudioStudio({
   modules,
   initial = 0,
+  initialSegment = 0,
+  onPositionChange,
 }: {
   modules: Module[];
   initial?: number;
+  initialSegment?: number;
+  onPositionChange?: (moduleId: number, position: number) => void;
 }) {
   const [moduleId, setModuleId] = useState(initial),
     [provider, setProvider] = useState(() => preferredProvider() || "browser"),
@@ -64,7 +68,7 @@ export default function AudioStudio({
     [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]),
     [browserVoice, setBrowserVoice] = useState(""),
     [rate, setRate] = useState(1),
-    [index, setIndex] = useState(0),
+    [index, setIndex] = useState(initialSegment),
     [status, setStatus] = useState("idle"),
     [error, setError] = useState(""),
     [url, setUrl] = useState(""),
@@ -80,7 +84,7 @@ export default function AudioStudio({
     controller = useRef<AbortController | null>(null),
     generation = useRef(0),
     cache = useRef(new Map<string, string>()),
-    indexRef = useRef(0),
+    indexRef = useRef(initialSegment),
     autoRef = useRef(false),
     playingRef = useRef(false),
     utterance = useRef<SpeechSynthesisUtterance | null>(null);
@@ -107,6 +111,13 @@ export default function AudioStudio({
     setAudioTime({ current: 0, duration: 0 });
     setError("");
   }
+  useEffect(() => {
+    if (moduleId === initial && indexRef.current === initialSegment) return;
+    clearAudio();
+    setModuleId(initial);
+    indexRef.current = initialSegment;
+    setIndex(initialSegment);
+  }, [initial, initialSegment]);
   useEffect(() => {
     if ("speechSynthesis" in window) {
       const sync = () =>
@@ -181,6 +192,7 @@ export default function AudioStudio({
     stop();
     indexRef.current = n;
     setIndex(n);
+    onPositionChange?.(moduleId, n);
     setUrl("");
     setAudioTime({ current: 0, duration: 0 });
     setError("");
@@ -201,6 +213,7 @@ export default function AudioStudio({
     const token = generation.current;
     indexRef.current = n;
     setIndex(n);
+    onPositionChange?.(moduleId, n);
     if (provider === "browser") {
       if (!("speechSynthesis" in window)) {
         setError(
@@ -375,6 +388,7 @@ export default function AudioStudio({
                   setModuleId(+e.target.value);
                   setIndex(0);
                   indexRef.current = 0;
+                  onPositionChange?.(+e.target.value, 0);
                 }}
               >
                 {modules.map((m) => (

@@ -2,6 +2,8 @@
 
 Data: 05/10/2026. Estado funcional preservado no commit `5ff9c4d`.
 
+**Evolução em 06/10/2026:** seguindo a orientação do usuário de manter a identidade visual e executar esta auditoria, a Etapa 1 foi implementada. Veja [correções e validação](ETAPA_1_AUDITORIA.md). As evidências e os achados abaixo registram o levantamento inicial; contas/turmas e as etapas seguintes continuam no roteiro.
+
 **Conclusão:** o DataMind é um ambiente pessoal de estudo funcional, com identidade visual própria e boa interpretação do material da Aula 01. Para atender vários alunos, a maior mudança é passar de dados salvos em um navegador para contas, matrículas, progresso individual e acompanhamento por turma. A interface pode evoluir preservando a marca e dando mais espaço à tarefa de aprender.
 
 Esta auditoria registra problemas reproduzidos, limitações verificadas no código e oportunidades de melhoria. Não altera o comportamento do campus nem representa aprovação de um novo desenho de produto.

@@ -54,6 +54,10 @@ Se a chave está salva, mas aparece uma mensagem de conexão bloqueada (ou `fetc
 
 ## O que você encontra
 
+As atividades têm endereço próprio. Aulas, trechos de áudio, etapas do KDD, laboratórios e cartões permanecem selecionados ao recarregar. Você pode copiar a URL da atividade; ao compartilhá-la, o destinatário precisa ter acesso ao mesmo campus. O servidor `127.0.0.1` continua acessível somente no computador em que foi iniciado.
+
+No início, **De onde você parou** retoma a última atividade salva neste navegador. **Próximo módulo recomendado** indica o primeiro módulo ainda não marcado como compreendido. A retomada de áudio abre o trecho salvo e aguarda seu comando de reprodução. Ao concluir a trilha, o campus direciona à revisão. As correções da auditoria estão registradas em [Etapa 1](docs/ETAPA_1_AUDITORIA.md).
+
 - Painel inicial com desenho de fábrica conectada.
 - Trilha de 14 módulos, busca e filtros.
 - Aulas com referência às páginas do PDF, conceito, exemplo industrial, pergunta e código.

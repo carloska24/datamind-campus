@@ -36,6 +36,15 @@ import {
 import rawModules from "./data/modules.json";
 import data from "./data/datasets.json";
 import type { Module, StudyState } from "./types";
+import { searchText } from "./search";
+import {
+  parseRoute,
+  routeHash,
+  isStudyRoute,
+  studyDestination,
+  type Page,
+  type CampusRoute,
+} from "./navigation";
 import { FactoryArt, TopicArt } from "./components/Illustrations";
 import { Scatter, MachineBars, correlation, number } from "./components/Charts";
 import AudioStudio from "./components/AudioStudio";
@@ -116,9 +125,24 @@ function initialState(): StudyState {
   } catch {}
   return { done: [], notes: {} };
 }
+const activityKey = "datamind-aula01-last-activity";
+function initialActivity(): CampusRoute | null {
+  try {
+    const hash = localStorage.getItem(activityKey);
+    const route = hash ? parseRoute(hash, modules.length) : null;
+    return route && isStudyRoute(route) ? route : null;
+  } catch {
+    return null;
+  }
+}
 export default function App() {
-  const [page, setPage] = useState("home"),
-    [current, setCurrent] = useState(0),
+  const [route, setRoute] = useState<CampusRoute>(
+      () =>
+        parseRoute(window.location.hash, modules.length) ?? { page: "home" },
+    ),
+    [lastActivity, setLastActivity] = useState<CampusRoute | null>(
+      initialActivity,
+    ),
     [study, setStudy] = useState<StudyState>(initialState),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("Todos"),
@@ -129,7 +153,50 @@ export default function App() {
     [palette, setPalette] = useState(false),
     [celebrate, setCelebrate] = useState(0);
   const next = modules.find((m) => !study.done.includes(m.id)) || modules[0];
+  const page = route.page,
+    current = route.moduleId ?? 0;
+  const allDone = modules.every((m) => study.done.includes(m.id));
+  const resume = studyDestination(study.done, lastActivity, modules.length);
+  const activityLabel = (r: CampusRoute) =>
+    r.page === "audio"
+      ? `${modules[r.moduleId ?? 0].title} · trecho ${(r.position ?? 0) + 1} de 4`
+      : r.page === "lesson"
+        ? modules[r.moduleId ?? 0].title
+        : r.page === "kdd"
+          ? `Explore o KDD · etapa ${(r.position ?? 0) + 1}`
+          : r.page === "labs"
+            ? (r.position ?? 0) === 0
+              ? "Temperatura e defeitos"
+              : "Produção e energia"
+            : `Cartões de revisão · ${modules[r.moduleId ?? 0].title}`;
   const progress = study.done.length / 14;
+  useEffect(() => {
+    const hash = routeHash(
+      parseRoute(window.location.hash, modules.length) ?? { page: "home" },
+    );
+    if (window.location.hash !== hash)
+      window.history.replaceState(null, "", hash);
+    const onHistory = () => {
+      setRoute(
+        parseRoute(window.location.hash, modules.length) ?? { page: "home" },
+      );
+      setMenu(false);
+      window.scrollTo({ top: 0, behavior: "instant" });
+    };
+    addEventListener("popstate", onHistory);
+    addEventListener("hashchange", onHistory);
+    return () => {
+      removeEventListener("popstate", onHistory);
+      removeEventListener("hashchange", onHistory);
+    };
+  }, []);
+  useEffect(() => {
+    if (!isStudyRoute(route)) return;
+    setLastActivity(route);
+    try {
+      localStorage.setItem(activityKey, routeHash(route));
+    } catch {}
+  }, [route]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     try {
@@ -159,11 +226,28 @@ export default function App() {
     const timer = setTimeout(() => setToast(""), 4000);
     return () => clearTimeout(timer);
   }, [toast]);
-  function go(p: string, id?: number) {
-    if (id !== undefined) setCurrent(id);
-    setPage(p);
+  function navigate(destination: CampusRoute, replace = false, scroll = true) {
+    const hash = routeHash(destination);
+    if (hash !== window.location.hash)
+      window.history[replace ? "replaceState" : "pushState"](null, "", hash);
+    setRoute(destination);
     setMenu(false);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    if (scroll) window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  function go(p: Page, id?: number) {
+    if (p === "audio" && id === undefined && lastActivity?.page === "audio") {
+      navigate(lastActivity);
+      return;
+    }
+    navigate({
+      page: p,
+      ...(["lesson", "audio", "review"].includes(p)
+        ? { moduleId: id ?? route.moduleId ?? lastActivity?.moduleId ?? 0 }
+        : {}),
+      ...(["audio", "kdd", "labs"].includes(p)
+        ? { position: p === "labs" ? (id ?? 0) : 0 }
+        : {}),
+    });
   }
   function mark(id: number) {
     if (!study.done.includes(id)) {
@@ -190,6 +274,7 @@ export default function App() {
       group: "Módulos",
       label: `${String(m.id + 1).padStart(2, "0")} · ${m.title}`,
       hint: m.category,
+      keywords: `${m.idea} ${m.explain} ${m.question}`,
       icon: study.done.includes(m.id) ? CheckCircle2 : BookOpen,
       run: () => go("lesson", m.id),
     })),
@@ -232,9 +317,9 @@ export default function App() {
   const listed = modules.filter(
     (m) =>
       (filter === "Todos" || m.category === filter) &&
-      `${m.title} ${m.idea} ${m.explain}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
+      searchText(`${m.title} ${m.idea} ${m.explain} ${m.question}`).includes(
+        searchText(query),
+      ),
   );
   const heading = (eyebrow: string, title: string, subtitle: string) => (
     <div className="page-heading">
@@ -328,6 +413,11 @@ export default function App() {
                   : ""
               }
               onClick={() => go(id)}
+              aria-current={
+                page === id || (id === "course" && page === "lesson")
+                  ? "page"
+                  : undefined
+              }
             >
               <Icon size={19} />
               <span>{label}</span>
@@ -345,8 +435,12 @@ export default function App() {
             <div style={{ width: `${progress * 100}%` }} />
           </div>
           <small>módulos compreendidos</small>
-          <button onClick={() => go("lesson", next.id)}>
-            Continuar estudando
+          <button onClick={() => navigate(resume)}>
+            {allDone
+              ? "Revisar a aula"
+              : lastActivity
+                ? "Retomar atividade"
+                : "Começar a estudar"}
             <ArrowRight size={15} />
           </button>
         </div>
@@ -377,7 +471,11 @@ export default function App() {
             </button>
             <span>Meu aprendizado</span>
             <ChevronRight size={14} />
-            <strong>Aula 01</strong>
+            <strong>
+              {page === "lesson"
+                ? modules[current].title
+                : navItems.find(([id]) => id === page)?.[1]}
+            </strong>
           </div>
           <div className="topbar-right">
             <button
@@ -409,544 +507,638 @@ export default function App() {
           </div>
         </header>
         <main>
-          <div className="page-enter" key={`${page}-${page === "lesson" ? current : ""}`}>
-          {page === "home" && (
-            <>
-              {heading(
-                "DATAMIND CAMPUS · AULA 01",
-                `${greeting()}, Carlos`,
-                "Vamos transformar a experiência da fábrica em raciocínio com dados.",
-              )}
-              <section className="hero">
-                <div className="hero-copy">
-                  <span className="hero-tag">
-                    <Sparkles size={14} />
-                    AULA 01 · FUNDAMENTOS E PRÁTICA
-                  </span>
-                  <h2>
-                    Abra a mente.
-                    <br />
-                    Encontre sentido
-                    <br />
-                    <em>nos dados.</em>
-                  </h2>
-                  <p>
-                    Entenda os conceitos, explore os processos e experimente com
-                    os dados da sua primeira aula.
-                  </p>
-                  <div className="hero-actions">
-                    <button
-                      className="button white"
-                      onClick={() => go("lesson", next.id)}
-                    >
-                      Começar a estudar
-                      <ArrowRight size={17} />
-                    </button>
-                    <button
-                      className="button ghost-white"
-                      onClick={() => go("audio", next.id)}
-                    >
-                      <Headphones size={18} />
-                      Ouvir a aula
-                    </button>
-                  </div>
-                  <div className="hero-meta">
-                    <span>
-                      <BookOpen size={15} />
-                      14 módulos
-                    </span>
-                    <span>
-                      <FlaskConical size={15} />2 laboratórios
-                    </span>
-                    <span>
-                      <FileText size={15} />
-                      63 páginas de origem
-                    </span>
-                  </div>
-                </div>
-                <div className="hero-visual">
-                  <FactoryArt />
-                </div>
-                <span className="hero-dot dot-one" />
-                <span className="hero-dot dot-two" />
-                <div className="hero-progress">
-                  <ProgressRing value={progress} size={52} stroke={5} />
-                  <div>
-                    <strong>{study.done.length} de 14 módulos</strong>
-                    <small>Próximo: {next.title}</small>
-                  </div>
-                </div>
-              </section>
-              <div className="bento">
-                <button
-                  className="bento-card wide"
-                  onMouseMove={spotlight}
-                  onClick={() => go("kdd")}
-                >
-                  <header>
-                    <span className="eyebrow">Processo KDD · PDF 25–31</span>
-                    <Layers3 size={18} />
-                  </header>
-                  <h3>Dos dados ao conhecimento, em 5 etapas</h3>
-                  <div className="mini-kdd">
-                    {[
-                      "Seleção",
-                      "Pré-proc.",
-                      "Transformação",
-                      "Mineração",
-                      "Avaliação",
-                    ].map((s, i) => (
-                      <div key={s}>
-                        <i>{i + 1}</i>
-                        {s}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="bento-foot">
-                    Explorar cada etapa
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-                <button
-                  className="bento-card"
-                  onMouseMove={spotlight}
-                  onClick={() => go("labs")}
-                >
-                  <header>
-                    <span className="eyebrow">Laboratório 1</span>
-                    <FlaskConical size={18} />
-                  </header>
-                  <h3>Temperatura × defeitos</h3>
-                  <MiniScatter />
-                  <div className="bento-foot">
-                    <span>
-                      r = <strong className="metric-big" style={{ fontSize: 20 }}>{pearson}</strong>
-                    </span>
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-                <button
-                  className="bento-card"
-                  onMouseMove={spotlight}
-                  onClick={() => go("review")}
-                >
-                  <header>
-                    <span className="eyebrow">Cartão do dia</span>
-                    <BrainCircuit size={18} />
-                  </header>
-                  <p style={{ color: "var(--text)", fontFamily: "var(--font-display)", fontSize: 17 }}>
-                    {modules[new Date().getDate() % 14].question}
-                  </p>
-                  <div className="bento-foot">
-                    Tentar responder
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-                <button
-                  className="bento-card"
-                  onMouseMove={spotlight}
-                  onClick={() => go("course")}
-                >
-                  <header>
-                    <span className="eyebrow">Trilha</span>
-                    <BookOpen size={18} />
-                  </header>
-                  <span className="metric-big">
-                    {Math.round(progress * 100)}%
-                  </span>
-                  <p>
-                    Conceito → exemplo na fábrica → pergunta. 14 módulos, um
-                    de cada vez.
-                  </p>
-                  <div className="bento-foot">
-                    Ver trilha completa
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-                <button
-                  className="bento-card"
-                  onMouseMove={spotlight}
-                  onClick={() => go("labs")}
-                >
-                  <header>
-                    <span className="eyebrow">Laboratório 2</span>
-                    <Factory size={18} />
-                  </header>
-                  <h3>Produção × energia</h3>
-                  <p>Quem produz mais nem sempre é quem usa melhor a energia.</p>
-                  <div className="bento-foot">
-                    <span>
-                      Máquina E ·{" "}
-                      <strong style={{ color: "var(--mint)" }}>3,26 peças/kWh</strong>
-                    </span>
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-                <button
-                  className="bento-card wide"
-                  onMouseMove={spotlight}
-                  onClick={() => go("audio", next.id)}
-                >
-                  <header>
-                    <span className="eyebrow">Estúdio de áudio</span>
-                    <Headphones size={18} />
-                  </header>
-                  <h3>Dê uma pausa à leitura: ouça “{next.title}”</h3>
-                  <div className="mini-wave" aria-hidden="true">
-                    {Array.from({ length: 56 }, (_, i) => (
-                      <i
-                        key={i}
-                        style={{
-                          height: 8 + ((i * 37) % 36),
-                          animationDelay: `${(i % 14) * 0.07}s`,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className="bento-foot">
-                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <Play size={15} /> Narração em português
-                    </span>
-                    <ArrowRight size={16} />
-                  </div>
-                </button>
-              </div>
-              <div className="dashboard-grid">
-                <section>
-                  <div className="section-title">
-                    <div>
-                      <h2>Uma ideia de cada vez</h2>
-                      <p>Comece pelos fundamentos da aula.</p>
-                    </div>
-                    <button className="text-link" onClick={() => go("course")}>
-                      Ver trilha completa
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                  {cards(modules.slice(0, 3))}
-                  <div className="factory-banner">
-                    <span className="icon-box mint">
-                      <Factory />
+          <div
+            className="page-enter"
+            key={`${page}-${page === "lesson" ? current : ""}`}
+          >
+            {page === "home" && (
+              <>
+                {heading(
+                  "DATAMIND CAMPUS · AULA 01",
+                  `${greeting()}, Carlos`,
+                  "Vamos transformar a experiência da fábrica em raciocínio com dados.",
+                )}
+                {lastActivity && !allDone && (
+                  <div className="resume-study panel">
+                    <span className="icon-box lavender">
+                      <Play size={20} />
                     </span>
                     <div>
-                      <h3>
-                        Você já conhece o processo. Agora, investigue os dados.
-                      </h3>
-                      <p>Conecte a aula a SMT, AOI, SPI e solda seletiva.</p>
+                      <span className="eyebrow">DE ONDE VOCÊ PAROU</span>
+                      <strong>{activityLabel(lastActivity)}</strong>
                     </div>
                     <button
-                      className="icon-button"
-                      aria-label="Abrir aplicação industrial"
-                      onClick={() => go("lesson", 12)}
+                      className="button secondary"
+                      onClick={() => navigate(resume)}
                     >
-                      <ArrowRight />
+                      Retomar atividade <ArrowRight size={16} />
                     </button>
+                  </div>
+                )}
+                <section className="hero">
+                  <div className="hero-copy">
+                    <span className="hero-tag">
+                      <Sparkles size={14} />
+                      AULA 01 · FUNDAMENTOS E PRÁTICA
+                    </span>
+                    <h2>
+                      Abra a mente.
+                      <br />
+                      Encontre sentido
+                      <br />
+                      <em>nos dados.</em>
+                    </h2>
+                    <p>
+                      Entenda os conceitos, explore os processos e experimente
+                      com os dados da sua primeira aula.
+                    </p>
+                    <div className="hero-actions">
+                      <button
+                        className="button white"
+                        onClick={() => navigate(resume)}
+                      >
+                        {allDone
+                          ? "Revisar a aula"
+                          : lastActivity
+                            ? "Retomar atividade"
+                            : "Começar a estudar"}
+                        <ArrowRight size={17} />
+                      </button>
+                      <button
+                        className="button ghost-white"
+                        onClick={() => go("audio", next.id)}
+                      >
+                        <Headphones size={18} />
+                        Ouvir a aula
+                      </button>
+                    </div>
+                    <div className="hero-meta">
+                      <span>
+                        <BookOpen size={15} />
+                        14 módulos
+                      </span>
+                      <span>
+                        <FlaskConical size={15} />2 laboratórios
+                      </span>
+                      <span>
+                        <FileText size={15} />
+                        63 páginas de origem
+                      </span>
+                    </div>
+                  </div>
+                  <div className="hero-visual">
+                    <FactoryArt />
+                  </div>
+                  <span className="hero-dot dot-one" />
+                  <span className="hero-dot dot-two" />
+                  <div className="hero-progress">
+                    <ProgressRing value={progress} size={52} stroke={5} />
+                    <div>
+                      <strong>{study.done.length} de 14 módulos</strong>
+                      <small>
+                        {allDone
+                          ? "Trilha concluída · hora de revisar"
+                          : `Próximo módulo: ${next.title}`}
+                      </small>
+                    </div>
                   </div>
                 </section>
-                <aside className="right-column">
-                  <div className="panel focus-card">
-                    <span className="tag">
-                      <Target size={14} />
-                      Seu próximo passo
-                    </span>
-                    <h3>{next.title}</h3>
-                    <p>{next.idea}</p>
-                    <div className="focus-line">
-                      <Clock size={15} />
-                      {next.minutes} minutos sugeridos
-                    </div>
-                    <button
-                      className="button primary full"
-                      onClick={() => go("lesson", next.id)}
-                    >
-                      Abrir módulo
-                      <ArrowRight size={16} />
-                    </button>
-                  </div>
-                  <div className="insight-card">
-                    <Lightbulb size={25} />
-                    <span className="eyebrow">MUDE A PERGUNTA</span>
-                    <h3>
-                      “Tenho dados”
-                      <br />é só o começo.
-                    </h3>
-                    <p>
-                      O que você quer descobrir? Qual decisão pode melhorar com
-                      essa resposta?
-                    </p>
-                    <button className="text-link" onClick={() => go("kdd")}>
-                      Explorar o caminho
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                </aside>
-              </div>
-            </>
-          )}
-          {page === "course" && (
-            <>
-              {heading(
-                "DO CONCEITO À APLICAÇÃO",
-                "Sua trilha de aprendizagem",
-                "14 módulos organizados para conectar teoria, raciocínio e prática.",
-              )}
-              <div className="path-overview">
-                {[
-                  ["01", "Entender", "Fundamentos"],
-                  ["02", "Investigar", "KDD"],
-                  ["03", "Experimentar", "Pandas"],
-                  ["04", "Aplicar", "Laboratórios"],
-                ].map(([n, title, cat]) => (
+                <div className="bento">
                   <button
-                    key={n}
-                    onClick={() => setFilter(cat)}
-                    className={filter === cat ? "selected" : ""}
+                    className="bento-card wide"
+                    onMouseMove={spotlight}
+                    onClick={() => go("kdd")}
                   >
-                    <span>{n}</span>
-                    <div>
-                      <strong>{title}</strong>
-                      <small>{cat}</small>
+                    <header>
+                      <span className="eyebrow">Processo KDD · PDF 25–31</span>
+                      <Layers3 size={18} />
+                    </header>
+                    <h3>Dos dados ao conhecimento, em 5 etapas</h3>
+                    <div className="mini-kdd">
+                      {[
+                        "Seleção",
+                        "Pré-proc.",
+                        "Transformação",
+                        "Mineração",
+                        "Avaliação",
+                      ].map((s, i) => (
+                        <div key={s}>
+                          <i>{i + 1}</i>
+                          {s}
+                        </div>
+                      ))}
                     </div>
-                    <ArrowRight size={18} />
+                    <div className="bento-foot">
+                      Explorar cada etapa
+                      <ArrowRight size={16} />
+                    </div>
                   </button>
-                ))}
-              </div>
-              <div className="filters">
-                <div className="filter-tabs">
-                  {categories.map((c) => (
-                    <button
-                      key={c}
-                      className={filter === c ? "active" : ""}
-                      onClick={() => setFilter(c)}
+                  <button
+                    className="bento-card"
+                    onMouseMove={spotlight}
+                    onClick={() => go("labs")}
+                  >
+                    <header>
+                      <span className="eyebrow">Laboratório 1</span>
+                      <FlaskConical size={18} />
+                    </header>
+                    <h3>Temperatura × defeitos</h3>
+                    <MiniScatter />
+                    <div className="bento-foot">
+                      <span>
+                        r ={" "}
+                        <strong className="metric-big" style={{ fontSize: 20 }}>
+                          {pearson}
+                        </strong>
+                      </span>
+                      <ArrowRight size={16} />
+                    </div>
+                  </button>
+                  <button
+                    className="bento-card"
+                    onMouseMove={spotlight}
+                    onClick={() => go("review")}
+                  >
+                    <header>
+                      <span className="eyebrow">Cartão do dia</span>
+                      <BrainCircuit size={18} />
+                    </header>
+                    <p
+                      style={{
+                        color: "var(--text)",
+                        fontFamily: "var(--font-display)",
+                        fontSize: 17,
+                      }}
                     >
-                      {c}
+                      {modules[new Date().getDate() % 14].question}
+                    </p>
+                    <div className="bento-foot">
+                      Tentar responder
+                      <ArrowRight size={16} />
+                    </div>
+                  </button>
+                  <button
+                    className="bento-card"
+                    onMouseMove={spotlight}
+                    onClick={() => go("course")}
+                  >
+                    <header>
+                      <span className="eyebrow">Trilha</span>
+                      <BookOpen size={18} />
+                    </header>
+                    <span className="metric-big">
+                      {Math.round(progress * 100)}%
+                    </span>
+                    <p>
+                      Conceito → exemplo na fábrica → pergunta. 14 módulos, um
+                      de cada vez.
+                    </p>
+                    <div className="bento-foot">
+                      Ver trilha completa
+                      <ArrowRight size={16} />
+                    </div>
+                  </button>
+                  <button
+                    className="bento-card"
+                    onMouseMove={spotlight}
+                    onClick={() => go("labs", 1)}
+                  >
+                    <header>
+                      <span className="eyebrow">Laboratório 2</span>
+                      <Factory size={18} />
+                    </header>
+                    <h3>Produção × energia</h3>
+                    <p>
+                      Quem produz mais nem sempre é quem usa melhor a energia.
+                    </p>
+                    <div className="bento-foot">
+                      <span>
+                        Máquina E ·{" "}
+                        <strong style={{ color: "var(--mint)" }}>
+                          3,26 peças/kWh
+                        </strong>
+                      </span>
+                      <ArrowRight size={16} />
+                    </div>
+                  </button>
+                  <button
+                    className="bento-card wide"
+                    onMouseMove={spotlight}
+                    onClick={() => go("audio", next.id)}
+                  >
+                    <header>
+                      <span className="eyebrow">Estúdio de áudio</span>
+                      <Headphones size={18} />
+                    </header>
+                    <h3>Dê uma pausa à leitura: ouça “{next.title}”</h3>
+                    <div className="mini-wave" aria-hidden="true">
+                      {Array.from({ length: 56 }, (_, i) => (
+                        <i
+                          key={i}
+                          style={{
+                            height: 8 + ((i * 37) % 36),
+                            animationDelay: `${(i % 14) * 0.07}s`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <div className="bento-foot">
+                      <span
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                      >
+                        <Play size={15} /> Narração em português
+                      </span>
+                      <ArrowRight size={16} />
+                    </div>
+                  </button>
+                </div>
+                <div className="dashboard-grid">
+                  <section>
+                    <div className="section-title">
+                      <div>
+                        <h2>Uma ideia de cada vez</h2>
+                        <p>Comece pelos fundamentos da aula.</p>
+                      </div>
+                      <button
+                        className="text-link"
+                        onClick={() => go("course")}
+                      >
+                        Ver trilha completa
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
+                    {cards(modules.slice(0, 3))}
+                    <div className="factory-banner">
+                      <span className="icon-box mint">
+                        <Factory />
+                      </span>
+                      <div>
+                        <h3>
+                          Você já conhece o processo. Agora, investigue os
+                          dados.
+                        </h3>
+                        <p>Conecte a aula a SMT, AOI, SPI e solda seletiva.</p>
+                      </div>
+                      <button
+                        className="icon-button"
+                        aria-label="Abrir aplicação industrial"
+                        onClick={() => go("lesson", 12)}
+                      >
+                        <ArrowRight />
+                      </button>
+                    </div>
+                  </section>
+                  <aside className="right-column">
+                    <div className="panel focus-card">
+                      <span className="tag">
+                        <Target size={14} />
+                        {allDone
+                          ? "Sua trilha concluída"
+                          : "Próximo módulo recomendado"}
+                      </span>
+                      <h3>
+                        {allDone ? "Reconstrua o que aprendeu" : next.title}
+                      </h3>
+                      <p>
+                        {allDone
+                          ? "Revise os conceitos e retorne às ideias que precisam de prática."
+                          : next.idea}
+                      </p>
+                      <div className="focus-line">
+                        <Clock size={15} />
+                        {allDone
+                          ? "14 módulos compreendidos"
+                          : `${next.minutes} minutos sugeridos`}
+                      </div>
+                      <button
+                        className="button primary full"
+                        onClick={() =>
+                          allDone ? go("review", 0) : go("lesson", next.id)
+                        }
+                      >
+                        {allDone ? "Abrir revisão" : "Abrir módulo"}
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                    <div className="insight-card">
+                      <Lightbulb size={25} />
+                      <span className="eyebrow">MUDE A PERGUNTA</span>
+                      <h3>
+                        “Tenho dados”
+                        <br />é só o começo.
+                      </h3>
+                      <p>
+                        O que você quer descobrir? Qual decisão pode melhorar
+                        com essa resposta?
+                      </p>
+                      <button className="text-link" onClick={() => go("kdd")}>
+                        Explorar o caminho
+                        <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  </aside>
+                </div>
+              </>
+            )}
+            {page === "course" && (
+              <>
+                {heading(
+                  "DO CONCEITO À APLICAÇÃO",
+                  "Sua trilha de aprendizagem",
+                  "14 módulos organizados para conectar teoria, raciocínio e prática.",
+                )}
+                <div className="path-overview">
+                  {[
+                    ["01", "Entender", "Fundamentos"],
+                    ["02", "Investigar", "KDD"],
+                    ["03", "Experimentar", "Pandas"],
+                    ["04", "Aplicar", "Laboratórios"],
+                  ].map(([n, title, cat]) => (
+                    <button
+                      key={n}
+                      onClick={() => setFilter(cat)}
+                      className={filter === cat ? "selected" : ""}
+                      aria-pressed={filter === cat}
+                    >
+                      <span>{n}</span>
+                      <div>
+                        <strong>{title}</strong>
+                        <small>{cat}</small>
+                      </div>
+                      <ArrowRight size={18} />
                     </button>
                   ))}
                 </div>
-                <label className="search">
-                  <Search size={17} />
-                  <input
-                    aria-label="Buscar módulos"
-                    placeholder="Buscar conceito…"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                </label>
-              </div>
-              {listed.length ? (
-                cards(listed)
-              ) : (
-                <div className="panel empty">
-                  Nenhum módulo encontrado. Tente outra busca.
-                </div>
-              )}
-            </>
-          )}
-          {page === "lesson" && (
-            <Lesson
-              module={modules[current]}
-              done={study.done.includes(current)}
-              note={study.notes[current] || ""}
-              onMark={() => mark(current)}
-              onNote={(text) =>
-                setStudy((s) => ({
-                  ...s,
-                  notes: { ...s.notes, [current]: text },
-                }))
-              }
-              onBack={() => go("course")}
-              onNext={() => go("lesson", Math.min(13, current + 1))}
-              onPrev={() => go("lesson", Math.max(0, current - 1))}
-              onAudio={() => go("audio", current)}
-              saved={saved}
-            />
-          )}
-          {page === "kdd" && <Kdd />}
-          {page === "labs" && <Labs />}
-          {page === "audio" && (
-            <AudioStudio modules={modules} initial={current} />
-          )}
-          {page === "review" && <Review modules={modules} />}
-          {page === "notes" && (
-            <>
-              {heading(
-                "IDEIAS QUE VALEM GUARDAR",
-                "Seu caderno de descobertas",
-                "Registre hipóteses, dúvidas e conexões com o seu trabalho.",
-              )}
-              <div className="note-toolbar">
-                <span>
-                  <ShieldSaved saved={saved} />
-                  {saved
-                    ? "Caderno salvo neste navegador"
-                    : "Armazenamento bloqueado; exporte uma cópia"}
-                </span>
-                <div className="button-row">
-                  <button className="button primary" onClick={exportNotes}>
-                    <Download size={16} />
-                    Exportar caderno
-                  </button>
-                  <label className="button secondary import-button">
-                    <Upload size={16} />
-                    Importar
+                <div className="filters">
+                  <div className="filter-tabs">
+                    {categories.map((c) => (
+                      <button
+                        key={c}
+                        className={filter === c ? "active" : ""}
+                        aria-pressed={filter === c}
+                        onClick={() => setFilter(c)}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="search">
+                    <Search size={17} />
                     <input
-                      aria-label="Importar caderno"
-                      type="file"
-                      accept=".json"
-                      onChange={(e) => {
-                        if (e.target.files?.[0])
-                          void importNotes(e.target.files[0]);
-                        e.target.value = "";
-                      }}
+                      aria-label="Buscar módulos"
+                      placeholder="Buscar conceito…"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
                     />
                   </label>
                 </div>
-              </div>
-              <p className="small-text">
-                A cópia exportada contém apenas progresso e anotações. Chaves de
-                API ficam fora do caderno. Cópias do primeiro HTML também podem
-                ser importadas.
-              </p>
-              <div className="notes-grid">
-                {modules.map((m) => (
-                  <section className="panel note-card" key={m.id}>
-                    <div>
-                      <span className="module-category">
-                        {m.category} · {String(m.id + 1).padStart(2, "0")}
-                      </span>
-                      {study.done.includes(m.id) && (
-                        <CheckCircle2 size={18} className="green" />
-                      )}
-                    </div>
-                    <h3>{m.title}</h3>
-                    <label className="sr-only" htmlFor={`note-${m.id}`}>
-                      Anotação para {m.title}
-                    </label>
-                    <textarea
-                      id={`note-${m.id}`}
-                      value={study.notes[m.id] || ""}
-                      placeholder="O que entendi? Onde isso aparece na fábrica? Qual dúvida ficou?"
-                      onChange={(e) =>
-                        setStudy((s) => ({
-                          ...s,
-                          notes: { ...s.notes, [m.id]: e.target.value },
-                        }))
-                      }
-                    />
-                    <button
-                      className="text-link"
-                      onClick={() => go("lesson", m.id)}
-                    >
-                      Revisitar o módulo
-                      <ArrowRight size={14} />
+                {listed.length ? (
+                  cards(listed)
+                ) : (
+                  <div className="panel empty">
+                    Nenhum módulo encontrado. Tente outra busca.
+                  </div>
+                )}
+              </>
+            )}
+            {page === "lesson" && (
+              <Lesson
+                module={modules[current]}
+                done={study.done.includes(current)}
+                note={study.notes[current] || ""}
+                onMark={() => mark(current)}
+                onNote={(text) =>
+                  setStudy((s) => ({
+                    ...s,
+                    notes: { ...s.notes, [current]: text },
+                  }))
+                }
+                onBack={() => go("course")}
+                onNext={() => go("lesson", Math.min(13, current + 1))}
+                onPrev={() => go("lesson", Math.max(0, current - 1))}
+                onAudio={() => go("audio", current)}
+                saved={saved}
+              />
+            )}
+            {page === "kdd" && (
+              <Kdd
+                step={route.position ?? 0}
+                onStep={(position) =>
+                  navigate({ page: "kdd", position }, false, false)
+                }
+              />
+            )}
+            {page === "labs" && (
+              <Labs
+                lab={route.position ?? 0}
+                onLab={(position) =>
+                  navigate({ page: "labs", position }, false, false)
+                }
+              />
+            )}
+            {page === "audio" && (
+              <AudioStudio
+                modules={modules}
+                initial={current}
+                initialSegment={route.position ?? 0}
+                onPositionChange={(moduleId, position) =>
+                  navigate({ page: "audio", moduleId, position }, true, false)
+                }
+              />
+            )}
+            {page === "review" && (
+              <Review
+                modules={modules}
+                id={current}
+                onCard={(moduleId) =>
+                  navigate({ page: "review", moduleId }, false, false)
+                }
+              />
+            )}
+            {page === "notes" && (
+              <>
+                {heading(
+                  "IDEIAS QUE VALEM GUARDAR",
+                  "Seu caderno de descobertas",
+                  "Registre hipóteses, dúvidas e conexões com o seu trabalho.",
+                )}
+                <div className="note-toolbar">
+                  <span>
+                    <ShieldSaved saved={saved} />
+                    {saved
+                      ? "Caderno salvo neste navegador"
+                      : "Armazenamento bloqueado; exporte uma cópia"}
+                  </span>
+                  <div className="button-row">
+                    <button className="button primary" onClick={exportNotes}>
+                      <Download size={16} />
+                      Exportar caderno
                     </button>
-                  </section>
-                ))}
-              </div>
-            </>
-          )}
-          {page === "resources" && (
-            <>
-              {heading(
-                "TUDO NO MESMO LUGAR",
-                "Sua biblioteca da aula",
-                "Material original, caderno de estudo e laboratório em Python.",
-              )}
-              <div className="resource-grid">
-                {[
-                  [
-                    "Aula original",
-                    "63 páginas · Prof. Me Daniel Vieira",
-                    "Aula01_Original.pdf",
-                    FileText,
-                  ],
-                  [
-                    "Caderno de estudo",
-                    "15 páginas · explicações e respostas",
-                    "Aula01_Caderno_Estudo.pdf",
-                    BookOpen,
-                  ],
-                  [
-                    "Laboratório Python",
-                    "Notebook para Jupyter ou Colab",
-                    "Aula01_Laboratorio.ipynb",
-                    Code2,
-                  ],
-                ].map(([title, desc, file, Icon]) => {
-                  const I = Icon as typeof FileText;
-                  return (
-                    <a
-                      className="panel resource-card"
-                      key={String(file)}
-                      href={`./materiais/${file}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      download
-                    >
-                      <span className="icon-box lavender">
-                        <I />
-                      </span>
-                      <h3>{String(title)}</h3>
-                      <p>{String(desc)}</p>
-                      <span className="text-link">
-                        <Download size={15} />
-                        Abrir ou baixar material
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
-              <div className="panel">
-                <h2>Referências que orientaram esta versão</h2>
-                <div className="reference-list">
-                  {[
-                    [
-                      "Brilliant",
-                      "Aprendizagem visual, perguntas e interação",
-                      "https://brilliant.org/data/",
-                    ],
-                    [
-                      "DataCamp",
-                      "Organização de trilhas e prática com dados",
-                      "https://www.datacamp.com/",
-                    ],
-                    [
-                      "Pandas",
-                      "Conceitos, tabelas, seleção e estatística",
-                      "https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html",
-                    ],
-                    [
-                      "OpenAI · áudio",
-                      "Integração de narração via API",
-                      "https://developers.openai.com/api/docs/guides/text-to-speech",
-                    ],
-                    [
-                      "Google Gemini · áudio",
-                      "Integração de narração via API",
-                      "https://ai.google.dev/gemini-api/docs/speech-generation",
-                    ],
-                  ].map(([name, desc, url]) => (
-                    <a key={name} href={url} target="_blank" rel="noreferrer">
+                    <label className="button secondary import-button">
+                      <Upload size={16} />
+                      Importar
+                      <input
+                        aria-label="Importar caderno"
+                        type="file"
+                        accept=".json"
+                        onChange={(e) => {
+                          if (e.target.files?.[0])
+                            void importNotes(e.target.files[0]);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <p className="small-text">
+                  A cópia exportada contém apenas progresso e anotações. Chaves
+                  de API ficam fora do caderno. Cópias do primeiro HTML também
+                  podem ser importadas.
+                </p>
+                <div className="notes-grid">
+                  {modules.map((m) => (
+                    <section className="panel note-card" key={m.id}>
                       <div>
-                        <strong>{name}</strong>
-                        <p>{desc}</p>
+                        <span className="module-category">
+                          {m.category} · {String(m.id + 1).padStart(2, "0")}
+                        </span>
+                        {study.done.includes(m.id) && (
+                          <CheckCircle2 size={18} className="green" />
+                        )}
                       </div>
-                      <ExternalLink size={18} />
-                    </a>
+                      <h3>{m.title}</h3>
+                      <label className="sr-only" htmlFor={`note-${m.id}`}>
+                        Anotação para {m.title}
+                      </label>
+                      <textarea
+                        id={`note-${m.id}`}
+                        value={study.notes[m.id] || ""}
+                        placeholder="O que entendi? Onde isso aparece na fábrica? Qual dúvida ficou?"
+                        onChange={(e) =>
+                          setStudy((s) => ({
+                            ...s,
+                            notes: { ...s.notes, [m.id]: e.target.value },
+                          }))
+                        }
+                      />
+                      <button
+                        className="text-link"
+                        onClick={() => go("lesson", m.id)}
+                      >
+                        Revisitar o módulo
+                        <ArrowRight size={14} />
+                      </button>
+                    </section>
                   ))}
                 </div>
-              </div>
-              <div className="notice">
-                <Lightbulb size={20} />
-                <p>
-                  O conteúdo vem da Aula 01. Os exemplos de PCBA, cinco Vs,
-                  cuidados estatísticos e roteiro de revisão são complementos
-                  didáticos. As ilustrações são próprias; este projeto não
-                  representa uma plataforma oficial do SENAI.
-                </p>
-              </div>
-            </>
-          )}
+              </>
+            )}
+            {page === "resources" && (
+              <>
+                {heading(
+                  "TUDO NO MESMO LUGAR",
+                  "Sua biblioteca da aula",
+                  "Material original, caderno de estudo e laboratório em Python.",
+                )}
+                <div className="resource-grid">
+                  {[
+                    [
+                      "Aula original",
+                      "63 páginas · Prof. Me Daniel Vieira",
+                      "Aula01_Original.pdf",
+                      FileText,
+                    ],
+                    [
+                      "Caderno de estudo",
+                      "15 páginas · explicações e respostas",
+                      "Aula01_Caderno_Estudo.pdf",
+                      BookOpen,
+                    ],
+                    [
+                      "Laboratório Python",
+                      "Notebook para Jupyter ou Colab",
+                      "Aula01_Laboratorio.ipynb",
+                      Code2,
+                    ],
+                  ].map(([title, desc, file, Icon]) => {
+                    const I = Icon as typeof FileText;
+                    return (
+                      <a
+                        className="panel resource-card"
+                        key={String(file)}
+                        href={`./materiais/${file}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                      >
+                        <span className="icon-box lavender">
+                          <I />
+                        </span>
+                        <h3>{String(title)}</h3>
+                        <p>{String(desc)}</p>
+                        <span className="text-link">
+                          <Download size={15} />
+                          Abrir ou baixar material
+                        </span>
+                      </a>
+                    );
+                  })}
+                </div>
+                <div className="panel">
+                  <h2>Referências que orientaram esta versão</h2>
+                  <div className="reference-list">
+                    {[
+                      [
+                        "Brilliant",
+                        "Aprendizagem visual, perguntas e interação",
+                        "https://brilliant.org/data/",
+                      ],
+                      [
+                        "DataCamp",
+                        "Organização de trilhas e prática com dados",
+                        "https://www.datacamp.com/",
+                      ],
+                      [
+                        "Pandas",
+                        "Conceitos, tabelas, seleção e estatística",
+                        "https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html",
+                      ],
+                      [
+                        "OpenAI · áudio",
+                        "Integração de narração via API",
+                        "https://developers.openai.com/api/docs/guides/text-to-speech",
+                      ],
+                      [
+                        "Google Gemini · áudio",
+                        "Integração de narração via API",
+                        "https://ai.google.dev/gemini-api/docs/speech-generation",
+                      ],
+                    ].map(([name, desc, url]) => (
+                      <a key={name} href={url} target="_blank" rel="noreferrer">
+                        <div>
+                          <strong>{name}</strong>
+                          <p>{desc}</p>
+                        </div>
+                        <ExternalLink size={18} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+                <div className="notice">
+                  <Lightbulb size={20} />
+                  <p>
+                    O conteúdo vem da Aula 01. Os exemplos de PCBA, cinco Vs,
+                    cuidados estatísticos e roteiro de revisão são complementos
+                    didáticos. As ilustrações são próprias; este projeto não
+                    representa uma plataforma oficial do SENAI.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </main>
         <footer className="app-footer">
@@ -1226,9 +1418,14 @@ const kddSteps = [
     code: "# Separar observação, hipótese e próximo teste.\n# A conclusão precisa de contexto.",
   },
 ];
-function Kdd() {
-  const [step, setStep] = useState(0),
-    s = kddSteps[step],
+function Kdd({
+  step,
+  onStep,
+}: {
+  step: number;
+  onStep: (step: number) => void;
+}) {
+  const s = kddSteps[step],
     Icon = s.icon;
   return (
     <>
@@ -1248,7 +1445,8 @@ function Kdd() {
             <button
               key={v.name}
               className={step === i ? "active" : ""}
-              onClick={() => setStep(i)}
+              onClick={() => onStep(i)}
+              aria-pressed={step === i}
             >
               <span className={`kdd-icon ${v.color}`}>
                 <I size={26} />
@@ -1309,15 +1507,17 @@ function Kdd() {
     </>
   );
 }
-function Labs() {
-  const [lab, setLab] = useState(0),
-    [metric, setMetric] = useState<"defeitos" | "taxa_defeitos">("defeitos"),
+function Labs({ lab, onLab }: { lab: number; onLab: (lab: number) => void }) {
+  const [metric, setMetric] = useState<"defeitos" | "taxa_defeitos">(
+      "defeitos",
+    ),
     [product, setProduct] = useState("Todos"),
     [threshold, setThreshold] = useState(75),
     [rank, setRank] = useState<"producao" | "energia" | "eficiencia">(
       "producao",
     ),
     [showAnswers, setShowAnswers] = useState(false);
+  useEffect(() => setShowAnswers(false), [lab]);
   const filtered = data.df.filter((r) => r.temperatura > threshold),
     r = correlation(
       data.df.map((r) => r.temperatura),
@@ -1340,7 +1540,7 @@ function Labs() {
         <button
           className={lab === 0 ? "active" : ""}
           onClick={() => {
-            setLab(0);
+            onLab(0);
             setShowAnswers(false);
           }}
         >
@@ -1350,7 +1550,7 @@ function Labs() {
         <button
           className={lab === 1 ? "active" : ""}
           onClick={() => {
-            setLab(1);
+            onLab(1);
             setShowAnswers(false);
           }}
         >
@@ -1622,13 +1822,21 @@ function Labs() {
     </>
   );
 }
-function Review({ modules }: { modules: Module[] }) {
-  const [id, setId] = useState(0),
-    [reveal, setReveal] = useState(false),
+function Review({
+  modules,
+  id,
+  onCard,
+}: {
+  modules: Module[];
+  id: number;
+  onCard: (id: number) => void;
+}) {
+  const [reveal, setReveal] = useState(false),
     [remembered, setRemembered] = useState<number[]>([]);
   const m = modules[id];
+  useEffect(() => setReveal(false), [id]);
   function move(n: number) {
-    setId((id + n + 14) % 14);
+    onCard((id + n + modules.length) % modules.length);
     setReveal(false);
   }
   return (
@@ -1700,7 +1908,7 @@ function Review({ modules }: { modules: Module[] }) {
               }
               aria-label={`Cartão ${i + 1}: ${m.title}`}
               onClick={() => {
-                setId(i);
+                onCard(i);
                 setReveal(false);
               }}
             >

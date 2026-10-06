@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Check, Copy, CornerDownLeft, Search } from "lucide-react";
+import { Check, Copy, CornerDownLeft, Search, X } from "lucide-react";
+import { searchText } from "../search";
 import data from "../data/datasets.json";
 import { correlation, number, productColor } from "./Charts";
 
@@ -201,6 +202,7 @@ export type Command = {
   group: string;
   label: string;
   hint?: string;
+  keywords?: string;
   icon: LucideIcon;
   run: () => void;
 };
@@ -215,36 +217,71 @@ export function CommandPalette({
 }) {
   const [q, setQ] = useState(""),
     [active, setActive] = useState(0),
-    input = useRef<HTMLInputElement>(null);
+    input = useRef<HTMLInputElement>(null),
+    dialog = useRef<HTMLDivElement>(null);
   const list = commands.filter((c) =>
-    `${c.label} ${c.group} ${c.hint ?? ""}`
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .includes(
-        q
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, ""),
-      ),
+    searchText(
+      `${c.label} ${c.group} ${c.hint ?? ""} ${c.keywords ?? ""}`,
+    ).includes(searchText(q)),
   );
   useEffect(() => {
-    if (open) {
-      setQ("");
-      setActive(0);
-      setTimeout(() => input.current?.focus(), 10);
-    }
+    if (!open) return;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const previousOverflow = document.body.style.overflow;
+    const background = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        ".sidebar, .main-shell, .menu-overlay",
+      ),
+    );
+    const previousInert = background.map((element) => element.inert);
+    background.forEach((element) => {
+      element.inert = true;
+    });
+    document.body.style.overflow = "hidden";
+    setQ("");
+    setActive(0);
+    const timer = setTimeout(() => input.current?.focus(), 10);
+    return () => {
+      clearTimeout(timer);
+      background.forEach((element, i) => {
+        element.inert = previousInert[i];
+      });
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
   }, [open]);
   useEffect(() => setActive(0), [q]);
   if (!open) return null;
   function onKey(e: ReactKeyboardEvent) {
-    if (e.key === "ArrowDown") {
+    if (e.key === "Tab") {
+      const controls = Array.from(
+        dialog.current?.querySelectorAll<HTMLElement>(
+          "button:not(:disabled), input:not(:disabled), [tabindex='0']",
+        ) ?? [],
+      ).filter((element) => element.getClientRects().length > 0);
+      const first = controls[0],
+        last = controls[controls.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
+      }
+    } else if (e.key === "ArrowDown") {
       e.preventDefault();
       setActive((a) => Math.min(list.length - 1, a + 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActive((a) => Math.max(0, a - 1));
-    } else if (e.key === "Enter" && list[active]) {
+    } else if (
+      e.key === "Enter" &&
+      e.target === input.current &&
+      list[active]
+    ) {
       list[active].run();
       onClose();
     } else if (e.key === "Escape") onClose();
@@ -254,13 +291,14 @@ export function CommandPalette({
     <div className="cmdk-overlay" onMouseDown={onClose}>
       <div
         className="cmdk"
+        ref={dialog}
         role="dialog"
         aria-modal="true"
         aria-label="Buscar no campus"
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={onKey}
       >
-        <label className="cmdk-input">
+        <div className="cmdk-input">
           <Search size={18} />
           <input
             ref={input}
@@ -269,8 +307,14 @@ export function CommandPalette({
             placeholder="Buscar tela, módulo ou conceito…"
             aria-label="Buscar no campus"
           />
-          <span className="kbd">Esc</span>
-        </label>
+          <button
+            className="cmdk-close icon-button"
+            aria-label="Fechar busca"
+            onClick={onClose}
+          >
+            <X size={18} />
+          </button>
+        </div>
         <div className="cmdk-list" role="listbox">
           {list.length === 0 && (
             <p className="empty">Nada encontrado para “{q}”.</p>
