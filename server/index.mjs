@@ -6,6 +6,8 @@ import { generateSpeech } from "./tts.mjs";
 import { createCredentialStore } from "./credentials.mjs";
 import { createAccountStore } from "./accounts.mjs";
 import { createAccountRouter, sessionToken } from "./account-routes.mjs";
+import { deploymentConfig } from "./deployment.mjs";
+import { createAudioCache } from "./audio-cache.mjs";
 const root = path.resolve(fileURLToPath(new URL("../dist/", import.meta.url)));
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -26,21 +28,46 @@ function json(res, status, data) {
   });
   res.end(JSON.stringify(data));
 }
-export function createAppServer({ credentials, accounts, fetchImpl = fetch }) {
+export function createAppServer({
+  credentials,
+  accounts,
+  fetchImpl = fetch,
+  publicOrigin = "",
+  setupToken = "",
+  audioDirectory,
+}) {
   if (!accounts) throw Error("O servidor exige armazenamento de contas.");
-  const accountRouter = createAccountRouter(accounts);
+  const accountRouter = createAccountRouter(accounts, {
+    secureCookies: Boolean(publicOrigin),
+    setupToken,
+  });
+  const cachedSpeech = audioDirectory
+    ? createAudioCache({
+        directory: audioDirectory,
+        generate: (body, signal) => generateSpeech(body, fetchImpl, signal),
+      })
+    : null;
   let active = 0;
   const activeUsers = new Set();
   const server = http.createServer(async (req, res) => {
     try {
       const port = server.address()?.port;
       const allowedHosts = new Set([`127.0.0.1:${port}`, `localhost:${port}`]);
+      if (publicOrigin) allowedHosts.add(new URL(publicOrigin).host);
+      const allowedOrigins = publicOrigin
+        ? [publicOrigin]
+        : [
+            `http://127.0.0.1:${port}`,
+            `http://localhost:${port}`,
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+          ];
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader("Referrer-Policy", "no-referrer");
       res.setHeader("Cache-Control", "no-store");
       if (!allowedHosts.has(req.headers.host)) {
         json(res, 403, {
-          error: "Servidor disponível somente pelo endereço local.",
+          error: "Endereço do campus não autorizado.",
         });
         return;
       }
@@ -49,14 +76,7 @@ export function createAppServer({ credentials, accounts, fetchImpl = fetch }) {
         url.pathname.startsWith("/api/") &&
         ["POST", "PUT", "DELETE", "PATCH"].includes(req.method)
       ) {
-        if (
-          ![
-            "http://127.0.0.1:" + port,
-            "http://localhost:" + port,
-            "http://127.0.0.1:5173",
-            "http://localhost:5173",
-          ].includes(req.headers.origin)
-        ) {
+        if (!allowedOrigins.includes(req.headers.origin)) {
           json(res, 403, { error: "Origem não autorizada." });
           return;
         }
@@ -108,13 +128,7 @@ export function createAppServer({ credentials, accounts, fetchImpl = fetch }) {
         const origin = req.headers.origin;
         if (
           (configRequest && !origin) ||
-          (origin &&
-            ![
-              "http://127.0.0.1:" + port,
-              "http://localhost:" + port,
-              "http://127.0.0.1:5173",
-              "http://localhost:5173",
-            ].includes(origin))
+          (origin && !allowedOrigins.includes(origin))
         ) {
           json(res, 403, { error: "Origem não autorizada." });
           return;
@@ -123,7 +137,10 @@ export function createAppServer({ credentials, accounts, fetchImpl = fetch }) {
           json(res, 415, { error: "Formato de solicitação inválido." });
           return;
         }
-        if (!configRequest && (active >= 2 || activeUsers.has(user.id))) {
+        if (
+          !configRequest &&
+          ((!cachedSpeech && active >= 2) || activeUsers.has(user.id))
+        ) {
           json(res, 429, {
             error: "Já há áudios sendo gerados. Aguarde e tente novamente.",
           });
@@ -171,11 +188,13 @@ export function createAppServer({ credentials, accounts, fetchImpl = fetch }) {
         });
         try {
           const apiKey = credentials.get(body.provider);
-          const result = await generateSpeech(
-            { ...body, apiKey },
-            fetchImpl,
-            controller.signal,
-          );
+          const result = cachedSpeech
+            ? await cachedSpeech({ ...body, apiKey })
+            : await generateSpeech(
+                { ...body, apiKey },
+                fetchImpl,
+                controller.signal,
+              );
           if (!res.destroyed) {
             res.writeHead(200, {
               "Content-Type": result.type,
@@ -258,13 +277,23 @@ if (
   } catch (e) {
     if (e.code !== "ENOENT") throw e;
   }
-  const port = Number(process.env.PORT || 4173);
-  const credentials = await createCredentialStore();
-  const accounts = await createAccountStore();
-  const server = createAppServer({ credentials, accounts });
-  server.listen(port, "127.0.0.1", () =>
+  const config = deploymentConfig();
+  const credentials = await createCredentialStore({
+    file: path.join(config.dataDir, "api-keys.json"),
+  });
+  const accounts = await createAccountStore({
+    file: path.join(config.dataDir, "campus-accounts.json"),
+  });
+  const server = createAppServer({
+    credentials,
+    accounts,
+    publicOrigin: config.publicOrigin,
+    setupToken: config.setupToken,
+    audioDirectory: path.join(config.dataDir, "audio"),
+  });
+  server.listen(config.port, config.host, () =>
     console.log(
-      `DataMind disponível em http://127.0.0.1:${port}\nAbra esse endereço no Chrome ou Edge. Ctrl+C encerra o servidor.`,
+      `DataMind disponível em ${config.publicOrigin || `http://127.0.0.1:${config.port}`}`,
     ),
   );
 }

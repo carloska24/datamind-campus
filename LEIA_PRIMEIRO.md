@@ -6,7 +6,7 @@ Um campus de estudo visual e narrado da aula de Data Science e Big Data na Indú
 
 Execute `INICIAR_WINDOWS.bat` ou `npm start` e abra http://127.0.0.1:4173. No primeiro acesso, crie seu administrador em **Configure seu campus**, com senha de pelo menos 12 caracteres. Depois, os alunos podem usar **Criar conta** (cadastro aberto) e **Entrar**. O avatar abre a conta; o administrador acompanha alunos e progresso, desativa/reativa acessos e gera links de recuperação. Cada aluno tem caderno e progresso próprios, salvos no servidor.
 
-Este endereço funciona somente no computador do servidor. Acesso de alunos pela internet exige hospedagem; não foi publicado nesta etapa. Veja [Contas, validação e limites](docs/ETAPA_2_CONTAS.md).
+Este endereço funciona somente no computador do servidor. Para acesso pela internet, o projeto possui configuração de serviço pago e disco persistente no Render. Veja [Publicação no Render](docs/PUBLICACAO_RENDER.md) e [Contas, validação e limites](docs/ETAPA_2_CONTAS.md), que documenta a etapa local original.
 
 ## Abrir imediatamente
 

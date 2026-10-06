@@ -37,6 +37,8 @@ export default function AccountGate() {
   const [mode, setMode] = useState<Mode>(() =>
     resetToken() ? "reset" : "login",
   );
+  const [setupProtected, setSetupProtected] = useState(false),
+    [setupToken, setSetupToken] = useState("");
   const [name, setName] = useState(""),
     [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
@@ -52,9 +54,11 @@ export default function AccountGate() {
       const session = await campusRequest<{
         user: CampusUser | null;
         needsSetup: boolean;
+        setupProtected?: boolean;
       }>("/api/auth/session");
       setAvailable(true);
       setNeedsSetup(session.needsSetup);
+      setSetupProtected(Boolean(session.setupProtected));
       if (session.needsSetup) setMode("setup");
       if (session.user && !resetToken()) {
         const study = await campusRequest<StudyRecord>(
@@ -69,7 +73,7 @@ export default function AccountGate() {
     } catch {
       setAvailable(false);
       setError(
-        "O servidor do campus está indisponível. Abra pelo iniciador local e tente novamente.",
+        "O servidor do campus está indisponível. Aguarde um momento e tente novamente. Se estiver usando no seu computador, confira o iniciador local.",
       );
     } finally {
       setLoading(false);
@@ -99,7 +103,12 @@ export default function AccountGate() {
       } else {
         const result = await campusRequest<{ user: CampusUser }>(
           `/api/auth/${mode}`,
-          { name, email, password },
+          {
+            name,
+            email,
+            password,
+            ...(mode === "setup" ? { setupToken } : {}),
+          },
         );
         const study = await campusRequest<StudyRecord>(
           "/api/study",
@@ -113,10 +122,15 @@ export default function AccountGate() {
         window.history.replaceState(
           null,
           "",
-          routeHash(parseRoute(window.location.hash, modules.length) ?? { page: "home" }),
+          routeHash(
+            parseRoute(window.location.hash, modules.length) ?? {
+              page: "home",
+            },
+          ),
         );
       }
       setPassword("");
+      setSetupToken("");
       setConfirmPassword("");
     } catch (reason) {
       setError(
@@ -250,6 +264,24 @@ export default function AccountGate() {
               </div>
             )}
             <form onSubmit={submit}>
+              {mode === "setup" && setupProtected && (
+                <label className="field">
+                  Código de ativação do administrador
+                  <input
+                    type="password"
+                    name="setupToken"
+                    autoComplete="off"
+                    required
+                    value={setupToken}
+                    onChange={(event) => setSetupToken(event.target.value)}
+                    disabled={busy}
+                  />
+                  <small>
+                    Use o SETUP_TOKEN do painel do Render. Esse código é
+                    necessário somente para criar o administrador.
+                  </small>
+                </label>
+              )}
               {(mode === "register" || mode === "setup") && (
                 <label className="field">
                   Seu nome

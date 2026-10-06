@@ -474,7 +474,8 @@ test("cadastro rejeita identidade/senha inválida e limita tentativas", async (t
       ).status,
       400,
     );
-  for (let n = 0; n < 26; n++)
+  // Successful administrator creation does not consume the failure budget.
+  for (let n = 0; n < 27; n++)
     assert.equal((await app.request("/api/auth/login", {})).status, 401);
   assert.equal((await app.request("/api/auth/login", {})).status, 429);
 });

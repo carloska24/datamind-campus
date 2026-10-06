@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: datamind-campus
+    runtime: node
+    plan: 0.5c-512mb
+    region: virginia
+    numInstances: 1
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.19.0
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: SETUP_TOKEN
+        generateValue: true
+    disk:
+      name: campus-data
+      mountPath: /var/data
+      sizeGB: 1

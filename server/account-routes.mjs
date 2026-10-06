@@ -1,4 +1,5 @@
 import { accountError, SESSION_SECONDS } from "./accounts.mjs";
+import { timingSafeEqual } from "node:crypto";
 
 export function sessionToken(req) {
   return req.headers.cookie
@@ -32,16 +33,42 @@ export async function readJson(req, maxBytes = 320000) {
     throw accountError(400, "Solicitação inválida.");
   }
 }
-export function createAccountRouter(accounts) {
+export function createAccountRouter(
+  accounts,
+  { secureCookies = false, setupToken = "" } = {},
+) {
   const attempts = new Map();
   let active = 0;
+  const waiting = [];
+  const cookieFlags = `HttpOnly; SameSite=Strict; Path=/${secureCookies ? "; Secure" : ""}`;
+  async function acquire() {
+    if (active < 2) {
+      active++;
+      return;
+    }
+    if (waiting.length >= 30)
+      throw accountError(
+        429,
+        "Há muitos acessos agora. Aguarde um momento e tente novamente.",
+      );
+    await new Promise((resolve) => waiting.push(resolve));
+  }
+  function release() {
+    const next = waiting.shift();
+    if (next) next();
+    else active--;
+  }
   return async (req, res, pathname) => {
     const token = sessionToken(req);
     const user = accounts.userFor(token);
     const publicRoutes = ["setup", "register", "login", "reset"];
     const action = pathname.slice("/api/auth/".length);
     if (pathname === "/api/auth/session" && req.method === "GET") {
-      sendJson(res, 200, { user, needsSetup: accounts.needsSetup() });
+      sendJson(res, 200, {
+        user,
+        needsSetup: accounts.needsSetup(),
+        setupProtected: Boolean(setupToken),
+      });
       return true;
     }
     if (
@@ -49,6 +76,8 @@ export function createAccountRouter(accounts) {
       req.method === "POST" &&
       publicRoutes.includes(action)
     ) {
+      // Do not trust client-supplied forwarding headers for security limits.
+      // Successful sign-ins do not consume the failure budget shared by a proxy.
       const ip = req.socket.remoteAddress;
       const now = Date.now();
       for (const [key, attempt] of attempts)
@@ -57,23 +86,35 @@ export function createAccountRouter(accounts) {
         count: 0,
         until: now + 15 * 60 * 1000,
       };
-      if (attempt.count >= 30 || active >= 2) {
+      if (attempt.count >= 30) {
         res.setHeader("Retry-After", "60");
         throw accountError(
           429,
           "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
         );
       }
-      attempt.count++;
-      attempts.set(ip, attempt);
-      active++;
+      await acquire();
       try {
         const body = await readJson(req, 4000);
+        if (action === "setup" && setupToken) {
+          const candidate = Buffer.from(
+            typeof body.setupToken === "string" ? body.setupToken : "",
+          );
+          const expected = Buffer.from(setupToken);
+          if (
+            candidate.length !== expected.length ||
+            !timingSafeEqual(candidate, expected)
+          )
+            throw accountError(
+              403,
+              "Informe o código de ativação do administrador disponível no painel do servidor.",
+            );
+        }
         if (action === "reset") {
           await accounts.resetPassword(body);
           res.setHeader(
             "Set-Cookie",
-            "datamind_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+            `datamind_session=; ${cookieFlags}; Max-Age=0`,
           );
           sendJson(res, 200, { ok: true });
         } else {
@@ -83,12 +124,18 @@ export function createAccountRouter(accounts) {
               : await accounts.create(body, action === "setup");
           res.setHeader(
             "Set-Cookie",
-            `datamind_session=${result.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${SESSION_SECONDS}`,
+            `datamind_session=${result.token}; ${cookieFlags}; Max-Age=${SESSION_SECONDS}`,
           );
           sendJson(res, 200, { user: result.user });
         }
+      } catch (error) {
+        if ([400, 401, 403, 409].includes(error.status)) {
+          attempt.count++;
+          attempts.set(ip, attempt);
+        }
+        throw error;
       } finally {
-        active--;
+        release();
       }
       return true;
     }
@@ -96,7 +143,7 @@ export function createAccountRouter(accounts) {
       accounts.logout(token);
       res.setHeader(
         "Set-Cookie",
-        "datamind_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0",
+        `datamind_session=; ${cookieFlags}; Max-Age=0`,
       );
       sendJson(res, 200, { ok: true });
       return true;

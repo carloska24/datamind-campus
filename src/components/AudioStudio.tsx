@@ -642,7 +642,7 @@ export default function AudioStudio({
                     <span>
                       {credentials[provider] === "environment"
                         ? "Chave configurada no servidor. Pronta para usar."
-                        : "Chave salva neste computador. Você não precisa inseri-la novamente."}
+                        : "Chave salva no servidor do campus. Você não precisa inseri-la novamente."}
                     </span>
                   </div>
                 )}
@@ -685,7 +685,7 @@ export default function AudioStudio({
                       >
                         {savingKey
                           ? "Atualizando…"
-                          : "Salvar chave neste computador"}
+                          : "Salvar chave no servidor"}
                       </button>
                       {credentials[provider] && (
                         <button
@@ -746,7 +746,7 @@ export default function AudioStudio({
                   <ShieldCheck size={18} />
                   <span>
                     {backend
-                      ? "Servidor local disponível. A chave salva fica na configuração privada do projeto, fora do navegador e do caderno."
+                      ? "Servidor do campus disponível. A chave salva fica na configuração privada do servidor, fora do navegador e do caderno."
                       : "Abra pelo iniciador local para habilitar as APIs."}
                   </span>
                 </div>
