@@ -40,3 +40,6 @@ Validação em 03/10/2026.
 - Sem rolagem horizontal da aplicação em 390 px nas telas verificadas. Tabelas podem rolar dentro do seu próprio painel.
 
 Limites: não houve chamada autenticada aos provedores. A qualidade da voz do navegador depende do sistema do usuário; a geração real de OpenAI/Gemini precisa ser validada com uma chave e acesso ao modelo. O texto destaca trechos, não palavras sincronizadas. Navegadores e sistemas além dos verificados podem ter diferenças em áudio, fontes e armazenamento.
+# Identidade visual do curso — 06/10/2026
+
+Build e 25 testes passaram após a integração das imagens. Conferência visual de capas, início, login/cadastro, áudio, temas claro/escuro e aula com ampliador. Layout de início/aula verificado em 390 px; Escape e retorno de foco verificados. Registro detalhado: [Direção visual do curso](DIRECAO_VISUAL_CURSO.md). O HTML portátil recebeu verificação estática de incorporação e sintaxe; a ferramenta de navegador não permite abrir `file:`.

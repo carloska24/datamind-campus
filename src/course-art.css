@@ -1,0 +1,217 @@
+.hero-visual {
+  align-self: stretch;
+  min-height: 350px;
+}
+.factory-art.course-factory-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 50% 50%;
+  transform: none;
+  border-radius: 14px;
+  filter: none;
+}
+.hero {
+  gap: 28px;
+}
+.hero-visual::after {
+  content: "ILUSTRAÇÃO · INDÚSTRIA E DADOS";
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  background: #ffffffec;
+  color: #24435b;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+.entry-art .factory-art.course-factory-art {
+  border-radius: inherit;
+}
+.audio-cover .factory-art.course-factory-art {
+  inset: 20px 20px 20px auto;
+  height: calc(100% - 40px);
+  width: 42%;
+}
+.module-art {
+  padding: 0;
+  background: #f3f7fa;
+}
+.topic-art.course-topic-art {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #f3f7fa;
+}
+.course-topic-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.course-cover-origin {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: #fffffff0;
+  color: #395269;
+  font-size: 9px;
+  line-height: 1.4;
+}
+.course-topic-art.contain img {
+  object-fit: contain;
+  padding: 24px 18px 10px;
+}
+.module-art .module-index {
+  z-index: 2;
+  background: #fff;
+  color: #164d76;
+  border: 1px solid #cad9e5;
+}
+.concept-hero .topic-art.course-topic-art {
+  width: 190px;
+  height: 120px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.course-figure {
+  padding: 26px;
+  margin: 22px 0;
+}
+.course-figure h3 {
+  line-height: 1.5;
+  margin: 10px 0 18px;
+  font-size: 19px;
+}
+.course-figure-open {
+  width: 100%;
+  border: 1px solid #cfdae2;
+  border-radius: 10px;
+  background: #fff;
+  color: #15557f;
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+.course-figure-open img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 540px;
+  object-fit: contain;
+}
+.course-figure-open > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.course-figure-open:hover {
+  border-color: var(--blue);
+}
+.course-figure .small-text {
+  margin: 18px 0 10px;
+  line-height: 1.75;
+}
+.course-figure > small {
+  color: var(--text-3);
+  font-size: 10px;
+  line-height: 1.7;
+}
+.course-figure-dialog {
+  color: var(--text);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(1280px, calc(100vw - 32px));
+  max-height: calc(100svh - 32px);
+}
+.course-figure-dialog::backdrop {
+  background: #102335bd;
+}
+.course-figure-dialog-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+.course-figure-dialog-heading h2 {
+  margin: 8px 0 0;
+  font-size: 20px;
+  line-height: 1.45;
+}
+.course-figure-dialog-heading button {
+  flex-shrink: 0;
+}
+.course-figure-scroll {
+  overflow: auto;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+.course-figure-scroll img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: min(800px, var(--figure-width, 800px));
+}
+.course-figure-dialog p {
+  font-size: 12px;
+  line-height: 1.75;
+  margin-bottom: 0;
+  color: var(--text-2);
+}
+.course-figure-scroll-hint {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .hero-visual {
+    position: relative;
+    inset: auto;
+    opacity: 1;
+    height: 300px;
+    min-height: 320px;
+  }
+}
+@media (max-width: 680px) {
+  .course-figure-scroll-hint {
+    display: block;
+  }
+  .hero-visual {
+    display: block;
+    height: 220px;
+    min-height: 220px;
+  }
+  .hero {
+    gap: 24px;
+  }
+  .audio-cover .factory-art.course-factory-art {
+    display: none;
+  }
+  .concept-hero .topic-art.course-topic-art {
+    width: 100%;
+    height: 145px;
+  }
+  .course-figure {
+    padding: 18px;
+  }
+  .course-figure-open {
+    padding: 10px;
+  }
+  .course-figure-dialog {
+    padding: 16px;
+  }
+  .course-figure-dialog-heading h2 {
+    font-size: 17px;
+  }
+}

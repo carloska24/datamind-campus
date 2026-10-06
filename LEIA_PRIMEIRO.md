@@ -64,9 +64,9 @@ As atividades têm endereço próprio. Aulas, trechos de áudio, etapas do KDD, 
 
 No início, **De onde você parou** retoma a última atividade da sua conta (ou deste navegador no modo portátil). **Próximo módulo recomendado** indica o primeiro módulo ainda não marcado como compreendido. A retomada de áudio abre o trecho salvo e aguarda seu comando. Ao concluir a trilha, o campus direciona à revisão. Veja [Etapa 1](docs/ETAPA_1_AUDITORIA.md) e [Etapa 2](docs/ETAPA_2_CONTAS.md).
 
-- Painel inicial com desenho de fábrica conectada.
+- Painel inicial com arte de equipamentos industriais e identidade visual baseada no curso.
 - Trilha de 14 módulos, busca e filtros.
-- Aulas com referência às páginas do PDF, conceito, exemplo industrial, pergunta e código.
+- Aulas com figuras originais do PDF, página e fonte, ampliação, conceito, exemplo industrial, pergunta e código.
 - Cinco etapas do KDD clicáveis, com exemplos e armadilhas.
 - Laboratório temperatura/defeitos: dispersão interativa, contagem versus taxa, destaque por produto e filtro de temperatura.
 - Laboratório produção/energia: ranking e gabarito das sete perguntas.
@@ -102,7 +102,8 @@ A versão compilada acompanha o pacote. Para apenas estudar com o servidor local
 ## Organização
 
 - `src/App.tsx`: navegação e telas de estudo.
-- `src/components/Illustrations.tsx`: ilustrações vetoriais próprias.
+- `src/components/Illustrations.tsx`: capas raster, arte industrial e ampliador das figuras do curso.
+- `public/course-art`: artes geradas e figuras originais extraídas do PDF.
 - `src/components/Charts.tsx`: gráficos e cálculos.
 - `src/components/AudioStudio.tsx`: player e configuração de voz.
 - `src/data`: conteúdo da aula e datasets.

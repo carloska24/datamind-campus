@@ -146,7 +146,7 @@
     "title": "Laboratório 2: produção e energia",
     "pages": "61–62",
     "idea": "Maior produção e melhor eficiência são perguntas diferentes.",
-    "explain": "Dados por turno: A = 1250 peças / 420 kWh; B = 1380 / 465; C = 1190 / 390; D = 1450 / 510; E = 1320 / 405. A razão produção/energia tem unidade peças/kWh. Considere produto, período e condições equivalentes para comparar máquinas na operação real.",
+    "explain": "Dados por máquina, medidos por turno: A = 1250 peças / 420 kWh; B = 1380 / 465; C = 1190 / 390; D = 1450 / 510; E = 1320 / 405. A razão produção/energia tem unidade peças/kWh. Considere produto, período e condições equivalentes para comparar máquinas na operação real.",
     "example": "D produz mais: 1450 peças. C consome menos: 390 kWh. Produção média: 1318 peças/turno. Energia média: 438 kWh/turno. Ordem de produção: D, B, E, A, C. Eficiências: A 2,9762; B 2,9677; C 3,0513; D 2,8431; E 3,2593 peças/kWh. E é a melhor por essa métrica.",
     "question": "Por que escolher D como mais eficiente seria um erro?",
     "answer": "D tem maior produção absoluta, mas gasta mais energia por peça que E. A métrica precisa combinar o resultado e o recurso consumido.",

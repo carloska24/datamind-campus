@@ -1,8 +1,8 @@
 /* =========================================================================
    DataMind Campus · Design System
-   Conceito: "Fábrica de Conhecimento à Noite"
-   Violeta = conceito | Ciano = dados/código | Menta = prática/acerto
-   Âmbar = pare e pense | Coral = armadilha/erro
+   Identidade: ensino de dados para a indústria, a partir da Aula 01.
+   Marca vermelha | Azul técnico | Verde = prática/acerto
+   Âmbar = pare e pense | Vermelho = alerta/erro
    ========================================================================= */
 
 /* ---------- 1. Tokens ---------- */
@@ -3859,5 +3859,335 @@ td {
     border: 0;
     background: #fff;
     min-height: 150px;
+  }
+}
+
+/* Course identity: a technical learning environment inspired by the supplied
+   slides. Keep the existing component geometry and responsive behavior. */
+:root {
+  --font-display: "Inter", "Aptos", "Segoe UI", system-ui, sans-serif;
+  --brand: #ef6c7b;
+  --brand-action: #bd1029;
+  --brand-action-hover: #a00d22;
+  --brand-soft: rgba(239, 108, 123, 0.1);
+  --bg: #141c25;
+  --bg-2: #182430;
+  --surface: #1c2834;
+  --surface-2: #243241;
+  --surface-3: #304153;
+  --surface-solid: #1c2834;
+  --surface-raised: #253442;
+  --border: #324252;
+  --border-strong: #4c6175;
+  --text: #f1f5f8;
+  --text-2: #c5d0da;
+  --text-3: #a4b6c6;
+  --violet: #b6a2d5;
+  --violet-2: #c3b3df;
+  --cyan: #83bfdd;
+  --blue: #8ab8ed;
+  --mint: #7cccaa;
+  --amber: #eac073;
+  --coral: #ef8b95;
+  --violet-soft: rgba(182, 162, 213, 0.1);
+  --cyan-soft: rgba(131, 191, 221, 0.1);
+  --blue-soft: rgba(138, 184, 237, 0.1);
+  --mint-soft: rgba(124, 204, 170, 0.1);
+  --amber-soft: rgba(234, 192, 115, 0.1);
+  --coral-soft: rgba(239, 139, 149, 0.1);
+  --grad: linear-gradient(var(--brand-action), var(--brand-action));
+  --grad-mint: linear-gradient(#237850, #237850);
+  --grad-hero: var(--surface-solid);
+  --art-paper: #f7f9fb;
+  --bar-muted: #486d8c;
+  --grid-line: #344655;
+  --chart-text: #a4b6c6;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --blur: none;
+  --shadow: 0 5px 20px rgba(0, 0, 0, 0.14);
+  --shadow-glow: 0 5px 20px rgba(0, 0, 0, 0.14);
+}
+
+[data-theme="light"] {
+  --brand: #bd1029;
+  --brand-soft: #fceef0;
+  --bg: #f5f7f9;
+  --bg-2: #edf2f6;
+  --surface: #fff;
+  --surface-2: #f2f5f8;
+  --surface-3: #e4ebf1;
+  --surface-solid: #fff;
+  --surface-raised: #fff;
+  --border: #dde5ec;
+  --border-strong: #bac9d7;
+  --text: #172b3e;
+  --text-2: #43596c;
+  --text-3: #586c7d;
+  --violet: #654898;
+  --violet-2: #654898;
+  --cyan: #096888;
+  --blue: #175fa4;
+  --mint: #24744c;
+  --amber: #955b06;
+  --coral: #b92036;
+  --violet-soft: #f0ebf7;
+  --cyan-soft: #e7f2f8;
+  --blue-soft: #eaf1fb;
+  --mint-soft: #eaf5ee;
+  --amber-soft: #fff5e2;
+  --coral-soft: #fceef0;
+  --grad-hero: #fff;
+  --bar-muted: #a9c3d8;
+  --grid-line: #dce5ec;
+  --chart-text: #586c7d;
+  --shadow: 0 5px 20px rgba(28, 56, 79, 0.06);
+  --shadow-glow: 0 5px 20px rgba(28, 56, 79, 0.06);
+}
+
+::selection {
+  background: #cce3f3;
+  color: #16364e;
+}
+.aurora,
+.hero-dot,
+.hero::before,
+.hero::after,
+.audio-cover::before,
+.module-art::after {
+  display: none;
+}
+.app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #e50020;
+  z-index: 65;
+}
+.scroll-progress {
+  top: 4px;
+  height: 2px;
+  background: var(--blue);
+  box-shadow: none;
+}
+.sidebar,
+.topbar,
+.panel,
+.module-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.sidebar {
+  box-shadow: var(--shadow);
+}
+.topbar {
+  background: var(--bg);
+}
+.brand-icon {
+  background: var(--brand-action);
+  border-radius: 10px;
+  box-shadow: none;
+}
+.brand-accent {
+  background: none;
+  color: var(--brand);
+  -webkit-text-fill-color: var(--brand);
+}
+.sidebar nav button.active {
+  background: var(--brand-soft);
+  border-color: transparent;
+}
+.sidebar nav button.active::before {
+  background: var(--brand);
+  box-shadow: none;
+}
+.sidebar nav button.active svg {
+  color: var(--brand);
+}
+.avatar {
+  background: var(--blue);
+  color: #fff;
+}
+[data-theme="dark"] .avatar {
+  background: #2f5d83;
+}
+.course-pill > span {
+  animation: none;
+  box-shadow: none;
+}
+.panel {
+  box-shadow: var(--shadow);
+}
+.icon-box,
+.button,
+.icon-button {
+  border-radius: 9px;
+}
+.button.primary,
+.button.white {
+  background: var(--brand-action);
+  color: #fff;
+  box-shadow: none;
+}
+.button.primary:hover:not(:disabled),
+.button.white:hover:not(:disabled) {
+  background: var(--brand-action-hover);
+  box-shadow: 0 3px 10px rgba(140, 18, 39, 0.15);
+}
+.button.secondary:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+.tag {
+  border-color: var(--border);
+}
+.bento-card::before {
+  display: none;
+}
+.mini-kdd i {
+  animation: none;
+  box-shadow: none;
+}
+.path-overview button > span,
+.lab-switch button.active,
+.review-dots button.active {
+  background: var(--blue);
+  box-shadow: none;
+}
+[data-theme="dark"] .path-overview button > span,
+[data-theme="dark"] .lab-switch button.active,
+[data-theme="dark"] .review-dots button.active {
+  background: #2f5d83;
+}
+.kdd-core {
+  box-shadow: var(--shadow);
+}
+.data-orbit > span:nth-child(n) {
+  animation: none;
+  box-shadow: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--blue-soft);
+  border-color: var(--blue);
+}
+.hero {
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-top: 5px solid #e50020;
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.hero h2,
+.audio-cover h2 {
+  color: var(--text);
+}
+.hero em {
+  background: none;
+  color: var(--blue);
+  -webkit-text-fill-color: var(--blue);
+}
+.hero p,
+.hero-meta,
+.audio-cover p {
+  color: var(--text-2);
+}
+.hero-tag {
+  background: var(--blue-soft);
+  border-color: var(--border);
+  color: var(--blue);
+  border-radius: 7px;
+  backdrop-filter: none;
+}
+.hero .button.ghost-white {
+  background: var(--surface-solid);
+  color: var(--blue);
+  border-color: var(--border-strong);
+  backdrop-filter: none;
+}
+.hero .button.ghost-white:hover {
+  background: var(--blue-soft);
+}
+.hero-progress {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  backdrop-filter: none;
+}
+.hero-progress strong {
+  color: var(--text);
+}
+.hero-progress small {
+  color: var(--text-2);
+}
+.progress-ring .ring-track,
+[data-theme="light"] .sidebar .progress-ring .ring-track {
+  stroke: var(--border);
+}
+.factory-art {
+  filter: none;
+}
+.art-float,
+.art-float.delay {
+  animation: none;
+}
+.module-card {
+  --tone: var(--blue);
+  --tone-soft: var(--blue-soft);
+  background: var(--surface-solid);
+}
+.module-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--tone) 45%, var(--border));
+  box-shadow: var(--shadow);
+}
+.module-art {
+  background: var(--art-paper);
+}
+.module-index {
+  background: var(--surface-solid);
+  border-color: var(--border);
+  border-radius: 6px;
+  backdrop-filter: none;
+}
+.completed-badge {
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--surface-solid);
+}
+.module-category {
+  letter-spacing: 0.1em;
+}
+.audio-cover {
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--blue);
+}
+.audio-cover .light-label {
+  color: var(--blue);
+}
+.play-button {
+  box-shadow: 0 0 0 5px var(--brand-soft);
+}
+.play-button:hover:not(:disabled) {
+  background: var(--brand-action-hover);
+  box-shadow: 0 0 0 7px var(--brand-soft);
+}
+.waveform i.moving {
+  background: var(--blue);
+  box-shadow: none;
+}
+.notice.error {
+  border-color: color-mix(in srgb, var(--coral) 25%, var(--border));
+}
+.notice.success {
+  border-color: color-mix(in srgb, var(--mint) 25%, var(--border));
+}
+
+@media print {
+  .app-shell::before {
+    display: none;
   }
 }

@@ -46,7 +46,7 @@ import {
   type Page,
   type CampusRoute,
 } from "./navigation";
-import { FactoryArt, TopicArt } from "./components/Illustrations";
+import { CourseFigure, FactoryArt, TopicArt } from "./components/Illustrations";
 import { Scatter, MachineBars, correlation, number } from "./components/Charts";
 import AudioStudio from "./components/AudioStudio";
 import AccountPanel from "./components/AccountPanel";
@@ -62,6 +62,7 @@ import {
   type Command,
 } from "./components/Campus";
 import "./styles.css";
+import "./course-art.css";
 const modules: Module[] = rawModules;
 const categories = [
   "Todos",
@@ -98,11 +99,9 @@ function initialTheme(): "dark" | "light" {
   try {
     const t = localStorage.getItem("datamind-theme");
     if (t === "dark" || t === "light") return t;
-    return matchMedia("(prefers-color-scheme: light)").matches
-      ? "light"
-      : "dark";
+    return "light";
   } catch {
-    return "dark";
+    return "light";
   }
 }
 function validState(s: unknown): s is StudyState {
@@ -371,7 +370,7 @@ export default function App({
           onClick={() => go("lesson", m.id)}
         >
           <div className="module-art">
-            <TopicArt kind={m.id % 4} tone={toneOf(m.category)} />
+            <TopicArt moduleId={m.id} />
             <span className="module-index">
               {String(m.id + 1).padStart(2, "0")}
             </span>
@@ -642,11 +641,11 @@ export default function App({
                       AULA 01 · FUNDAMENTOS E PRÁTICA
                     </span>
                     <h2>
-                      Abra a mente.
+                      Data Science
                       <br />
-                      Encontre sentido
+                      & Big Data
                       <br />
-                      <em>nos dados.</em>
+                      <em>na indústria.</em>
                     </h2>
                     <p>
                       Entenda os conceitos, explore os processos e experimente
@@ -1339,7 +1338,12 @@ function Lesson({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (/INPUT|TEXTAREA|SELECT/.test(t.tagName) || e.ctrlKey || e.metaKey)
+      if (
+        /INPUT|TEXTAREA|SELECT/.test(t.tagName) ||
+        e.ctrlKey ||
+        e.metaKey ||
+        document.querySelector("dialog[open]")
+      )
         return;
       if (e.key === "ArrowRight" && m.id < 13) onNext();
       if (e.key === "ArrowLeft" && m.id > 0) onPrev();
@@ -1382,7 +1386,7 @@ function Lesson({
       <div className="lesson-grid">
         <div>
           <div className="concept-hero">
-            <TopicArt kind={m.id % 4} tone={toneOf(m.category)} />
+            <TopicArt moduleId={m.id} />
             <div>
               <span className="eyebrow">A IDEIA QUE VOCÊ LEVA</span>
               <h2>{m.idea}</h2>
@@ -1415,6 +1419,7 @@ function Lesson({
               </>
             )}
           </article>
+          <CourseFigure key={m.id} moduleId={m.id} />
           <div className="panel thinking-card">
             <span className="tag peach">
               <Lightbulb size={15} />

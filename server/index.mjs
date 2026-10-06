@@ -15,6 +15,8 @@ const types = {
   ".pdf": "application/pdf",
   ".ipynb": "application/json",
   ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
   ".ico": "image/x-icon",
 };
 function json(res, status, data) {
