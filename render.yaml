@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: datamind-campus
+    name: senaidatascienceebigdata
     runtime: node
     plan: 0.5c-512mb
     region: virginia
