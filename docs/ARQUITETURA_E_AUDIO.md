@@ -1,14 +1,14 @@
 # Arquitetura
 
-React + TypeScript + Vite. Componentes de UI, ilustrações SVG e ícones Lucide. CSS próprio com regras de responsividade. Conteúdo local em JSON. Sem banco de dados ou login.
+React + TypeScript + Vite. Componentes de UI, ilustrações SVG e ícones Lucide. CSS próprio com regras de responsividade. Conteúdo local em JSON. O servidor oferece login, cadastro aberto, administração de contas e estudo persistido por usuário em arquivo privado. A versão portátil conserva estudo individual. Veja [Contas de alunos](ETAPA_2_CONTAS.md) para decisões e limites.
 
 Servidor Node.js com módulos nativos; sem dependências para iniciar a versão já compilada. Bind exclusivo em 127.0.0.1, validação de Host e Origin, limite de corpo, máximo de duas gerações simultâneas, timeout de 90 segundos, cancelamento de requisição encerrada e endpoints fixos dos provedores.
 
 ## Audio
 
-A tela faz POST `/api/tts` com provedor, módulo, trecho e voz. O servidor usa a chave configurada no ambiente (`OPENAI_API_KEY`, `GEMINI_API_KEY` ou `GOOGLE_API_KEY`) ou, em seguida, a chave salva em `.local/api-keys.json`. Na ausência dessas configurações, aceita uma chave temporária enviada no pedido. O `.env` da raiz é carregado ao iniciar, sem substituir variáveis já definidas no processo.
+A tela faz POST `/api/tts` com provedor, módulo, trecho e voz, em sessão autenticada. O servidor usa a chave configurada no ambiente (`OPENAI_API_KEY`, `GEMINI_API_KEY` ou `GOOGLE_API_KEY`) ou, em seguida, a chave salva em `.local/api-keys.json`. Chaves temporárias enviadas com o pedido de áudio não são usadas. O `.env` da raiz é carregado ao iniciar, sem substituir variáveis já definidas no processo.
 
-POST `/api/credentials` salva ou substitui uma chave; DELETE `/api/credentials` remove a configuração local do provedor. Ambas as rotas exigem origem local autorizada e corpo JSON. O arquivo é atualizado por gravação temporária e renomeação, com operações serializadas. As permissões de arquivo são restritas nos sistemas que suportam os modos POSIX. A configuração não é criptografada e depende das permissões locais do usuário; `.local` é ignorada no Git e não entra em `dist`.
+POST `/api/credentials` salva ou substitui uma chave; DELETE `/api/credentials` remove a configuração local do provedor. Ambas as rotas exigem sessão de administrador, origem local autorizada e corpo JSON. O arquivo é atualizado por gravação temporária e renomeação, com operações serializadas. As permissões de arquivo são restritas nos sistemas que suportam os modos POSIX. A configuração não é criptografada e depende das permissões locais do usuário; `.local` é ignorada no Git e não entra em `dist`.
 
 GET `/api/health` informa apenas se cada provedor está configurado e a origem da configuração, sem devolver chaves. A tela reconhece a configuração ao abrir e guarda somente a preferência de provedor no navegador. A chave digitada é apagada do campo após salvar ou trocar de provedor. A interface não modifica variáveis de ambiente.
 

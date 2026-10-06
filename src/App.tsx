@@ -31,6 +31,7 @@ import {
   Sun,
   Target,
   Upload,
+  UserRound,
   X,
 } from "lucide-react";
 import rawModules from "./data/modules.json";
@@ -48,6 +49,8 @@ import {
 import { FactoryArt, TopicArt } from "./components/Illustrations";
 import { Scatter, MachineBars, correlation, number } from "./components/Charts";
 import AudioStudio from "./components/AudioStudio";
+import AccountPanel from "./components/AccountPanel";
+import { useStudySync, type CampusUser, type StudyRecord } from "./accounts";
 import {
   CodeBlock,
   CommandPalette,
@@ -135,15 +138,39 @@ function initialActivity(): CampusRoute | null {
     return null;
   }
 }
-export default function App() {
+export default function App({
+  account,
+  initialRecord,
+  onLogout,
+}: {
+  account?: CampusUser;
+  initialRecord?: StudyRecord;
+  onLogout?: () => Promise<void>;
+}) {
+  const [accountOpen, setAccountOpen] = useState(false);
+  const displayName = account?.name || "Carlos Pereira";
+  const initials = displayName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
   const [route, setRoute] = useState<CampusRoute>(
       () =>
         parseRoute(window.location.hash, modules.length) ?? { page: "home" },
     ),
-    [lastActivity, setLastActivity] = useState<CampusRoute | null>(
-      initialActivity,
+    [lastActivity, setLastActivity] = useState<CampusRoute | null>(() =>
+      initialRecord
+        ? initialRecord.lastActivity
+          ? parseRoute(initialRecord.lastActivity, modules.length)
+          : null
+        : initialActivity(),
     ),
-    [study, setStudy] = useState<StudyState>(initialState),
+    [study, setStudy] = useState<StudyState>(() =>
+      initialRecord
+        ? { done: initialRecord.done, notes: initialRecord.notes }
+        : initialState(),
+    ),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("Todos"),
     [menu, setMenu] = useState(false),
@@ -152,6 +179,7 @@ export default function App() {
     [theme, setTheme] = useState<"dark" | "light">(initialTheme),
     [palette, setPalette] = useState(false),
     [celebrate, setCelebrate] = useState(0);
+  const sync = useStudySync(study, lastActivity, initialRecord, account?.id);
   const next = modules.find((m) => !study.done.includes(m.id)) || modules[0];
   const page = route.page,
     current = route.moduleId ?? 0;
@@ -194,7 +222,7 @@ export default function App() {
     if (!isStudyRoute(route)) return;
     setLastActivity(route);
     try {
-      localStorage.setItem(activityKey, routeHash(route));
+      if (!account) localStorage.setItem(activityKey, routeHash(route));
     } catch {}
   }, [route]);
   useEffect(() => {
@@ -214,13 +242,14 @@ export default function App() {
     return () => removeEventListener("keydown", onKey);
   }, []);
   useEffect(() => {
+    if (account) return;
     try {
       localStorage.setItem("aula01-studio-v2", JSON.stringify(study));
       setSaved(true);
     } catch {
       setSaved(false);
     }
-  }, [study]);
+  }, [study, account]);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(""), 4000);
@@ -445,11 +474,29 @@ export default function App() {
           </button>
         </div>
         <div className="sidebar-bottom">
-          <span className="avatar">CP</span>
+          <span className="avatar">{initials}</span>
           <div>
-            <strong>Carlos Pereira</strong>
-            <small>Pós-graduação · SENAI</small>
+            <strong>{displayName}</strong>
+            <small>
+              {account
+                ? account.role === "admin"
+                  ? "Administrador do campus"
+                  : "Aluno · Aula 01"
+                : "Modo portátil · estudo local"}
+            </small>
           </div>
+          {account && (
+            <button
+              className="icon-button"
+              aria-label="Abrir minha conta"
+              onClick={() => {
+                setMenu(false);
+                setAccountOpen(true);
+              }}
+            >
+              <UserRound size={19} />
+            </button>
+          )}
         </div>
       </aside>
       {menu && (
@@ -503,10 +550,63 @@ export default function App() {
             >
               {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <span className="avatar small">CP</span>
+            {account ? (
+              <button
+                className="avatar small account-trigger"
+                aria-label={
+                  account.role === "admin"
+                    ? "Gerenciar alunos e minha conta"
+                    : "Minha conta"
+                }
+                onClick={() => setAccountOpen(true)}
+              >
+                {initials}
+              </button>
+            ) : (
+              <span className="avatar small">{initials}</span>
+            )}
           </div>
         </header>
         <main>
+          {account && (
+            <div
+              className={`account-sync ${sync.status}`}
+              role={sync.error ? "alert" : "status"}
+            >
+              <span>
+                {sync.status === "saved"
+                  ? "Estudo salvo na sua conta"
+                  : sync.status === "saving"
+                    ? "Salvando seu estudo…"
+                    : sync.error}
+              </span>
+              {sync.status === "error" && (
+                <div>
+                  <button className="text-link" onClick={exportNotes}>
+                    Exportar cópia
+                  </button>
+                  {!sync.conflict && (
+                    <button className="text-link" onClick={sync.retry}>
+                      Tentar salvar novamente
+                    </button>
+                  )}
+                  <button
+                    className="text-link"
+                    onClick={() => {
+                      if (
+                        confirm(
+                          "Exporte uma cópia antes de recarregar. As alterações ainda não salvas serão descartadas. Continuar?",
+                        )
+                      )
+                        window.location.reload();
+                    }}
+                  >
+                    Recarregar
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           <div
             className="page-enter"
             key={`${page}-${page === "lesson" ? current : ""}`}
@@ -515,7 +615,7 @@ export default function App() {
               <>
                 {heading(
                   "DATAMIND CAMPUS · AULA 01",
-                  `${greeting()}, Carlos`,
+                  `${greeting()}, ${displayName.split(" ")[0]}`,
                   "Vamos transformar a experiência da fábrica em raciocínio com dados.",
                 )}
                 {lastActivity && !allDone && (
@@ -921,7 +1021,8 @@ export default function App() {
                 onNext={() => go("lesson", Math.min(13, current + 1))}
                 onPrev={() => go("lesson", Math.max(0, current - 1))}
                 onAudio={() => go("audio", current)}
-                saved={saved}
+                saved={account ? sync.status === "saved" : saved}
+                onlineAccount={!!account}
               />
             )}
             {page === "kdd" && (
@@ -942,6 +1043,7 @@ export default function App() {
             )}
             {page === "audio" && (
               <AudioStudio
+                canManageCredentials={account?.role === "admin"}
                 modules={modules}
                 initial={current}
                 initialSegment={route.position ?? 0}
@@ -968,10 +1070,18 @@ export default function App() {
                 )}
                 <div className="note-toolbar">
                   <span>
-                    <ShieldSaved saved={saved} />
-                    {saved
-                      ? "Caderno salvo neste navegador"
-                      : "Armazenamento bloqueado; exporte uma cópia"}
+                    <ShieldSaved
+                      saved={account ? sync.status === "saved" : saved}
+                    />
+                    {account
+                      ? sync.status === "saved"
+                        ? "Caderno salvo na sua conta"
+                        : sync.status === "saving"
+                          ? "Salvando caderno…"
+                          : "Caderno com alterações não salvas"
+                      : saved
+                        ? "Caderno salvo neste navegador"
+                        : "Armazenamento bloqueado; exporte uma cópia"}
                   </span>
                   <div className="button-row">
                     <button className="button primary" onClick={exportNotes}>
@@ -1159,6 +1269,40 @@ export default function App() {
         commands={commands}
       />
       <Confetti fire={celebrate} />
+      {accountOpen && account && onLogout && (
+        <AccountPanel
+          user={account}
+          onClose={() => setAccountOpen(false)}
+          onLogout={async () => {
+            if (
+              sync.status !== "saved" &&
+              !confirm(
+                "Há alterações não salvas. Exporte uma cópia do caderno antes de sair. Sair mesmo assim?",
+              )
+            )
+              return false;
+            await onLogout();
+          }}
+          onRestore={() => {
+            const previous = initialState();
+            if (!previous.done.length && !Object.keys(previous.notes).length) {
+              setToast(
+                "Nenhum estudo anterior foi encontrado neste navegador.",
+              );
+              return;
+            }
+            if (
+              confirm(
+                "Importar seu estudo anterior? O progresso e o caderno desta conta serão substituídos.",
+              )
+            ) {
+              setStudy(previous);
+              setLastActivity(initialActivity());
+              setAccountOpen(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1176,6 +1320,7 @@ function Lesson({
   onPrev,
   onAudio,
   saved,
+  onlineAccount,
 }: {
   module: Module;
   done: boolean;
@@ -1187,6 +1332,7 @@ function Lesson({
   onPrev: () => void;
   onAudio: () => void;
   saved: boolean;
+  onlineAccount: boolean;
 }) {
   const [reveal, setReveal] = useState(false);
   useEffect(() => setReveal(false), [m.id]);
@@ -1333,7 +1479,9 @@ function Lesson({
             />
             <small>
               {saved
-                ? "Salvo neste navegador"
+                ? onlineAccount
+                  ? "Salvo na sua conta"
+                  : "Salvo neste navegador"
                 : "Exporte uma cópia pelo caderno"}
             </small>
             <div className="completion">

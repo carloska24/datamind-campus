@@ -53,11 +53,13 @@ export default function AudioStudio({
   initial = 0,
   initialSegment = 0,
   onPositionChange,
+  canManageCredentials = false,
 }: {
   modules: Module[];
   initial?: number;
   initialSegment?: number;
   onPositionChange?: (moduleId: number, position: number) => void;
+  canManageCredentials?: boolean;
 }) {
   const [moduleId, setModuleId] = useState(initial),
     [provider, setProvider] = useState(() => preferredProvider() || "browser"),
@@ -262,8 +264,12 @@ export default function AudioStudio({
       );
       return;
     }
-    if (!apiKey.trim() && !credentials[provider]) {
-      setError("Insira sua chave de API para gerar este trecho.");
+    if (!credentials[provider]) {
+      setError(
+        canManageCredentials
+          ? "Salve a chave de API para gerar este trecho."
+          : "O administrador ainda não configurou este provedor. Use a voz do navegador.",
+      );
       return;
     }
     setStatus("loading");
@@ -278,7 +284,6 @@ export default function AudioStudio({
           signal: controller.current.signal,
           body: JSON.stringify({
             provider,
-            ...(credentials[provider] ? {} : { apiKey }),
             moduleId,
             sectionIndex: n,
             voice: provider === "openai" ? voice : gemVoice,
@@ -565,7 +570,9 @@ export default function AudioStudio({
             </span>
             <h3>Escolha a sua voz</h3>
             <p className="muted">
-              Salve sua chave uma vez e use nas próximas aulas.
+              {canManageCredentials
+                ? "Configure a narração para os alunos do campus."
+                : "Escolha a narração disponível para suas aulas."}
             </p>
             <div className="provider-options">
               {[
@@ -636,57 +643,58 @@ export default function AudioStudio({
                     </span>
                   </div>
                 )}
-                {credentials[provider] !== "environment" && (
-                  <>
-                    <label className="field">
-                      <span>
-                        <KeyRound size={15} />
-                        {credentials[provider]
-                          ? "Substituir chave de API"
-                          : "Sua chave de API"}
-                      </span>
-                      <input
-                        type="password"
-                        autoComplete="off"
-                        disabled={savingKey || !backend}
-                        placeholder={
-                          provider === "openai"
-                            ? "Chave da OpenAI Platform"
-                            : "Chave do Google AI Studio"
-                        }
-                        value={apiKey}
-                        onChange={(e) => {
-                          clearAudio();
-                          setApiKey(e.target.value);
-                        }}
-                      />
-                      <small>
-                        Salve para reutilizar a chave mesmo após fechar o
-                        projeto.
-                      </small>
-                    </label>
-                    <button
-                      className="button primary"
-                      disabled={
-                        !backend || savingKey || apiKey.trim().length < 10
-                      }
-                      onClick={() => void updateCredential()}
-                    >
-                      {savingKey
-                        ? "Atualizando…"
-                        : "Salvar chave neste computador"}
-                    </button>
-                    {credentials[provider] && (
+                {canManageCredentials &&
+                  credentials[provider] !== "environment" && (
+                    <>
+                      <label className="field">
+                        <span>
+                          <KeyRound size={15} />
+                          {credentials[provider]
+                            ? "Substituir chave de API"
+                            : "Sua chave de API"}
+                        </span>
+                        <input
+                          type="password"
+                          autoComplete="off"
+                          disabled={savingKey || !backend}
+                          placeholder={
+                            provider === "openai"
+                              ? "Chave da OpenAI Platform"
+                              : "Chave do Google AI Studio"
+                          }
+                          value={apiKey}
+                          onChange={(e) => {
+                            clearAudio();
+                            setApiKey(e.target.value);
+                          }}
+                        />
+                        <small>
+                          Salve para reutilizar a chave mesmo após fechar o
+                          projeto.
+                        </small>
+                      </label>
                       <button
-                        className="text-link clear-key"
-                        disabled={savingKey || !backend}
-                        onClick={() => void updateCredential(true)}
+                        className="button primary"
+                        disabled={
+                          !backend || savingKey || apiKey.trim().length < 10
+                        }
+                        onClick={() => void updateCredential()}
                       >
-                        Remover chave salva
+                        {savingKey
+                          ? "Atualizando…"
+                          : "Salvar chave neste computador"}
                       </button>
-                    )}
-                  </>
-                )}
+                      {credentials[provider] && (
+                        <button
+                          className="text-link clear-key"
+                          disabled={savingKey || !backend}
+                          onClick={() => void updateCredential(true)}
+                        >
+                          Remover chave salva
+                        </button>
+                      )}
+                    </>
+                  )}
                 <label className="field">
                   Voz
                   <select
@@ -706,7 +714,16 @@ export default function AudioStudio({
                     ))}
                   </select>
                 </label>
-                {provider === "gemini" && (
+                {!canManageCredentials && !credentials[provider] && (
+                  <div className="notice">
+                    <ShieldCheck size={18} />
+                    <span>
+                      Este provedor ainda não foi configurado pelo
+                      administrador. Você pode usar a voz do navegador.
+                    </span>
+                  </div>
+                )}
+                {canManageCredentials && provider === "gemini" && (
                   <label className="field">
                     Modelo TTS
                     <input
@@ -731,24 +748,36 @@ export default function AudioStudio({
                   </span>
                 </div>
                 <p className="small-text">
-                  Ao clicar em reproduzir, o texto do trecho é enviado ao
-                  serviço escolhido. A API pode ter cobrança própria e precisa
-                  de acesso a um modelo de voz. A assinatura do aplicativo não
-                  configura uma chave neste projeto.
+                  {canManageCredentials ? (
+                    <>
+                      Ao clicar em reproduzir, o texto do trecho é enviado ao
+                      serviço escolhido. A API pode ter cobrança própria e
+                      precisa de acesso a um modelo de voz. A assinatura do
+                      aplicativo não configura uma chave neste projeto.
+                    </>
+                  ) : (
+                    <>
+                      A voz é sintética. Ao reproduzir, o roteiro da aula é
+                      enviado ao serviço escolhido. Suas anotações não fazem
+                      parte desse envio.
+                    </>
+                  )}
                 </p>
-                <a
-                  className="text-link"
-                  target="_blank"
-                  rel="noreferrer"
-                  href={
-                    provider === "openai"
-                      ? "https://platform.openai.com/api-keys"
-                      : "https://aistudio.google.com/api-keys"
-                  }
-                >
-                  Abrir painel de chaves
-                  <ChevronRight size={14} />
-                </a>
+                {canManageCredentials && (
+                  <a
+                    className="text-link"
+                    target="_blank"
+                    rel="noreferrer"
+                    href={
+                      provider === "openai"
+                        ? "https://platform.openai.com/api-keys"
+                        : "https://aistudio.google.com/api-keys"
+                    }
+                  >
+                    Abrir painel de chaves
+                    <ChevronRight size={14} />
+                  </a>
+                )}
               </>
             )}
             <div className="audio-hint">

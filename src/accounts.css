@@ -1,0 +1,424 @@
+.account-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.8fr);
+  gap: 64px;
+  align-items: center;
+  max-width: 1320px;
+  min-height: 100svh;
+  padding: 48px 64px;
+  margin: auto;
+}
+.entry-story {
+  position: relative;
+  min-width: 0;
+}
+.entry-story .brand {
+  margin-bottom: 54px;
+}
+.entry-copy h1 {
+  font: 600 clamp(30px, 3.5vw, 48px)/1.17 var(--font-display);
+  letter-spacing: -1.6px;
+  margin: 16px 0 18px;
+}
+.entry-copy h1 span {
+  color: var(--violet-2);
+}
+.entry-copy p {
+  color: var(--text-2);
+  max-width: 470px;
+  line-height: 1.8;
+}
+.entry-art {
+  position: relative;
+  max-width: 510px;
+  height: 245px;
+  margin: 25px 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--grad-hero);
+}
+.entry-art .factory-art {
+  position: static;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  transform: none;
+}
+.entry-benefits {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  color: var(--text-2);
+  font-size: 12px;
+}
+.entry-benefits span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.entry-benefits svg {
+  color: var(--cyan);
+}
+.entry-form {
+  padding: 36px;
+  width: 100%;
+  z-index: 1;
+  box-shadow: var(--shadow);
+}
+.entry-form > .icon-box {
+  margin-bottom: 22px;
+}
+.entry-form > .eyebrow {
+  display: block;
+  font-size: 10px;
+}
+.entry-form h2 {
+  font-size: 27px;
+  letter-spacing: -0.8px;
+  margin: 12px 0;
+}
+.entry-form > p {
+  font-size: 13px;
+  line-height: 1.8;
+}
+.entry-tabs {
+  display: flex;
+  border-radius: 12px;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  margin: 24px 0;
+}
+.entry-tabs button {
+  border: 0;
+  background: transparent;
+  flex: 1;
+  border-radius: 9px;
+  padding: 10px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+.entry-tabs button[aria-pressed="true"] {
+  background: var(--violet-soft);
+  color: var(--violet-2);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.entry-form form {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+.entry-form .field {
+  margin: 0;
+  gap: 7px;
+  font-size: 12px;
+}
+.entry-form .field > span {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.entry-form .field input {
+  width: 100%;
+  min-width: 0;
+}
+.entry-submit {
+  width: 100%;
+  margin-top: 8px;
+  justify-content: center;
+}
+.entry-footnote {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 28px;
+}
+.entry-recovery {
+  font-size: 12px;
+  color: var(--text-2);
+  margin-top: 20px;
+  line-height: 1.8;
+}
+.entry-recovery summary {
+  cursor: pointer;
+  color: var(--violet-2);
+}
+.entry-recovery p {
+  margin-top: 12px;
+}
+.entry-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.account-trigger {
+  border: 0;
+  cursor: pointer;
+  font-size: 11px;
+}
+.sidebar-bottom {
+  gap: 10px;
+}
+.sidebar-bottom > div {
+  min-width: 0;
+  flex: 1;
+}
+.sidebar-bottom strong {
+  overflow-wrap: anywhere;
+}
+.account-sync {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: -10px 0 18px;
+  color: var(--text-3);
+  font-size: 11px;
+}
+.account-sync.error {
+  border: 1px solid var(--coral);
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--coral-soft);
+  color: var(--coral);
+  justify-content: flex-start;
+}
+.account-sync.error > div {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.account-dialog {
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100svh - 40px);
+  padding: 30px;
+  border: 1px solid var(--border-strong);
+  border-radius: 24px;
+  color: var(--text);
+  background: var(--surface-solid);
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+}
+.account-dialog::backdrop {
+  background: rgba(3, 7, 18, 0.7);
+  backdrop-filter: blur(7px);
+}
+.account-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.account-dialog-head h2 {
+  margin: 10px 0 0;
+  font-size: 25px;
+}
+.account-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+}
+.account-identity > div {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.account-identity span:not(.icon-box),
+.account-identity small {
+  font-size: 12px;
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+.account-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
+}
+.account-metrics > div {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  column-gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--violet-soft);
+}
+.account-metrics svg {
+  color: var(--violet-2);
+  grid-row: span 2;
+}
+.account-metrics strong {
+  font-size: 22px;
+}
+.account-metrics span {
+  font-size: 11px;
+  color: var(--text-2);
+}
+.account-empty {
+  text-align: center;
+  padding: 30px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 16px;
+  color: var(--text-2);
+}
+.account-empty svg,
+.account-empty strong {
+  display: block;
+  margin: 0 auto 12px;
+}
+.account-empty p {
+  font-size: 13px;
+}
+.member-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.member-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px auto;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  background: var(--surface);
+}
+.member-card > div:first-child {
+  display: grid;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.member-card span,
+.member-card small {
+  font-size: 11px;
+  color: var(--text-2);
+}
+.member-progress {
+  display: grid;
+  gap: 5px;
+}
+.member-progress strong {
+  color: var(--cyan);
+  font-size: 19px;
+}
+.member-progress progress {
+  width: 100%;
+  height: 5px;
+  accent-color: var(--violet);
+}
+.member-actions {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+.member-actions button {
+  font-size: 11px;
+}
+.member-actions .button {
+  padding: 9px 12px;
+}
+.reset-share {
+  align-items: flex-start;
+  margin: 20px 0;
+}
+.reset-share > div {
+  flex: 1;
+  min-width: 0;
+}
+.reset-share input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 11px;
+}
+.reset-share p {
+  font-size: 12px;
+}
+@media (max-width: 950px) {
+  .account-entry {
+    gap: 32px;
+    padding: 32px;
+  }
+  .entry-copy h1 {
+    font-size: 34px;
+  }
+  .entry-art {
+    height: 190px;
+  }
+  .entry-benefits {
+    gap: 14px;
+  }
+  .entry-form {
+    padding: 26px;
+  }
+}
+@media (max-width: 650px) {
+  .account-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 24px 18px;
+    gap: 24px;
+  }
+  .entry-story .brand {
+    margin-bottom: 24px;
+  }
+  .entry-copy h1 {
+    font-size: 28px;
+    letter-spacing: -0.8px;
+  }
+  .entry-copy p {
+    font-size: 13px;
+    margin-bottom: 0;
+  }
+  .entry-art,
+  .entry-benefits {
+    display: none;
+  }
+  .entry-form {
+    padding: 24px;
+  }
+  .account-dialog {
+    padding: 20px;
+  }
+  .account-identity {
+    flex-wrap: wrap;
+  }
+  .account-identity > .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .account-metrics {
+    gap: 10px;
+  }
+  .account-metrics > div {
+    padding: 12px;
+  }
+  .account-metrics strong {
+    font-size: 18px;
+  }
+  .member-card {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .member-actions {
+    justify-items: start;
+  }
+  .reset-share {
+    flex-wrap: wrap;
+  }
+  .account-sync {
+    justify-content: flex-start;
+  }
+}

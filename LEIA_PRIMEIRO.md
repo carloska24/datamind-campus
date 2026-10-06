@@ -1,6 +1,12 @@
 # DataMind — Aula 01
 
-Um ambiente de estudo visual e narrado da aula de Data Science e Big Data na Indústria, preparado para Carlos Pereira.
+Um campus de estudo visual e narrado da aula de Data Science e Big Data na Indústria, com contas individuais de alunos e administração local.
+
+## Campus com login
+
+Execute `INICIAR_WINDOWS.bat` ou `npm start` e abra http://127.0.0.1:4173. No primeiro acesso, crie seu administrador em **Configure seu campus**, com senha de pelo menos 12 caracteres. Depois, os alunos podem usar **Criar conta** (cadastro aberto) e **Entrar**. O avatar abre a conta; o administrador acompanha alunos e progresso, desativa/reativa acessos e gera links de recuperação. Cada aluno tem caderno e progresso próprios, salvos no servidor.
+
+Este endereço funciona somente no computador do servidor. Acesso de alunos pela internet exige hospedagem; não foi publicado nesta etapa. Veja [Contas, validação e limites](docs/ETAPA_2_CONTAS.md).
 
 ## Abrir imediatamente
 
@@ -15,7 +21,7 @@ Esta versão contém a aplicação React compilada e funciona sem instalar depen
 1. Instale Node.js **22.12 ou mais recente**: https://nodejs.org/
 2. No Windows, execute `INICIAR_WINDOWS.bat` na raiz do projeto. No macOS/Linux, execute `./INICIAR_MAC_LINUX.sh`.
 3. Mantenha a janela do terminal aberta e acesse http://127.0.0.1:4173 no Chrome ou Edge.
-4. Entre em **Ouvir as aulas**.
+4. Entre com sua conta de administrador e abra **Ouvir as aulas**.
 5. Escolha OpenAI ou Google Gemini, cole a chave no campo protegido e clique em **Salvar chave neste computador**. Isso só precisa ser feito uma vez para cada provedor.
 6. Escolha um módulo, trecho e voz. Clique em reproduzir para gerar o trecho. Nas próximas aberturas, a chave salva já estará disponível.
 
@@ -27,7 +33,7 @@ A configuração é um arquivo local não criptografado. Não inclua `.local` ao
 
 Você também pode criar um arquivo `.env` na raiz do projeto (veja `.env.example`) com `OPENAI_API_KEY` e/ou `GEMINI_API_KEY`. O servidor carrega esse arquivo ao iniciar. Variáveis do ambiente têm prioridade sobre chaves salvas na interface; nesse caso, a tela informa que a chave já está configurada e a alteração deve ser feita no ambiente ou `.env`, seguida de reinício do servidor. Essas chaves não usam o prefixo `VITE_`, para não serem incluídas no código público.
 
-É possível reproduzir com uma chave digitada sem clicar em salvar quando o provedor ainda não tem configuração. Nesse caso, ela permanece temporária e é descartada ao sair da tela.
+Salve a chave antes de reproduzir. Alunos usam a configuração do administrador; não podem salvar, substituir ou remover chaves.
 
 A voz é sintética, gerada por IA. A geração por API pode ter cobrança própria, quota e restrição de acesso ao modelo. Não há áudio de API pré-gerado no pacote. O serviço envia ao provedor somente o roteiro do trecho selecionado. Cada trecho é gerado quando você solicita; não há geração automática da aula inteira. A opção de continuação gera o trecho seguinte ao finalizar o atual. Áudios já gerados são reaproveitados em memória durante a tela atual. É possível baixar o trecho gerado como MP3 (OpenAI) ou WAV (Gemini).
 
@@ -56,7 +62,7 @@ Se a chave está salva, mas aparece uma mensagem de conexão bloqueada (ou `fetc
 
 As atividades têm endereço próprio. Aulas, trechos de áudio, etapas do KDD, laboratórios e cartões permanecem selecionados ao recarregar. Você pode copiar a URL da atividade; ao compartilhá-la, o destinatário precisa ter acesso ao mesmo campus. O servidor `127.0.0.1` continua acessível somente no computador em que foi iniciado.
 
-No início, **De onde você parou** retoma a última atividade salva neste navegador. **Próximo módulo recomendado** indica o primeiro módulo ainda não marcado como compreendido. A retomada de áudio abre o trecho salvo e aguarda seu comando de reprodução. Ao concluir a trilha, o campus direciona à revisão. As correções da auditoria estão registradas em [Etapa 1](docs/ETAPA_1_AUDITORIA.md).
+No início, **De onde você parou** retoma a última atividade da sua conta (ou deste navegador no modo portátil). **Próximo módulo recomendado** indica o primeiro módulo ainda não marcado como compreendido. A retomada de áudio abre o trecho salvo e aguarda seu comando. Ao concluir a trilha, o campus direciona à revisão. Veja [Etapa 1](docs/ETAPA_1_AUDITORIA.md) e [Etapa 2](docs/ETAPA_2_CONTAS.md).
 
 - Painel inicial com desenho de fábrica conectada.
 - Trilha de 14 módulos, busca e filtros.
@@ -71,7 +77,7 @@ No início, **De onde você parou** retoma a última atividade salva neste naveg
 
 ## Guardar seus estudos
 
-O caderno e os módulos marcados são salvos neste navegador quando permitido. Isso não é sincronização em nuvem. A versão portátil e o endereço local podem usar armazenamentos diferentes. Use **Meu caderno → Exportar caderno** e importe na outra versão quando necessário. As chaves de API não participam da exportação.
+Com login, caderno, progresso e última atividade ficam na conta, no servidor. No portátil, ficam neste navegador quando permitido. Use **Meu caderno → Exportar caderno** para preservar uma cópia ou importar na outra versão. Chaves de API ficam fora da exportação. Faça backup privado de `.local` para preservar as contas, estudos e configurações do servidor; não compartilhe essa pasta. O estudo da versão anterior não é atribuído automaticamente às novas contas.
 
 ## Desenvolvimento no Cursor ou Antigravity
 

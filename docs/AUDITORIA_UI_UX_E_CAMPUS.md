@@ -2,7 +2,7 @@
 
 Data: 05/10/2026. Estado funcional preservado no commit `5ff9c4d`.
 
-**Evolução em 06/10/2026:** seguindo a orientação do usuário de manter a identidade visual e executar esta auditoria, a Etapa 1 foi implementada. Veja [correções e validação](ETAPA_1_AUDITORIA.md). As evidências e os achados abaixo registram o levantamento inicial; contas/turmas e as etapas seguintes continuam no roteiro.
+**Evolução em 06/10/2026:** a [Etapa 1](ETAPA_1_AUDITORIA.md) corrigiu navegação e responsividade; a [Etapa 2](ETAPA_2_CONTAS.md) entregou login, cadastro aberto de alunos, estudo por conta e painel de administração, preservando a identidade original. As evidências abaixo registram o levantamento inicial. Hospedagem pública, várias turmas/professores e as etapas pedagógicas seguintes continuam no roteiro.
 
 **Conclusão:** o DataMind é um ambiente pessoal de estudo funcional, com identidade visual própria e boa interpretação do material da Aula 01. Para atender vários alunos, a maior mudança é passar de dados salvos em um navegador para contas, matrículas, progresso individual e acompanhamento por turma. A interface pode evoluir preservando a marca e dando mais espaço à tarefa de aprender.
 
@@ -34,21 +34,21 @@ Limites: revisão heurística, não pesquisa com alunos reais nem certificação
 
 P0 significa requisito anterior à abertura de um campus com contas reais. P1 indica problema importante na experiência atual. P2 indica melhoria de clareza, aprendizagem ou manutenção. Não são estimativas de esforço.
 
-| Prioridade | Achado | Evidência | Resultado esperado da evolução |
-| --- | --- | --- | --- |
-| P0 | Não há identidade individual nem matrículas | Perfil Carlos Pereira fixo; `StudyState` só tem `done` e `notes`; persistência em `localStorage` | Cada aluno acessa apenas seu estudo; professor acompanha sua turma; progresso recuperável em outro dispositivo |
-| P0 | Servidor e credenciais foram feitos para uso local | `server/index.mjs` aceita hosts locais e escuta `127.0.0.1`; rotas de configuração sem contas/papéis | Configuração de API administrada com permissões; autorização em cada operação antes de disponibilizar o campus |
-| P0 | Áudio não tem gestão de uso por aluno/turma | Limite de duas gerações simultâneas global; cache só em memória do componente | Uso mensurável, limites definidos e reaproveitamento de narrações para conteúdo idêntico |
-| P1 | Áudio transborda em celular | Viewport útil 380 px, documento 440 px; painel 424 px | Página sem rolagem horizontal e controles totalmente visíveis |
-| P1 | Configuração de áudio precede a reprodução no celular | Regra CSS coloca segunda coluna na primeira linha; botão de play em y ≈ 2317 px | Aluno chega à aula e à reprodução com pouco deslocamento |
-| P1 | Busca da trilha depende de acento | `correlacao`: zero; `correlação`: dois módulos | Mesma normalização nas buscas e resultados úteis para termos do conteúdo |
-| P1 | Janela de busca deixa escapar o foco | Shift+Tab do campo levou ao Cartão 14 atrás da janela; Escape então não fechou | Foco contido, fechamento previsível e retorno ao controle que abriu a busca |
-| P1 | Não existem endereços por aula/atividade | Navegação altera somente estado React; URL permanece `/` | Link direto, atualização preservando localização e voltar/avançar coerentes |
-| P1 | Continuar não retoma a última atividade | `next` escolhe primeiro módulo não marcado; não salva posição | Retomar módulo/trecho anterior e apresentar separadamente a próxima recomendação |
-| P2 | Perguntas revelam gabarito sem registrar tentativa | Componentes de aula e laboratórios | Tentativa, dica e explicação do erro, com histórico compatível com autoavaliação |
-| P2 | Revisão não persiste nem agenda retornos | `remembered` é estado do componente; texto informa “nesta sessão” | Histórico por aluno e revisões sugeridas com base no estudo real |
-| P2 | Hierarquia favorece apresentação e atalhos | Hero grande, vários caminhos repetidos; categorias da trilha em dois lugares | Próxima tarefa evidente e leitura com menos competição visual |
-| P2 | Conteúdo preso à Aula 01 | IDs posicionais, limites `14`, JSON compilado | Cursos/aulas versionados, referências e publicação sem editar regras de interface |
+| Prioridade | Achado                                                | Evidência                                                                                            | Resultado esperado da evolução                                                                                 |
+| ---------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| P0         | Não há identidade individual nem matrículas           | Perfil Carlos Pereira fixo; `StudyState` só tem `done` e `notes`; persistência em `localStorage`     | Cada aluno acessa apenas seu estudo; professor acompanha sua turma; progresso recuperável em outro dispositivo |
+| P0         | Servidor e credenciais foram feitos para uso local    | `server/index.mjs` aceita hosts locais e escuta `127.0.0.1`; rotas de configuração sem contas/papéis | Configuração de API administrada com permissões; autorização em cada operação antes de disponibilizar o campus |
+| P0         | Áudio não tem gestão de uso por aluno/turma           | Limite de duas gerações simultâneas global; cache só em memória do componente                        | Uso mensurável, limites definidos e reaproveitamento de narrações para conteúdo idêntico                       |
+| P1         | Áudio transborda em celular                           | Viewport útil 380 px, documento 440 px; painel 424 px                                                | Página sem rolagem horizontal e controles totalmente visíveis                                                  |
+| P1         | Configuração de áudio precede a reprodução no celular | Regra CSS coloca segunda coluna na primeira linha; botão de play em y ≈ 2317 px                      | Aluno chega à aula e à reprodução com pouco deslocamento                                                       |
+| P1         | Busca da trilha depende de acento                     | `correlacao`: zero; `correlação`: dois módulos                                                       | Mesma normalização nas buscas e resultados úteis para termos do conteúdo                                       |
+| P1         | Janela de busca deixa escapar o foco                  | Shift+Tab do campo levou ao Cartão 14 atrás da janela; Escape então não fechou                       | Foco contido, fechamento previsível e retorno ao controle que abriu a busca                                    |
+| P1         | Não existem endereços por aula/atividade              | Navegação altera somente estado React; URL permanece `/`                                             | Link direto, atualização preservando localização e voltar/avançar coerentes                                    |
+| P1         | Continuar não retoma a última atividade               | `next` escolhe primeiro módulo não marcado; não salva posição                                        | Retomar módulo/trecho anterior e apresentar separadamente a próxima recomendação                               |
+| P2         | Perguntas revelam gabarito sem registrar tentativa    | Componentes de aula e laboratórios                                                                   | Tentativa, dica e explicação do erro, com histórico compatível com autoavaliação                               |
+| P2         | Revisão não persiste nem agenda retornos              | `remembered` é estado do componente; texto informa “nesta sessão”                                    | Histórico por aluno e revisões sugeridas com base no estudo real                                               |
+| P2         | Hierarquia favorece apresentação e atalhos            | Hero grande, vários caminhos repetidos; categorias da trilha em dois lugares                         | Próxima tarefa evidente e leitura com menos competição visual                                                  |
+| P2         | Conteúdo preso à Aula 01                              | IDs posicionais, limites `14`, JSON compilado                                                        | Cursos/aulas versionados, referências e publicação sem editar regras de interface                              |
 
 ## Problemas reproduzíveis da interface
 
@@ -97,17 +97,17 @@ Contraste e alvos de toque precisam de medição por componente/estado antes de 
 
 ## Avaliação visual por área
 
-| Área | Funcionou bem | Oportunidade observada |
-| --- | --- | --- |
-| Início | Marca reconhecível, ilustração própria, atalhos para prática | Grande área de apresentação antes das atividades; próxima tarefa poderia ter mais prioridade |
-| Trilha | Categorias e indicação de duração | Categorias repetidas, busca inconsistente, poucos estados além de marcado/não marcado |
-| Aula | Conceito/exemplo/pergunta/código organizados | Texto em blocos longos; objetivos, saída esperada do código e referências acionáveis ajudariam |
-| KDD | Etapas e armadilhas conectadas ao processo industrial | Exploração é principalmente troca de explicação; oportunidade de decidir o que fazer com dados concretos |
+| Área         | Funcionou bem                                                   | Oportunidade observada                                                                                   |
+| ------------ | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Início       | Marca reconhecível, ilustração própria, atalhos para prática    | Grande área de apresentação antes das atividades; próxima tarefa poderia ter mais prioridade             |
+| Trilha       | Categorias e indicação de duração                               | Categorias repetidas, busca inconsistente, poucos estados além de marcado/não marcado                    |
+| Aula         | Conceito/exemplo/pergunta/código organizados                    | Texto em blocos longos; objetivos, saída esperada do código e referências acionáveis ajudariam           |
+| KDD          | Etapas e armadilhas conectadas ao processo industrial           | Exploração é principalmente troca de explicação; oportunidade de decidir o que fazer com dados concretos |
 | Laboratórios | Dados corretos; filtro, métrica e ranking respondem à interação | Registrar hipótese/tentativa antes de revelar interpretação e tornar a direção de energia mais intuitiva |
-| Áudio | Texto acompanhável; chave persistente; opções de reprodução | Corrigir celular, reduzir carga de configuração para o aluno e considerar continuidade ao trocar de tela |
-| Revisão | Recuperação ativa proposta antes do gabarito | Contador é só da sessão; não há agenda individual de revisão |
-| Caderno | Anotações por módulo e exportação sem API | Hoje fica no navegador; falta sincronização e recuperação por conta |
-| Materiais | PDF original, caderno e notebook reunidos | Falta navegação para trecho/página específica e orientação mais direta de como iniciar o notebook |
+| Áudio        | Texto acompanhável; chave persistente; opções de reprodução     | Corrigir celular, reduzir carga de configuração para o aluno e considerar continuidade ao trocar de tela |
+| Revisão      | Recuperação ativa proposta antes do gabarito                    | Contador é só da sessão; não há agenda individual de revisão                                             |
+| Caderno      | Anotações por módulo e exportação sem API                       | Hoje fica no navegador; falta sincronização e recuperação por conta                                      |
+| Materiais    | PDF original, caderno e notebook reunidos                       | Falta navegação para trecho/página específica e orientação mais direta de como iniciar o notebook        |
 
 O tema escuro é consistente com a identidade do projeto. O tema claro também tem boa estrutura, mas transparências e fundos coloridos competem com a leitura em alguns painéis. A oportunidade é reduzir decoração onde se lê/responde, preservando a expressão da marca no início e nos momentos de orientação.
 
@@ -117,34 +117,34 @@ O tema escuro é consistente com a identidade do projeto. O tema claro também t
 
 Fonte: `Aula 01 - Data Science e Big Data na Indústria.pptx.pdf`, 63 páginas. Os números abaixo são páginas do PDF, contadas a partir de 1.
 
-| Páginas | Conteúdo do material | Cobertura no campus | Oportunidade |
-| --- | --- | --- | --- |
-| 1–12 | Apresentação, objetivos, calendário, metodologia e bibliografia | Fonte e materiais disponíveis; não há organização de turma/calendário | Para um campus, explicitar objetivos do curso, pré-requisitos, agenda e tarefas sem tratar um calendário de 2026 como regra permanente |
-| 13–20 | Fontes industriais, manutenção preditiva, evolução da área, ciclo de ciência de dados e papéis | Módulos 1–4 | Ampliar casos das figuras: ligar sensor, evento, hipótese e decisão, em vez de somente resumir texto |
-| 21–24 | Mineração, tipos de tarefas e aplicações industriais | Módulo 3 e partes do KDD | Exercícios de escolher classificação, regressão, agrupamento ou associação para um problema |
-| 25–31 | Dados/informação/conhecimento e cinco etapas do KDD | Módulos 5–8 e explorador KDD | Praticar seleção e limpeza com registros ausentes/duplicados; explicar SQL/NoSQL da figura da página 27 quando relevante |
-| 32–33 | Ambientes e bibliotecas | Módulo 4 | Guia inicial para abrir o notebook, identificar dependências e executar uma primeira célula |
-| 34 | Exercício externo “Questionário” | Perguntas internas, sem integração identificada | Decidir se será substituído por avaliação interna ou ligado ao instrumento original |
-| 35–44 | Series/DataFrame, instalação e catálogo de funções Pandas | Módulos 9–10 cobrem o núcleo; pré-processamento complementa ausências | Cobertura parcial de `loc/iloc`, `concat/merge`, leitura/exportação, renomeação e conversão de tipos; incluir progressivamente conforme objetivos |
-| 45–60 | Temperatura/defeitos: inspeção, seleção, filtro, média, extremos, ordenação, agrupamento, taxa e correlação | Módulo 11, laboratório interativo e notebook | Hoje o aluno manipula controles ou revela resposta; falta validar uma solução construída por ele |
-| 61–62 | Produção/energia, sete perguntas e eficiência | Módulo 12, ranking e notebook | Tentativa para cada pergunta, unidades visíveis e explicação sobre escolha de métrica |
-| Complementos | PCBA, cinco Vs, cuidados estatísticos e revisão | Identificados como complementos | Preservar a distinção entre fonte original e aprofundamento |
+| Páginas      | Conteúdo do material                                                                                        | Cobertura no campus                                                   | Oportunidade                                                                                                                                      |
+| ------------ | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1–12         | Apresentação, objetivos, calendário, metodologia e bibliografia                                             | Fonte e materiais disponíveis; não há organização de turma/calendário | Para um campus, explicitar objetivos do curso, pré-requisitos, agenda e tarefas sem tratar um calendário de 2026 como regra permanente            |
+| 13–20        | Fontes industriais, manutenção preditiva, evolução da área, ciclo de ciência de dados e papéis              | Módulos 1–4                                                           | Ampliar casos das figuras: ligar sensor, evento, hipótese e decisão, em vez de somente resumir texto                                              |
+| 21–24        | Mineração, tipos de tarefas e aplicações industriais                                                        | Módulo 3 e partes do KDD                                              | Exercícios de escolher classificação, regressão, agrupamento ou associação para um problema                                                       |
+| 25–31        | Dados/informação/conhecimento e cinco etapas do KDD                                                         | Módulos 5–8 e explorador KDD                                          | Praticar seleção e limpeza com registros ausentes/duplicados; explicar SQL/NoSQL da figura da página 27 quando relevante                          |
+| 32–33        | Ambientes e bibliotecas                                                                                     | Módulo 4                                                              | Guia inicial para abrir o notebook, identificar dependências e executar uma primeira célula                                                       |
+| 34           | Exercício externo “Questionário”                                                                            | Perguntas internas, sem integração identificada                       | Decidir se será substituído por avaliação interna ou ligado ao instrumento original                                                               |
+| 35–44        | Series/DataFrame, instalação e catálogo de funções Pandas                                                   | Módulos 9–10 cobrem o núcleo; pré-processamento complementa ausências | Cobertura parcial de `loc/iloc`, `concat/merge`, leitura/exportação, renomeação e conversão de tipos; incluir progressivamente conforme objetivos |
+| 45–60        | Temperatura/defeitos: inspeção, seleção, filtro, média, extremos, ordenação, agrupamento, taxa e correlação | Módulo 11, laboratório interativo e notebook                          | Hoje o aluno manipula controles ou revela resposta; falta validar uma solução construída por ele                                                  |
+| 61–62        | Produção/energia, sete perguntas e eficiência                                                               | Módulo 12, ranking e notebook                                         | Tentativa para cada pergunta, unidades visíveis e explicação sobre escolha de métrica                                                             |
+| Complementos | PCBA, cinco Vs, cuidados estatísticos e revisão                                                             | Identificados como complementos                                       | Preservar a distinção entre fonte original e aprofundamento                                                                                       |
 
 ### Resultados numéricos verificados
 
 As oito células de código do notebook executaram em sequência sem erro, usando Pandas instalado no runtime de inspeção. Resultados conferidos:
 
-| Medida | Resultado |
-| --- | --- |
-| Temperatura média | 75,6 |
-| Produção média dos motores | 110 |
-| Pearson temperatura × contagem de defeitos | 0,9950505057 |
-| Pearson temperatura × taxa por 100 peças | 0,9948998223 |
-| Maior produção por máquina | D, 1450 peças/turno |
-| Menor energia por máquina | C, 390 kWh/turno |
-| Melhor razão produção/energia | E, 3,2593 peças/kWh |
-| Produção média por máquina | 1318 peças/turno |
-| Energia média por máquina | 438 kWh/turno |
+| Medida                                     | Resultado           |
+| ------------------------------------------ | ------------------- |
+| Temperatura média                          | 75,6                |
+| Produção média dos motores                 | 110                 |
+| Pearson temperatura × contagem de defeitos | 0,9950505057        |
+| Pearson temperatura × taxa por 100 peças   | 0,9948998223        |
+| Maior produção por máquina                 | D, 1450 peças/turno |
+| Menor energia por máquina                  | C, 390 kWh/turno    |
+| Melhor razão produção/energia              | E, 3,2593 peças/kWh |
+| Produção média por máquina                 | 1318 peças/turno    |
+| Energia média por máquina                  | 438 kWh/turno       |
 
 Na interface, a mudança de contagem para taxa atualizou a correlação corretamente. O filtro de temperatura com limiar 85 retornou zero linhas e uma mensagem adequada. Destacar produto foi apresentado como destaque visual; o coeficiente continua usando os cinco registros, conforme a explicação da própria interface.
 
@@ -154,12 +154,12 @@ O projeto já melhora algumas ambiguidades dos slides: dados não estruturados n
 
 Referências consultadas em 05/10/2026. São fontes de padrões de produto, não especificações aprovadas para copiar nem recomendação de contratar essas plataformas.
 
-| Referência oficial | Padrão documentado | Aplicação possível ao DataMind |
-| --- | --- | --- |
-| [DataCamp: Teams e Assignments](https://www.datacamp.com/blog/classrooms-teams-assignments), com telas públicas; [FAQ atual de Classrooms](https://support.datacamp.com/hc/en-us/articles/4407010316823-DataCamp-Classrooms-Frequently-Asked-Questions) | Organização por grupos, tarefas e estado de conclusão | Separar acompanhamento do aluno e gestão do professor; tornar tarefas pendentes/concluídas reconhecíveis |
-| [Brilliant: atribuição e acompanhamento](https://brilliant.org/help/schools-and-educators/assignment-and-progress-reporting-guide/) | Turmas, links para lições, progresso e esforço; dicas e orientação durante aprendizagem | Atividades menores, links diretos e distinção entre conclusão e domínio. A fonte esclarece que seu relatório não é um diário de notas por resposta |
-| [Coursera: aprendizagem imersiva](https://www.coursera.org/enterprise/immersive-learning) | Laboratórios e prática em ambientes virtuais | Aproximar explicação, dados e atividade prática; avaliar execução de código como uma evolução separada, com requisitos próprios |
-| [MoodleDocs: Dashboard](https://docs.moodle.org/en/Dashboard) | Painel pessoal, prazos/calendário e personalização | Referência para a função de orientação diária do campus; não presumir que toda complexidade de um LMS seja necessária no piloto |
+| Referência oficial                                                                                                                                                                                                                                      | Padrão documentado                                                                      | Aplicação possível ao DataMind                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [DataCamp: Teams e Assignments](https://www.datacamp.com/blog/classrooms-teams-assignments), com telas públicas; [FAQ atual de Classrooms](https://support.datacamp.com/hc/en-us/articles/4407010316823-DataCamp-Classrooms-Frequently-Asked-Questions) | Organização por grupos, tarefas e estado de conclusão                                   | Separar acompanhamento do aluno e gestão do professor; tornar tarefas pendentes/concluídas reconhecíveis                                           |
+| [Brilliant: atribuição e acompanhamento](https://brilliant.org/help/schools-and-educators/assignment-and-progress-reporting-guide/)                                                                                                                     | Turmas, links para lições, progresso e esforço; dicas e orientação durante aprendizagem | Atividades menores, links diretos e distinção entre conclusão e domínio. A fonte esclarece que seu relatório não é um diário de notas por resposta |
+| [Coursera: aprendizagem imersiva](https://www.coursera.org/enterprise/immersive-learning)                                                                                                                                                               | Laboratórios e prática em ambientes virtuais                                            | Aproximar explicação, dados e atividade prática; avaliar execução de código como uma evolução separada, com requisitos próprios                    |
+| [MoodleDocs: Dashboard](https://docs.moodle.org/en/Dashboard)                                                                                                                                                                                           | Painel pessoal, prazos/calendário e personalização                                      | Referência para a função de orientação diária do campus; não presumir que toda complexidade de um LMS seja necessária no piloto                    |
 
 A avaliação visual do DataMind deve seguir sua identidade. As referências ajudam sobretudo em **hierarquia de tarefa, estados de aprendizagem e organização de turma**, que trazem mais valor do que copiar cores ou formatos de cards.
 

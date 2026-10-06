@@ -6,42 +6,27 @@ import os from "node:os";
 import path from "node:path";
 import { createCredentialStore } from "../server/credentials.mjs";
 import { createAppServer } from "../server/index.mjs";
+import { createAccountStore } from "../server/accounts.mjs";
 
 test("falha de conexão externa retorna 502 com orientação sem expor a chave", async (t) => {
-  const server = createAppServer({
-    credentials: {
-      get: () => "test-private-gemini",
-      status: () => ({ gemini: "local" }),
-    },
-    fetchImpl: async () => {
-      throw new TypeError("fetch failed", {
-        cause: Object.assign(new Error("test-private-gemini"), {
-          code: "EACCES",
-        }),
-      });
-    },
+  const app = await (
+    await fixture(t)
+  )(async () => {
+    throw new TypeError("fetch failed", {
+      cause: Object.assign(new Error("test-private-gemini"), {
+        code: "EACCES",
+      }),
+    });
   });
-  server.listen(0, "127.0.0.1");
-  await once(server, "listening");
-  t.after(
-    () =>
-      new Promise((resolve) => {
-        server.close(resolve);
-        server.closeAllConnections();
-      }),
-  );
-  const response = await fetch(
-    `http://127.0.0.1:${server.address().port}/api/tts`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        provider: "gemini",
-        moduleId: 0,
-        sectionIndex: 0,
-      }),
-    },
-  );
+  await app.request("/api/credentials", {
+    provider: "gemini",
+    apiKey: "test-private-gemini",
+  });
+  const response = await app.request("/api/tts", {
+    provider: "gemini",
+    moduleId: 0,
+    sectionIndex: 0,
+  });
   assert.equal(response.status, 502);
   const result = await response.json();
   assert.match(result.error, /conexão.*bloqueada/);
@@ -54,24 +39,30 @@ async function fixture(t) {
   assert.ok(path.basename(dir).startsWith("datamind-server-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const file = path.join(dir, "api-keys.json");
-  async function start() {
+  async function start(fetchImpl) {
     const credentials = await createCredentialStore({ file, env: {} });
+    const accounts = await createAccountStore({
+      file: path.join(dir, "accounts.json"),
+    });
     const calls = [];
     const server = createAppServer({
       credentials,
-      fetchImpl: async (url, options) => {
-        calls.push({ url, options });
-        if (url.includes("googleapis"))
-          return Response.json({
-            steps: [
-              {
-                type: "model_output",
-                content: [{ type: "audio", data: "AAEAAQ==" }],
-              },
-            ],
-          });
-        return new Response(new Uint8Array([1, 2, 3]));
-      },
+      accounts,
+      fetchImpl:
+        fetchImpl ||
+        (async (url, options) => {
+          calls.push({ url, options });
+          if (url.includes("googleapis"))
+            return Response.json({
+              steps: [
+                {
+                  type: "model_output",
+                  content: [{ type: "audio", data: "AAEAAQ==" }],
+                },
+              ],
+            });
+          return new Response(new Uint8Array([1, 2, 3]));
+        }),
     });
     server.listen(0, "127.0.0.1");
     await once(server, "listening");
@@ -82,6 +73,20 @@ async function fixture(t) {
         server.closeAllConnections();
       });
     t.after(close);
+    const signedIn = await fetch(
+      base + (accounts.needsSetup() ? "/api/auth/setup" : "/api/auth/login"),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Origin: base },
+        body: JSON.stringify({
+          name: "Administrador de teste",
+          email: "admin@example.test",
+          password: "test-only-password-123",
+        }),
+      },
+    );
+    assert.equal(signedIn.status, 200);
+    const cookie = signedIn.headers.get("set-cookie").split(";")[0];
     return {
       base,
       calls,
@@ -91,6 +96,7 @@ async function fixture(t) {
           method,
           headers: {
             "Content-Type": "application/json",
+            Cookie: cookie,
             ...(origin ? { Origin: origin } : {}),
           },
           body: JSON.stringify(body),
