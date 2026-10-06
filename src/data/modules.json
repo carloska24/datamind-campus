@@ -1,42 +1,102 @@
 [
   {
     "title": "Da pergunta à decisão",
-    "pages": "13–19",
+    "pages": "18–19; 23–24",
     "idea": "Ciência de dados começa com uma pergunta útil.",
     "explain": "Dados são registros. Informação é um dado colocado em contexto. Conhecimento é uma interpretação sustentada por evidências. Decisão é a ação que você toma e depois avalia. Data Science combina domínio do processo, estatística e programação. Um gráfico bonito sozinho não fecha esse ciclo.",
-    "example": "Na AOI: “35 apontamentos” é um dado. “35 em 1.000 placas, concentrados no componente X” é informação. Confirmar se são defeitos reais e investigar o processo gera conhecimento. Ajustar uma condição e medir o resultado fecha a decisão. Exemplo complementar, não retirado do slide.",
+    "example": "Na AOI (inspeção óptica automatizada): “35 apontamentos” é um dado. “35 em 1.000 placas, concentrados no componente X” é informação. Confirmar se são defeitos reais e investigar o processo gera conhecimento. Ajustar uma condição e medir o resultado fecha a decisão. Exemplo complementar, não retirado do slide.",
     "question": "Por que começar por “vou usar IA” pode atrapalhar?",
     "answer": "Porque ainda faltam problema, métrica, dados e critério de sucesso. Comece por “quero reduzir retrabalho confirmado por lote”, por exemplo.",
     "code": "",
     "id": 0,
     "category": "Fundamentos",
-    "minutes": 8
+    "minutes": 8,
+    "guide": {
+      "objective": "Distinguir dado, informação e conhecimento e formular uma pergunta que apoie uma decisão.",
+      "sections": [
+        {
+          "title": "Uma pergunta que cabe nos dados",
+          "text": "Troque um objetivo amplo, como melhorar a qualidade, por uma pergunta delimitada: em qual produto e período o retrabalho confirmado aumentou? Defina o que será contado e qual decisão a resposta pode orientar. Sem período e denominador, duas contagens podem representar situações diferentes."
+        },
+        {
+          "title": "Evidência antes de intervenção",
+          "text": "A descrição mostra o que foi observado. Uma hipótese propõe uma explicação que ainda precisa ser investigada. Registre alternativas e compare o resultado após uma intervenção; encontrar um padrão sozinho não valida a ação."
+        }
+      ],
+      "steps": [
+        "Escolha um indicador do seu processo e escreva um registro bruto.",
+        "Acrescente período, produto e denominador para dar contexto.",
+        "Escreva uma hipótese e uma ação que só faria depois de investigá-la."
+      ],
+      "expected": "Uma resposta deve separar observação, hipótese e decisão. No exemplo AOI, 35 apontamentos não são automaticamente 35 defeitos confirmados.",
+      "sourceNote": "Base: páginas 18–19 e 23–24. A aplicação em AOI e a prática guiada são complementos didáticos."
+    }
   },
   {
     "title": "Onde os dados nascem",
     "pages": "13–16",
     "idea": "Sua fábrica já produz dados; falta conectá-los com contexto.",
     "explain": "Fontes incluem sensores, máquinas, produção, manutenção, qualidade, energia e sistemas de gestão. Dados estruturados têm campos definidos, como uma tabela; semiestruturados têm organização flexível, como JSON; não estruturados incluem imagens e textos livres. Para integrar fontes, preserve data/hora, máquina, produto, lote e unidade.",
-    "example": "SPI: volume de pasta por pad. AOI: imagem e classificação. SMT: rejeições de pickup. Seletiva: alarmes e parâmetros. ERP: ordem e quantidade. Uma ligação por lote e horário permite investigar relações; juntar só pelo dia pode misturar processos diferentes.",
+    "example": "SPI (inspeção da pasta de solda): volume de pasta por pad. AOI (inspeção óptica automatizada): imagem e classificação. SMT (montagem em superfície): rejeições de pickup. Seletiva: alarmes e parâmetros. ERP (sistema integrado de gestão): ordem e quantidade. Uma ligação por lote e horário permite investigar relações; juntar só pelo dia pode misturar processos diferentes.",
     "question": "Qual problema ocorre ao juntar AOI e SPI sem identificar a placa?",
     "answer": "Você pode associar medições de placas diferentes e descobrir um padrão que não existe. A identidade e o instante de coleta fazem parte da qualidade do dado.",
     "code": "",
     "id": 1,
     "category": "Fundamentos",
-    "minutes": 10
+    "minutes": 10,
+    "guide": {
+      "objective": "Identificar fontes industriais e explicar como vincular registros sem misturar observações.",
+      "sections": [
+        {
+          "title": "O que cada fonte registra",
+          "text": "Um sensor registra uma grandeza; o sistema de manutenção registra intervenções; o sistema de gestão registra ordens. Esses registros podem ter frequências e níveis diferentes. Uma imagem de inspeção e uma linha da produção não se tornam comparáveis apenas porque foram coletadas no mesmo dia."
+        },
+        {
+          "title": "Identificador e significado",
+          "text": "Defina o que representa cada linha, o identificador e o horário de coleta. Anote unidade, origem e regra de medição. Para vincular tabelas, verifique se cada identificador aparece uma ou várias vezes: uma junção inadequada pode multiplicar linhas e inflar contagens."
+        }
+      ],
+      "steps": [
+        "Liste uma fonte de sensor, uma de qualidade e uma de manutenção.",
+        "Para cada fonte, registre unidade de análise, identificador, horário e unidade da medida.",
+        "Explique o risco de juntar registros somente pela data."
+      ],
+      "expected": "O mapa deve permitir relacionar eventos compatíveis e revelar quando falta um identificador. Exemplo: várias inspeções da mesma placa exigem também etapa ou instante, além do ID da placa.",
+      "sourceNote": "Base: páginas 13–16. SPI, AOI, SMT, ERP, integração e tipos de estrutura são aplicações complementares."
+    }
   },
   {
     "title": "Big Data, mineração e aprendizado",
-    "pages": "9–24",
+    "pages": "17; 21–24; 26; 30",
     "idea": "São conceitos relacionados, com papéis diferentes.",
     "explain": "Data Science é o trabalho amplo de formular, analisar e avaliar. Data Mining busca padrões nos dados e é uma etapa do KDD. Machine Learning ajusta modelos a exemplos para generalizar a novos casos. Big Data trata desafios de escala, velocidade e diversidade; como complemento didático, os cinco Vs são volume, velocidade, variedade, veracidade e valor. Uma planilha pequena pode gerar um excelente estudo sem ser Big Data.",
     "example": "Classificação: prever categoria de defeito. Regressão: estimar consumo. Agrupamento: reunir perfis de máquina semelhantes sem rótulos. Associação: investigar eventos que aparecem juntos. Nenhuma dessas tarefas dispensa validação.",
-    "question": "O exercício de cinco motores exige uma plataforma de Big Data?",
+    "question": "O exercício com cinco registros de produção exige uma plataforma de Big Data?",
     "answer": "Não. Pandas e raciocínio estatístico já permitem estudar esse conjunto pequeno. A ferramenta deve acompanhar o problema e a escala.",
     "code": "",
     "id": 2,
     "category": "Fundamentos",
-    "minutes": 12
+    "minutes": 12,
+    "guide": {
+      "objective": "Diferenciar ciência de dados, mineração, aprendizado de máquina e desafios de Big Data.",
+      "sections": [
+        {
+          "title": "Do problema ao método",
+          "text": "Estatística descreve e ajuda a avaliar evidências. Mineração procura padrões; aprendizado de máquina ajusta modelos com dados. Essas atividades podem participar do mesmo projeto. KDD descreve o processo de descoberta, incluindo preparação e avaliação, e não apenas o algoritmo."
+        },
+        {
+          "title": "Escolher pela tarefa",
+          "text": "Prever uma categoria é classificação; prever um valor numérico é regressão; reunir exemplos semelhantes sem uma resposta rotulada é agrupamento. Antes de escolher um método, descreva qual saída você precisa. Cinco registros permitem explorar operações, mas não validar um sistema industrial de previsão."
+        }
+      ],
+      "steps": [
+        "Classifique as tarefas: prever defeito, estimar energia e reunir máquinas semelhantes.",
+        "Explique onde a limpeza de dados entra no KDD.",
+        "Diga por que muitos dados e um bom modelo são questões diferentes."
+      ],
+      "expected": "As tarefas são classificação, regressão e agrupamento. Preparação vem antes da mineração. Volume não garante qualidade, representatividade ou uma pergunta útil.",
+      "sourceNote": "Base: páginas 17, 21–24, 26 e 30. Cinco Vs, distinções operacionais e prática são complementos; não há laboratório de Big Data distribuído ou treinamento de ML nesta Aula 01."
+    }
   },
   {
     "title": "Profissionais e ferramentas",
@@ -49,24 +109,64 @@
     "code": "",
     "id": 3,
     "category": "Fundamentos",
-    "minutes": 8
+    "minutes": 8,
+    "guide": {
+      "objective": "Relacionar responsabilidades e ferramentas ao trabalho necessário no projeto.",
+      "sections": [
+        {
+          "title": "Responsabilidade compartilhada",
+          "text": "Quem conhece o processo ajuda a definir o significado da medida. Quem integra os dados garante rastreabilidade. Quem analisa precisa conferir a qualidade, comunicar limites e avaliar resultados. As funções se sobrepõem; o título profissional não substitui essas responsabilidades."
+        },
+        {
+          "title": "Um ambiente para começar",
+          "text": "Python executa o código, Pandas organiza tabelas e Jupyter apresenta células de texto e código. No notebook, execute a preparação antes das análises. Matplotlib, Seaborn e Plotly são opções de visualização; não é preciso instalar todas para os exercícios desta aula."
+        }
+      ],
+      "steps": [
+        "Atribua responsáveis para coleta, definição do defeito e interpretação.",
+        "Abra o notebook em Jupyter ou Colab e localize a preparação.",
+        "Explique a diferença entre linguagem, biblioteca e ambiente."
+      ],
+      "expected": "Python é linguagem, Pandas é biblioteca e Jupyter é ambiente. A definição de defeito depende de quem conhece e valida o processo.",
+      "sourceNote": "Base: páginas 20 e 32–33. Distribuição de responsabilidades e orientação de execução são complementos."
+    }
   },
   {
     "title": "KDD: seleção",
     "pages": "25–27",
     "idea": "Escolha os registros que respondem à pergunta.",
     "explain": "KDD significa descoberta de conhecimento em bases de dados. A sequência da aula é seleção, pré-processamento, transformação, mineração e interpretação/avaliação. É iterativa: um problema na avaliação pode exigir voltar ao início. Na seleção, defina período, população, campos e unidade de análise.",
-    "example": "Pergunta: “a temperatura se associa à taxa de defeitos?” Selecione temperatura, produção, defeitos, produto, máquina, lote e horário. Defina se cada linha representa lote, turno ou placa; não misture níveis sem critério.",
+    "example": "Pergunta: “a temperatura se associa à taxa de defeitos?” Selecione temperatura, produção, defeitos, produto, máquina, lote e horário. Defina se cada linha representa lote, turno ou placa; não misture níveis sem critério. Máquina, lote e horário são sugestões para ampliar a coleta; não constam na tabela do exercício.",
     "question": "Posso selecionar apenas lotes que deram defeito?",
     "answer": "Isso exclui os casos sem defeito e distorce a comparação. Inclua registros representativos da população que você deseja estudar.",
     "code": "",
     "id": 4,
     "category": "KDD",
-    "minutes": 8
+    "minutes": 8,
+    "guide": {
+      "objective": "Delimitar a população e selecionar registros representativos da pergunta.",
+      "sections": [
+        {
+          "title": "Defina a unidade de análise",
+          "text": "A tabela do exercício tem cinco registros com categorias de produto, não cinco máquinas identificadas. O slide não informa lote, horário ou identidade de motor. Não atribua essas informações às linhas. Em um estudo real, defina explicitamente se cada registro é uma peça, lote ou turno."
+        },
+        {
+          "title": "Seleção também é uma escolha",
+          "text": "Excluir períodos estáveis ou casos sem defeito muda a população observada. Registre critérios de inclusão e exclusão e avalie se a seleção responde à pergunta. SQL e NoSQL organizam dados de maneiras diferentes; nenhuma tecnologia é sinônimo de dado bom ou ruim."
+        }
+      ],
+      "steps": [
+        "Escreva população, período e unidade de análise de um estudo proposto.",
+        "Liste os quatro campos disponíveis no exercício da página 45.",
+        "Separe os campos existentes daqueles que precisariam ser coletados."
+      ],
+      "expected": "O exercício tem produto, produção, defeitos e temperatura. Máquina, lote e horário são campos adicionais sugeridos e não estão na tabela original.",
+      "sourceNote": "Base: páginas 25–27; aplicação à tabela da página 45. Campos adicionais e critérios de seleção são complementos."
+    }
   },
   {
     "title": "KDD: pré-processamento",
-    "pages": "28",
+    "pages": "28; 43",
     "idea": "Limpar é investigar o significado do erro.",
     "explain": "Verifique ausências, duplicatas, tipos, unidades e valores impossíveis. NaN geralmente representa ausência em dados numéricos; zero pode ser uma medição válida. Um valor extremo pode ser falha de registro ou evento real. Dados não estruturados não são inválidos por serem imagens ou textos. Não preencha tudo com zero nem exclua linhas sem entender o motivo.",
     "example": "Uma temperatura vazia após manutenção pode indicar sensor desconectado. Trocar por zero inventa uma temperatura. Registre a ausência, investigue sua causa e escolha uma estratégia conforme o objetivo.",
@@ -75,11 +175,31 @@
     "code": "df.info()\ndf.isna().sum()\ndf.duplicated().sum()",
     "id": 5,
     "category": "KDD",
-    "minutes": 10
+    "minutes": 10,
+    "guide": {
+      "objective": "Diagnosticar ausências, duplicatas e tipos antes de escolher uma estratégia de limpeza.",
+      "sections": [
+        {
+          "title": "Diagnóstico não é exclusão automática",
+          "text": "isna() identifica ausências; dropna() exclui linhas ou colunas conforme os argumentos; fillna() preenche valores. A escolha depende da causa e da finalidade. Inspecione uma cópia para experimentar e preserve os registros originais. Uma linha repetida pode representar repetição real, e não necessariamente erro."
+        },
+        {
+          "title": "Limpeza e estrutura são questões diferentes",
+          "text": "Uma imagem pode ser válida e precisar de um método próprio de preparação. Um valor numérico pode estar errado mesmo em uma tabela bem estruturada. Verifique o significado de cada campo e registre o que foi alterado, em vez de tratar dados não estruturados como inválidos."
+        }
+      ],
+      "steps": [
+        "Execute a preparação do notebook e conte ausências e linhas duplicadas.",
+        "Em uma cópia, substitua uma temperatura por uma ausência e compare isna() e dropna().",
+        "Explique por que preencher a ausência com zero muda o significado da medida."
+      ],
+      "expected": "A tabela original tem zero ausências e zero linhas inteiramente duplicadas. A cópia com uma ausência deve ter quatro linhas após dropna(). A simulação não altera os dados originais.",
+      "sourceNote": "Base: página 28 e comandos da página 43. A separação entre estrutura e validade esclarece uma ambiguidade do slide; a simulação é complementar."
+    }
   },
   {
     "title": "KDD: transformação",
-    "pages": "29",
+    "pages": "29; 43; 59",
     "idea": "Prepare as variáveis para a comparação e o método.",
     "explain": "Transformar pode significar converter tipos, padronizar unidades, codificar categorias, agregar períodos ou criar indicadores. Normalização reescala valores e pode ajudar alguns algoritmos; não é uma obrigação para toda análise. Não confunda transformação com descoberta de padrões.",
     "example": "Comparar 12 defeitos em 120 peças com 5 em 100 exige uma taxa. Se “defeitos” conta ocorrências e uma peça pode ter vários, o resultado é ocorrências por 100 peças, não percentual de peças defeituosas. A aula não esclarece essa definição.",
@@ -88,7 +208,27 @@
     "code": "df['taxa_defeitos'] = df['defeitos'] / df['producao'] * 100",
     "id": 6,
     "category": "KDD",
-    "minutes": 10
+    "minutes": 10,
+    "guide": {
+      "objective": "Criar um indicador com denominador e unidade explícitos, sem perder os dados originais.",
+      "sections": [
+        {
+          "title": "Conte a mesma coisa nos dois lados",
+          "text": "Dividir ocorrências de defeito por peças produzidas calcula ocorrências por peça; multiplicar por 100 muda a escala. Se a produção for zero, a taxa não estará definida. No conjunto desta aula todos os denominadores são positivos; em dados reais, investigue zeros e ausências antes de dividir."
+        },
+        {
+          "title": "Transformação não cria informação ausente",
+          "text": "rename() muda nomes e astype() converte tipos quando os valores são compatíveis. Reescalar uma temperatura não informa sua unidade e não corrige uma medição ruim. Preserve as colunas originais e descreva a fórmula do indicador derivado."
+        }
+      ],
+      "steps": [
+        "Calcule ocorrências por 100 peças para as cinco linhas.",
+        "Compare 12/120 com 5/100.",
+        "Escreva qual definição permitiria chamar a taxa de percentual de peças defeituosas."
+      ],
+      "expected": "As taxas são 5; 10; 5,4545; 3,3333; 11,5385 por 100 peças. Percentual de peças defeituosas exige contar cada peça no máximo uma vez.",
+      "sourceNote": "Base: página 29; criação de coluna na página 59 e comandos na página 43. Interpretação do denominador é complemento didático."
+    }
   },
   {
     "title": "KDD: mineração e avaliação",
@@ -101,24 +241,64 @@
     "code": "",
     "id": 7,
     "category": "KDD",
-    "minutes": 12
+    "minutes": 12,
+    "guide": {
+      "objective": "Avaliar a utilidade e os limites de um padrão antes de orientar uma ação.",
+      "sections": [
+        {
+          "title": "Explorar e prever têm avaliações diferentes",
+          "text": "Uma análise exploratória descreve a amostra. Um modelo de previsão precisa ser avaliado em dados que não foram usados para ajustá-lo. Informações do futuro não devem entrar na previsão do passado. Esses cuidados não são demonstrados como treinamento de modelo no laboratório desta aula."
+        },
+        {
+          "title": "Traduzir o resultado em uma decisão",
+          "text": "Pergunte se o padrão faz sentido, se permanece em outras condições e se melhora uma decisão concreta. Para um alerta, avalie quantas falhas foram detectadas, com que antecedência e quantos alertas não se confirmaram. O custo de intervir também faz parte da utilidade operacional."
+        }
+      ],
+      "steps": [
+        "Escreva uma observação que poderia ser descoberta em uma tabela.",
+        "Proponha duas explicações alternativas para o padrão.",
+        "Defina uma próxima coleta e um critério para avaliar utilidade."
+      ],
+      "expected": "Uma conclusão adequada reconhece limites e propõe um teste. Uma correlação forte por si só não demonstra causa nem valida um modelo de manutenção preditiva.",
+      "sourceNote": "Base: páginas 30–31. Separação de treino, cuidado temporal e avaliação de alertas são aprofundamentos complementares."
+    }
   },
   {
     "title": "Pandas: ler a tabela",
     "pages": "35–41",
-    "idea": "DataFrame é tabela; Series é uma coluna com índice.",
+    "idea": "DataFrame organiza uma tabela; Series organiza uma dimensão com rótulos.",
     "explain": "Cada linha é uma observação e cada coluna é uma variável. O índice rotula linhas e não precisa ser um ID de negócio. df.shape é atributo, sem parênteses. head() mostra linhas; info() apresenta estrutura e retorna None; describe() resume valores numéricos por padrão. import pandas as pd cria o apelido pd.",
     "example": "Na tabela da aula, produto é categoria; produção e defeitos são contagens; temperatura é medida numérica. A unidade da temperatura não aparece explícita na tabela; confirme antes de documentar um processo real.",
     "question": "Qual diferença entre um e dois pares de colchetes?",
     "answer": "df[\"temperatura\"] retorna Series; df[[\"temperatura\"]] retorna DataFrame com uma coluna.",
-    "code": "import pandas as pd\ndf.head()\ndf.shape\ndf.info()\ndf.describe()\ndf['temperatura']\ndf[['produto', 'temperatura']]",
+    "code": "import pandas as pd\ndf = pd.DataFrame({\n    'produto': ['Motor A', 'Motor B', 'Motor A', 'Motor C', 'Motor B'],\n    'producao': [100, 120, 110, 90, 130],\n    'defeitos': [5, 12, 6, 3, 15],\n    'temperatura': [70, 82, 73, 68, 85]\n})\nprint(df.head())\nprint(df.tail(2))\nprint(df.shape)\ndf.info()\nprint(df.describe())\nprint(df['temperatura'])\nprint(df[['produto', 'temperatura']])",
     "id": 8,
     "category": "Pandas",
-    "minutes": 15
+    "minutes": 15,
+    "guide": {
+      "objective": "Criar e inspecionar um DataFrame e distinguir tabela, Series e índice.",
+      "sections": [
+        {
+          "title": "Prepare a tabela antes de consultar",
+          "text": "pd.DataFrame() constrói a tabela de listas com o mesmo comprimento. pd.read_csv() lê texto tabular e pd.read_excel() lê planilhas; leitura de Excel e Parquet pode exigir dependências adicionais. No laboratório usamos os valores do slide para evitar depender de arquivos externos."
+        },
+        {
+          "title": "Ler estrutura e resumo",
+          "text": "Uma Series é uma estrutura unidimensional com rótulos e pode existir fora de um DataFrame. head() e tail() mostram primeiras e últimas linhas; shape informa dimensões. info() imprime tipos e contagens. describe() resume colunas numéricas; selecione produto e use value_counts() para resumir a categoria."
+        }
+      ],
+      "steps": [
+        "Execute a preparação e confira df.shape antes de criar novas colunas.",
+        "Compare o tipo e as dimensões de df[\"temperatura\"] e df[[\"temperatura\"]].",
+        "Inspecione head(), tail(), info() e describe(); descreva um resultado."
+      ],
+      "expected": "A tabela inicial tem shape (5, 4). A seleção simples produz Series; a seleção com lista produz DataFrame (5, 1). Após criar taxa_defeitos a tabela passa a ter cinco colunas.",
+      "sourceNote": "Base: páginas 35–41, com dados da página 45. Exibição explícita dos resultados e observações de execução são adaptações pedagógicas."
+    }
   },
   {
     "title": "Pandas: filtrar e agrupar",
-    "pages": "42; 49–58",
+    "pages": "42–44; 49–58",
     "idea": "Cada comando responde a uma pergunta concreta.",
     "explain": "Um filtro produz uma máscara booleana. Use & para combinar condições e coloque cada condição entre parênteses. sort_values organiza linhas. groupby reúne categorias para calcular medidas. mean é média; median é mediana; std mede dispersão. A média sozinha pode esconder diferenças entre produtos.",
     "example": "Temperatura > 75 seleciona as duas linhas de Motor B. Isso já acende uma dúvida: a temperatura e o tipo de motor estão associados neste conjunto. Não há amostra suficiente para separar bem os efeitos.",
@@ -127,7 +307,27 @@
     "code": "df[df['temperatura'] > 75]\ndf[(df['temperatura'] > 75) & (df['defeitos'] > 10)]\ndf.sort_values('temperatura', ascending=False)\ndf.groupby('produto')['producao'].mean()\ndf.groupby('produto').agg(\n    producao=('producao','mean'),\n    defeitos=('defeitos','mean'))",
     "id": 9,
     "category": "Pandas",
-    "minutes": 18
+    "minutes": 18,
+    "guide": {
+      "objective": "Filtrar, ordenar e agrupar sem confundir seleção com mudança na tabela original.",
+      "sections": [
+        {
+          "title": "Da condição à máscara",
+          "text": "A comparação de uma coluna com um limite produz verdadeiro ou falso para cada linha. O filtro usa essa máscara. Combinações exigem & ou | e parênteses por condição. sort_values() retorna outra ordenação; sem atribuir o resultado, a tabela original permanece na ordem anterior."
+        },
+        {
+          "title": "O que a média esconde",
+          "text": "groupby() calcula medidas dentro de cada categoria. Neste conjunto há dois registros de A, dois de B e apenas um de C. median() é a mediana; std() usa desvio padrão amostral por padrão. Um grupo com um único registro não fornece esse desvio; NaN nesse resultado não significa sensor ausente."
+        }
+      ],
+      "steps": [
+        "Filtre temperatura > 75 e depois combine com defeitos > 10.",
+        "Ordene por temperatura e confira os extremos.",
+        "Calcule produção média e número de registros por produto."
+      ],
+      "expected": "Os dois filtros retornam as duas linhas de B. A maior temperatura é 85 e a menor 68. Médias: A 105, B 125, C 90; contagens: A 2, B 2, C 1.",
+      "sourceNote": "Base: páginas 42–44 e 49–58. Máscaras combinadas e interpretação dos grupos são adaptações; não são evidência causal."
+    }
   },
   {
     "title": "Laboratório 1: temperatura e defeitos",
@@ -137,10 +337,30 @@
     "example": "Motor B concentra as maiores temperaturas e contagens. Produto e volume produzido podem explicar parte da relação. Como próximo estudo, compare taxas dentro do mesmo produto, amplie o período e controle máquina, lote e condições de medição.",
     "question": "Qual frase é defensável: “temperatura causa defeitos” ou “nesta amostra variam juntas”?",
     "answer": "Nesta amostra variam juntas. Para sustentar causalidade, precisamos de um desenho de investigação adequado e controle das explicações alternativas.",
-    "code": "df[['producao', 'defeitos', 'temperatura']].corr()\ndf[['temperatura', 'taxa_defeitos']].corr()",
+    "code": "df['taxa_defeitos'] = df['defeitos'] / df['producao'] * 100\nprint(df[['producao', 'defeitos', 'temperatura']].corr())\nprint(df[['temperatura', 'taxa_defeitos']].corr())",
     "id": 10,
     "category": "Laboratórios",
-    "minutes": 20
+    "minutes": 20,
+    "guide": {
+      "objective": "Reproduzir o exercício e escrever uma conclusão que respeite o tamanho da amostra.",
+      "sections": [
+        {
+          "title": "Contagem e taxa respondem a perguntas distintas",
+          "text": "Temperatura versus contagem de defeitos tem Pearson 0,995051. Temperatura versus ocorrências por 100 peças tem Pearson 0,994900. A taxa leva a produção em conta, mas não elimina diferenças entre produtos nem demonstra causa. Calcule as duas medidas e indique qual está interpretando."
+        },
+        {
+          "title": "O alcance dos cinco registros",
+          "text": "Há três categorias de produto e poucos registros em cada uma. Uma correlação calculada por produto teria informação insuficiente para generalizar. Não crie uma regra de operação ou um limite seguro de temperatura com base nessa tabela; proponha uma investigação mais representativa."
+        }
+      ],
+      "steps": [
+        "Reproduza visualização, seleção, filtro, médias, extremos, ordenação e agrupamento do exercício.",
+        "Crie taxa_defeitos e calcule correlação usando apenas as colunas numéricas selecionadas.",
+        "Escreva uma observação, uma limitação e uma próxima investigação."
+      ],
+      "expected": "Médias: temperatura 75,6, produção 110, defeitos 8,2. Extremos: 68 e 85. Correlações arredondadas: contagem 0,995051; taxa 0,994900. A conclusão deve descrever associação nesta amostra, sem afirmar causalidade.",
+      "sourceNote": "Base: páginas 45–60. As duas correlações foram recalculadas; limitações e próximos estudos são complementos didáticos."
+    }
   },
   {
     "title": "Laboratório 2: produção e energia",
@@ -153,32 +373,92 @@
     "code": "m['eficiencia'] = m['producao'] / m['energia']\nm.sort_values('eficiencia', ascending=False)\nm['producao'].mean()\nm['energia'].mean()",
     "id": 11,
     "category": "Laboratórios",
-    "minutes": 18
+    "minutes": 18,
+    "guide": {
+      "objective": "Responder às sete questões e justificar a comparação por peças/kWh.",
+      "sections": [
+        {
+          "title": "A unidade da razão",
+          "text": "Produção é medida em peças por turno e energia em kWh por turno. Ao dividir, a unidade é peças/kWh. Inverter a divisão produz kWh/peça, em que valores menores indicam menor consumo específico. Indique a fórmula antes de comparar rankings."
+        },
+        {
+          "title": "Uma métrica não descreve toda a operação",
+          "text": "A tabela não identifica produto, tempo efetivo de operação ou qualidade das peças. O ranking calculado é válido para os números do exercício. Comparar desempenho real exige condições equivalentes; maior razão não basta para afirmar superioridade em todos os aspectos."
+        }
+      ],
+      "steps": [
+        "Responda às questões a–e da página 62 sem abrir as respostas.",
+        "Calcule eficiência para A–E e ordene da maior para a menor.",
+        "Explique por que D lidera produção, mas E lidera peças/kWh."
+      ],
+      "expected": "Maior produção D; menor energia C; médias 1.318 peças/turno e 438 kWh/turno; produção D, B, E, A, C. Eficiência E, C, A, B, D; E = 3,2593 peças/kWh.",
+      "sourceNote": "Base: páginas 61–62. A–E são máquinas, com medidas por turno. Comparabilidade e consumo específico são complementos."
+    }
   },
   {
     "title": "Transferir para a sua rotina",
     "pages": "Complemento aplicado",
     "idea": "Transforme experiência industrial em perguntas verificáveis.",
     "explain": "Escolha um problema pequeno. Defina indicador, unidade, período e critério de sucesso. Monte um dicionário de dados e registre a origem. Faça análise exploratória antes de tentar prever. Escreva conclusão separando observação, hipótese e próximo teste.",
-    "example": "Projeto: investigar rejeições de pickup. Campos sugeridos: máquina, programa, componente, feeder, nozzle, lote, horário, tentativas e rejeições. Indicador: rejeições/tentativas. Controle mudanças de setup e não use nome do operador como explicação automática de falha. Todos esses campos são sugestões, não dados da empresa.",
+    "example": "Projeto: investigar rejeições de pickup (retirada de componentes). Campos sugeridos: máquina, programa, componente, feeder (alimentador), nozzle (bico de coleta), lote, horário, tentativas e rejeições. Indicador: rejeições/tentativas. Controle mudanças de setup e não use nome do operador como explicação automática de falha. Todos esses campos são sugestões, não dados da empresa.",
     "question": "Qual seria seu primeiro entregável?",
     "answer": "Uma tabela confiável, um dicionário de campos, uma análise descritiva e uma hipótese testável. Um modelo de IA pode vir depois, se houver necessidade e dados adequados.",
     "code": "",
     "id": 12,
     "category": "Aplicação",
-    "minutes": 15
+    "minutes": 15,
+    "guide": {
+      "objective": "Esboçar um projeto pequeno com dados rastreáveis e uma hipótese verificável.",
+      "sections": [
+        {
+          "title": "Defina o entregável",
+          "text": "Escreva problema, população, período, unidade de análise, indicador e critério de sucesso. O dicionário deve explicar nome, significado, unidade, origem e tratamento de ausências de cada campo. Se ainda não há dados, descreva a coleta necessária antes de prometer uma previsão."
+        },
+        {
+          "title": "Uma investigação revisável",
+          "text": "Separe observações dos dados de possíveis explicações. Guarde versões da tabela e registre transformações para outra pessoa reproduzir a análise. Em uma comparação antes/depois, registre também mudanças de produto, máquina e setup que possam explicar o resultado."
+        }
+      ],
+      "steps": [
+        "Escreva um problema e uma decisão que a análise ajudaria.",
+        "Monte um dicionário de cinco campos com unidades e origem.",
+        "Defina uma hipótese e um teste, indicando o que ainda precisa coletar."
+      ],
+      "expected": "O esboço deve ser reproduzível, ter um indicador definido e reconhecer dados faltantes. Uma hipótese plausível continua sendo hipótese até ser avaliada.",
+      "sourceNote": "Módulo complementar criado para aplicar o conteúdo da Aula 01. Não corresponde a um exercício ou dado de empresa presente no PDF."
+    }
   },
   {
     "title": "Como revisar esta aula",
     "pages": "Roteiro sugerido",
     "idea": "Aprender é conseguir explicar e fazer sem olhar.",
-    "explain": "Sessão 1, 30 min: módulos 1 a 4, explique os conceitos em voz alta. Sessão 2, 40 min: módulos 5 a 8, aplique o KDD a um caso. Sessão 3, 50 min: módulos 9 a 12, execute o notebook e tente os exercícios antes do gabarito. Sessão 4, 30 min: módulo 13, esboce um projeto industrial. Revise após 1, 3 e 7 dias; os intervalos são uma sugestão.",
+    "explain": "Sessão 1, cerca de 38 min: módulos 1 a 4, explique os conceitos em voz alta. Sessão 2, cerca de 40 min: módulos 5 a 8, aplique o KDD a um caso. Sessão 3, cerca de 71 min: módulos 9 a 12, execute o notebook e tente os exercícios antes do gabarito; divida em duas sessões se necessário. Sessão 4, cerca de 23 min: módulos 13 e 14, esboce um projeto e revise. Os tempos incluem leitura e atividades. Revise após 1, 3 e 7 dias; os intervalos são uma sugestão.",
     "example": "Em cada revisão: escreva três coisas que lembra, uma dúvida e uma situação da fábrica em que o conceito ajudaria. Volte ao módulo quando não conseguir explicar com palavras próprias.",
     "question": "Quando marcar um módulo como compreendido?",
     "answer": "Quando você consegue explicar a ideia, resolver a pergunta e dar um exemplo novo sem consultar. O checkbox serve para autoavaliação, não certifica domínio.",
     "code": "",
     "id": 13,
     "category": "Aplicação",
-    "minutes": 8
+    "minutes": 8,
+    "guide": {
+      "objective": "Revisar conceitos e executar os exercícios antes de marcar a própria compreensão.",
+      "sections": [
+        {
+          "title": "Tempo para fazer, não só para ler",
+          "text": "Os tempos sugeridos incluem leitura, inspeção das figuras, tentativa da prática e execução no notebook. Não representam duração de áudio ou tempo cronometrado. Retome a preparação ao reiniciar o ambiente Python e compare seu raciocínio com os resultados esperados."
+        },
+        {
+          "title": "Autoavaliação com evidência",
+          "text": "Explique um conceito sem consultar, execute um comando e interprete seu resultado. Se conseguir repetir o código mas não explicar a saída, retome o módulo. A marcação de compreensão é pessoal; não é uma avaliação aplicada pelo professor nem certificação do campus."
+        }
+      ],
+      "steps": [
+        "Explique KDD e a diferença entre DataFrame e Series sem olhar.",
+        "Refaça um filtro e uma razão de eficiência no notebook.",
+        "Registre uma dúvida e um novo exemplo antes de consultar as respostas."
+      ],
+      "expected": "Compreensão envolve explicar, executar e interpretar. Os intervalos de 1, 3 e 7 dias são uma sugestão de organização e podem ser adaptados.",
+      "sourceNote": "Roteiro complementar de estudo. Os tempos são estimativas para as atividades do campus, não horários ou critérios de avaliação do professor."
+    }
   }
 ]

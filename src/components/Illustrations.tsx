@@ -101,11 +101,17 @@ const covers = [
     alt: "Ilustração do conhecimento gerado pela análise dos dados: monitor, lupa e lâmpada.",
   },
 ];
-export function TopicArt({ moduleId }: { moduleId: number }) {
+export function TopicArt({
+  moduleId,
+  lesson = false,
+}: {
+  moduleId: number;
+  lesson?: boolean;
+}) {
   const cover = covers[moduleId] ?? covers[0];
   return (
     <div
-      className={`topic-art course-topic-art ${cover.contain ? "contain" : ""}`}
+      className={`topic-art course-topic-art ${cover.contain ? "contain" : ""} ${lesson ? "lesson-topic-art" : ""}`}
     >
       <img
         src={asset(cover.file)}
@@ -113,8 +119,8 @@ export function TopicArt({ moduleId }: { moduleId: number }) {
         loading="lazy"
         decoding="async"
         style={{
-          objectPosition: cover.position,
-          transform: `scale(${cover.scale ?? 1})`,
+          objectPosition: "50% 50%",
+          transform: "none",
         }}
       />
       <span className="course-cover-origin">

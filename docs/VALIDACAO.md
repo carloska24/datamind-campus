@@ -1,5 +1,18 @@
 # Verificações da entrega
 
+## Auditoria de conteúdo e imagens — 06/10/2026
+
+- Comparação dos 14 módulos, notebook, caderno e PDF original, com revisão independente de conteúdo. Registro: [Auditoria de conteúdo](AUDITORIA_CONTEUDO_AULA01.md).
+- Objetivos, aprofundamento, prática e conferência adicionados; referências e complementos identificados. Caderno de 15 páginas sincronizado e renderizado para inspeção visual.
+- As 56 células de código do notebook passaram em ambiente novo (Pandas 3.0.1). Transcrições, filtros, médias, correlações, rankings e CSV conferidos; simulações preservam os registros originais.
+- TypeScript, build de produção e 25 testes aprovados. HTML portátil: 22 imagens incorporadas, nenhuma referência externa às artes e sintaxe aprovada.
+- Aulas 02/03 verificadas no navegador: imagem inteira, sem zoom, prática com resposta recolhida/expandida e ampliador da figura original. Aula 02 em 390×844 sem rolagem horizontal da página; imagem em 304×170,125 px com `contain`.
+- Imagem de desktop passou de `cover` em 188×118 para `contain` em 238×133 px no viewport usado. A figura original conserva ampliação própria. Capturas em `output/auditoria-conteudo/`.
+- Nenhuma chamada faturável de áudio foi feita nesta auditoria. Narração corresponde ao resumo; código e prática continuam sendo atividades de estudo.
+- Servidor local reiniciado para carregar os resumos revisados; tela de entrada confirmada. O reinício encerra sessões em memória; contas, notas, progresso e configuração privada continuam persistentes. A leitura da narração foi conferida sem chamada aos provedores.
+
+Para regenerar materiais: execute `python scripts/build-study-materials.py` em ambiente com ReportLab. Para verificar o notebook: `python scripts/verify-study-materials.py` em ambiente com Pandas.
+
 ## Conexão com Gemini — 05/10/2026
 
 - Falha reproduzida: Node.js no ambiente restrito da ferramenta retornava `fetch failed`, com causa `EACCES`, antes de receber uma resposta HTTP do Google.

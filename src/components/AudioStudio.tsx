@@ -347,7 +347,10 @@ export default function AudioStudio({
           <h1>
             Sua aula, em voz alta<span>.</span>
           </h1>
-          <p>Ouça em português, acompanhe os trechos e pare para pensar.</p>
+          <p>
+            Ouça o resumo em português e acompanhe os quatro trechos. As
+            práticas guiadas e os códigos estão na aula e no notebook.
+          </p>
         </div>
         <span className="tag">
           <Headphones size={15} />

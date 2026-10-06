@@ -10,5 +10,12 @@ export type Module = {
   code: string;
   category: string;
   minutes: number;
+  guide: {
+    objective: string;
+    sections: { title: string; text: string }[];
+    steps: string[];
+    expected: string;
+    sourceNote: string;
+  };
 };
 export type StudyState = { done: number[]; notes: Record<string, string> };

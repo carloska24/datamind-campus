@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
-const modules = JSON.parse(
-  readFileSync(new URL("../src/data/modules.json", import.meta.url), "utf8"),
-);
 export function getNarration(moduleId, sectionIndex) {
+  // Read the same lesson source as the current build, even after a content update.
+  const modules = JSON.parse(
+    readFileSync(new URL("../src/data/modules.json", import.meta.url), "utf8"),
+  );
   if (
     !Number.isInteger(moduleId) ||
     moduleId < 0 ||

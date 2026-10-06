@@ -1163,7 +1163,7 @@ export default function App({
                     ],
                     [
                       "Caderno de estudo",
-                      "15 páginas · explicações e respostas",
+                      "Guia revisado · explicações, práticas e respostas",
                       "Aula01_Caderno_Estudo.pdf",
                       BookOpen,
                     ],
@@ -1198,6 +1198,50 @@ export default function App({
                   })}
                 </div>
                 <div className="panel">
+                  <h2>Bibliografia do curso · PDF 11–12</h2>
+                  <p>
+                    Hurwitz et al. · Big Data Para Leigos (2016); Tan, Steinbach
+                    e Kumar · Introdução ao Data Mining (2009); Pierson · Data
+                    Science Para Leigos (2019).
+                  </p>
+                  <p>
+                    Complementares: Grus · Data Science do Zero (2016); Fawcett
+                    e Provost · Data Science para negócios (2016); Foreman ·
+                    Data Smart (2016); Amaral · Introdução à Ciência de Dados
+                    (2016). Dados bibliográficos conforme o material original.
+                  </p>
+                  <h3>Documentação para estudar</h3>
+                  <div className="reference-list">
+                    <a
+                      href="https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <div>
+                        <strong>Pandas · documentação oficial</strong>
+                        <p>
+                          Leitura de tabelas, seleção, estatística e exportação.
+                        </p>
+                      </div>
+                      <ExternalLink size={18} />
+                    </a>
+                    <a
+                      href="https://cdn.aaai.org/KDD/1996/KDD96-014.pdf"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <div>
+                        <strong>KDD · Fayyad, Piatetsky-Shapiro e Smyth</strong>
+                        <p>
+                          Artigo de referência para o processo de descoberta de
+                          conhecimento (1996).
+                        </p>
+                      </div>
+                      <ExternalLink size={18} />
+                    </a>
+                  </div>
+                </div>
+                <div className="panel">
                   <h2>Referências que orientaram esta versão</h2>
                   <div className="reference-list">
                     {[
@@ -1210,11 +1254,6 @@ export default function App({
                         "DataCamp",
                         "Organização de trilhas e prática com dados",
                         "https://www.datacamp.com/",
-                      ],
-                      [
-                        "Pandas",
-                        "Conceitos, tabelas, seleção e estatística",
-                        "https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html",
                       ],
                       [
                         "OpenAI · áudio",
@@ -1374,7 +1413,7 @@ function Lesson({
             </span>
             <span>
               <FileText size={15} />
-              PDF · {m.pages}
+              {m.id < 12 ? `PDF · ${m.pages}` : m.pages}
             </span>
           </div>
         </div>
@@ -1386,7 +1425,7 @@ function Lesson({
       <div className="lesson-grid">
         <div>
           <div className="concept-hero">
-            <TopicArt moduleId={m.id} />
+            <TopicArt moduleId={m.id} lesson />
             <div>
               <span className="eyebrow">A IDEIA QUE VOCÊ LEVA</span>
               <h2>{m.idea}</h2>
@@ -1397,7 +1436,17 @@ function Lesson({
               <BookOpen />
             </span>
             <h2>Entenda, com calma.</h2>
+            <div className="lesson-objective">
+              <span className="eyebrow">AO FINAL DESTE MÓDULO</span>
+              <p>{m.guide.objective}</p>
+            </div>
             <p>{m.explain}</p>
+            {m.guide.sections.map((section) => (
+              <section className="lesson-section" key={section.title}>
+                <h3>{section.title}</h3>
+                <p>{section.text}</p>
+              </section>
+            ))}
             <div className="industrial-example">
               <div>
                 <Factory size={20} />
@@ -1413,13 +1462,30 @@ function Lesson({
                 </div>
                 <CodeBlock code={m.code} />
                 <p className="small-text">
-                  Os comandos são exemplos da aula. Execute no notebook em
-                  Materiais e referências; este painel não executa Python.
+                  Código adaptado para estudo. No notebook de Materiais e
+                  referências, execute primeiro “Preparar os dados” para criar
+                  df e m. Este painel não executa Python.
                 </p>
               </>
             )}
+            <p className="small-text">{m.guide.sourceNote}</p>
           </article>
           <CourseFigure key={m.id} moduleId={m.id} />
+          <section className="panel lesson-practice" key={`practice-${m.id}`}>
+            <span className="eyebrow">
+              PRÁTICA GUIADA · COMPLEMENTO DIDÁTICO
+            </span>
+            <h2>Experimente antes de seguir</h2>
+            <ol>
+              {m.guide.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+            <details>
+              <summary>Conferir o resultado esperado</summary>
+              <p>{m.guide.expected}</p>
+            </details>
+          </section>
           <div className="panel thinking-card">
             <span className="tag peach">
               <Lightbulb size={15} />
