@@ -1,3 +1,6 @@
+import { Aula02TopicArt } from "./Aula02Artwork";
+import { useCourse } from "../course-context";
+import aula02Figures from "../data/aula02-figures.json";
 import { useId, useRef } from "react";
 import { Expand, X } from "lucide-react";
 import type { CSSProperties } from "react";
@@ -108,6 +111,9 @@ export function TopicArt({
   moduleId: number;
   lesson?: boolean;
 }) {
+  const course = useCourse();
+  if (course.number === "02")
+    return <Aula02TopicArt moduleId={moduleId} lesson={lesson} />;
   const cover = covers[moduleId] ?? covers[0];
   return (
     <div
@@ -130,7 +136,9 @@ export function TopicArt({
   );
 }
 export function CourseFigure({ moduleId }: { moduleId: number }) {
-  const figure = figures.find((entry) => entry.moduleId === moduleId);
+  const course = useCourse();
+  const sourceFigures = course.number === "02" ? aula02Figures : figures;
+  const figure = sourceFigures.find((entry) => entry.moduleId === moduleId);
   const dialog = useRef<HTMLDialogElement>(null);
   const id = useId();
   if (!figure) return null;
@@ -160,8 +168,8 @@ export function CourseFigure({ moduleId }: { moduleId: number }) {
       </button>
       <p className="small-text">{figure.note}</p>
       <small>
-        Fonte: Aula 01 · Data Science e Big Data na Indústria · Prof. Me Daniel
-        Vieira.
+        Fonte: Aula {course.number} · Data Science e Big Data na Indústria ·
+        Prof. Me Daniel Vieira.
       </small>
       <dialog
         className="course-figure-dialog"

@@ -1,6 +1,7 @@
 export type Page =
   | "catalog"
   | "progress"
+  | "project"
   | "home"
   | "course"
   | "lesson"
@@ -10,10 +11,16 @@ export type Page =
   | "review"
   | "notes"
   | "resources";
-export type CampusRoute = { page: Page; moduleId?: number; position?: number };
+export type CampusRoute = {
+  page: Page;
+  moduleId?: number;
+  position?: number;
+  courseId?: "aula02";
+};
 const slugs: Record<Page, string> = {
   catalog: "aulas",
   progress: "progresso",
+  project: "projeto",
   home: "inicio",
   course: "trilha",
   lesson: "aula",
@@ -35,14 +42,20 @@ const numbered = (value: string | undefined, max: number, fallback = 0) => {
 export function parseRoute(
   hash: string,
   moduleCount: number,
+  secondCourse = false,
 ): CampusRoute | null {
   if (!hash || hash === "#" || hash === "#/") return { page: "home" };
+  if (hash.startsWith("#/aula02/") && !secondCourse) {
+    const route = parseRoute("#/" + hash.slice(9), moduleCount, true);
+    if (!route || route.courseId || route.page === "kdd") return null;
+    return { ...route, courseId: "aula02" };
+  }
   const parts = hash.replace(/^#\/?/, "").split("/");
   if (parts.at(-1) === "") parts.pop();
   const page = (Object.keys(slugs) as Page[]).find(
     (p) => slugs[p] === parts[0],
   );
-  if (!page) return null;
+  if (!page || (page === "project" && !secondCourse)) return null;
   if (page === "lesson" || page === "audio" || page === "review") {
     const moduleId = numbered(parts[1], moduleCount);
     if (
@@ -57,24 +70,34 @@ export function parseRoute(
     }
     return { page, moduleId };
   }
-  if (page === "kdd" || page === "labs") {
-    const position = numbered(parts[1], page === "kdd" ? 5 : 2);
+  if (page === "kdd" || page === "labs" || page === "project") {
+    const position = numbered(
+      parts[1],
+      page === "labs" ? (secondCourse ? 4 : 2) : 5,
+    );
     return position === null || parts.length > 2 ? null : { page, position };
   }
   return parts.length === 1 ? { page } : null;
 }
 
 export function routeHash(route: CampusRoute) {
-  let hash = `#/${slugs[route.page]}`;
+  let hash = `#/${route.courseId ? "aula02/" : ""}${slugs[route.page]}`;
   if (["lesson", "audio", "review"].includes(route.page))
     hash += `/${(route.moduleId ?? 0) + 1}`;
-  if (route.page === "audio" || route.page === "kdd" || route.page === "labs")
+  if (
+    route.page === "audio" ||
+    route.page === "kdd" ||
+    route.page === "labs" ||
+    route.page === "project"
+  )
     hash += `/${(route.position ?? 0) + 1}`;
   return hash;
 }
 
 export function isStudyRoute(route: CampusRoute) {
-  return ["lesson", "audio", "kdd", "labs", "review"].includes(route.page);
+  return ["lesson", "audio", "kdd", "labs", "review", "project"].includes(
+    route.page,
+  );
 }
 
 /** Finishing the trail leads to revision, never silently back to module one. */

@@ -9,7 +9,11 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { campusRequest, type CampusUser } from "../accounts";
-type Member = CampusUser & { completed: number; updatedAt: string | null };
+type Member = CampusUser & {
+  completed: number;
+  completedByCourse?: { aula01: number; aula02: number };
+  updatedAt: string | null;
+};
 export default function AccountPanel({
   user,
   onClose,
@@ -209,11 +213,17 @@ export default function AccountPanel({
                       </small>
                     </div>
                     <div className="member-progress">
-                      <strong>{member.completed}/14</strong>
-                      <span>módulos compreendidos</span>
+                      <strong>
+                        Aula 01: {member.completed}/14 · Aula 02:{" "}
+                        {member.completedByCourse?.aula02 ?? 0}/14
+                      </strong>
+                      <span>tópicos compreendidos</span>
                       <progress
-                        max={14}
-                        value={member.completed}
+                        max={28}
+                        value={
+                          member.completed +
+                          (member.completedByCourse?.aula02 ?? 0)
+                        }
                         aria-label={`Progresso de ${member.name}`}
                       />
                     </div>

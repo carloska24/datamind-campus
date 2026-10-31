@@ -1,0 +1,464 @@
+[
+  {
+    "id": 0,
+    "title": "Comece pela pergunta, termine com uma decisão",
+    "pages": "2–7",
+    "category": "Fundamentos",
+    "minutes": 10,
+    "idea": "Uma análise útil conecta problema, dados e ação.",
+    "explain": "Antes de abrir o notebook, descreva o problema, a unidade de observação, o período e o indicador de sucesso. A exploração pode revelar que os dados disponíveis ainda não respondem à pergunta. Nesse caso, revise o escopo em vez de forçar uma conclusão.",
+    "example": "Uma fábrica quer reduzir paradas não planejadas. Uma pergunta investigável é: em quais condições de temperatura e vibração há maior frequência de registros com falha? Isso é diferente de afirmar que um sensor prevê uma falha futura.",
+    "question": "Qual é a diferença entre classificar uma falha registrada e prever uma falha futura?",
+    "answer": "Classificar usa o rótulo do registro; prever exige definir um horizonte futuro, garantir que as variáveis estejam disponíveis antes do evento e validar a separação temporal.",
+    "code": "pergunta = \"Quais condições estão associadas às falhas?\"\nunidade = \"registro de uma máquina em um instante\"\nprint(pergunta, unidade)",
+    "guide": {
+      "objective": "Formular uma pergunta verificável com unidade, período e decisão.",
+      "sections": [
+        {
+          "title": "Defina a observação",
+          "text": "Uma linha pode representar uma peça, turno, viagem ou leitura de sensor. Somar ou comparar sem entender essa unidade produz indicadores enganosos."
+        },
+        {
+          "title": "Do resultado à ação",
+          "text": "Uma associação orienta investigação. A recomendação deve indicar evidência, limitações e como verificar o efeito de uma mudança."
+        }
+      ],
+      "steps": [
+        "Escreva uma pergunta sobre seu processo.",
+        "Defina uma linha dos dados e a população analisada.",
+        "Anote uma decisão e a evidência necessária para apoiá-la."
+      ],
+      "expected": "Uma pergunta delimitada, acompanhada de unidade, período e indicador.",
+      "sourceNote": "Base: Aula 02, páginas 2–7. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 1,
+    "title": "Pandas: Series, DataFrame e índice",
+    "pages": "8–12",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "Uma tabela tem colunas, tipos e um índice; cada um tem uma função.",
+    "explain": "Pandas organiza dados tabulares. Uma Series representa uma sequência rotulada e um DataFrame reúne colunas alinhadas pelo índice. O índice não precisa ser um identificador único de equipamento. Ao combinar objetos, o alinhamento por rótulo pode mudar o resultado esperado.",
+    "example": "Uma coluna de temperatura é uma Series; leituras de máquina, horário e temperatura formam um DataFrame. A máquina pode se repetir em instantes diferentes.",
+    "question": "Selecionar df[\"temperatura\"] é igual a df[[\"temperatura\"]]?",
+    "answer": "Os valores podem coincidir, mas o primeiro objeto é uma Series e o segundo é um DataFrame com uma coluna. Essa diferença importa em operações e bibliotecas.",
+    "code": "import pandas as pd\ndf = pd.DataFrame({\"maquina\": [\"M01\", \"M02\"], \"temperatura\": [65, 72]})\nprint(type(df[\"temperatura\"]))\nprint(type(df[[\"temperatura\"]]))",
+    "guide": {
+      "objective": "Distinguir Series, DataFrame, coluna e índice.",
+      "sections": [
+        {
+          "title": "Prepare o ambiente",
+          "text": "No terminal, pip install pandas instala o pacote. No notebook, importe pandas como pd. O campus mostra o código; a execução ocorre no notebook Jupyter ou Colab."
+        },
+        {
+          "title": "Tipos afetam operações",
+          "text": "Texto numérico não se comporta como número. Confira dtypes e converta explicitamente quando necessário, registrando valores que não puderam ser convertidos."
+        }
+      ],
+      "steps": [
+        "Crie duas colunas com duas linhas.",
+        "Selecione uma coluna com um e dois pares de colchetes.",
+        "Confira shape, columns e dtypes."
+      ],
+      "expected": "O DataFrame tem forma (2, 2), e a seleção com colchetes duplos mantém duas dimensões.",
+      "sourceNote": "Base: Aula 02, páginas 8–12. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 2,
+    "title": "Importe e conheça seus dados",
+    "pages": "13–18; 21–22",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "Ler um arquivo é o início da investigação, não sua validação.",
+    "explain": "Use read_csv para CSV e escolha o separador e a codificação conforme o arquivo. head mostra uma amostra; shape informa dimensões; info resume colunas e valores não nulos. Uma leitura sem erro não garante que datas, unidades e faltantes estejam corretos.",
+    "example": "producao.csv possui 100 registros com data, turno, produto, peças produzidas, defeituosas e aprovadas. Observe se aprovadas mais defeituosas corresponde ao total produzido.",
+    "question": "Por que olhar apenas head pode esconder um problema?",
+    "answer": "head exibe poucas linhas. Ausências, tipos inconsistentes e duplicatas podem aparecer em outra parte do arquivo. Combine amostra, info, estatísticas e verificações de integridade.",
+    "code": "import pandas as pd\nproducao = pd.read_csv(\"producao.csv\")\nprint(producao.shape)\nprint(producao.head())\nproducao.info()\nproducao[\"data\"] = pd.to_datetime(producao[\"data\"], errors=\"raise\")",
+    "guide": {
+      "objective": "Importar CSV e verificar estrutura antes de calcular indicadores.",
+      "sections": [
+        {
+          "title": "Biblioteca e formatos",
+          "text": "read_excel pode exigir um mecanismo adicional para XLSX. Parquet também requer dependências específicas. As bases desta aula estão disponíveis em CSV."
+        },
+        {
+          "title": "Dicionário de dados",
+          "text": "Registre o significado de cada coluna, sua unidade e o que uma linha representa. Não atribua graus Celsius a um exemplo que não especifica a unidade."
+        }
+      ],
+      "steps": [
+        "Baixe producao.csv em Materiais.",
+        "Confira 100 linhas e seis colunas.",
+        "Valide a soma de aprovadas e defeituosas por registro."
+      ],
+      "expected": "100 registros, seis atributos e uma verificação explícita da consistência dos totais.",
+      "sourceNote": "Base: Aula 02, páginas 13–18; 21–22. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 3,
+    "title": "Selecione colunas e filtre observações",
+    "pages": "23–26",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "Um filtro precisa representar exatamente a população da pergunta.",
+    "explain": "Selecione colunas por nome e use máscaras booleanas para restringir linhas. loc combina rótulos de linhas e colunas; iloc usa posições. Ao combinar condições, coloque cada uma entre parênteses e use & ou |. Para alterar o recorte original, prefira uma atribuição explícita com loc.",
+    "example": "Para investigar registros do turno Noite acima de 300 peças, combine turno e volume. O resultado descreve esse subconjunto, não toda a produção.",
+    "question": "O que muda entre filtrar peças acima de 300 e obter a média de todos os registros?",
+    "answer": "O filtro altera a população e pode aumentar a média por construção. A comparação exige informar quem entrou no cálculo.",
+    "code": "recorte = producao.loc[\n    (producao[\"turno\"] == \"Noite\") &\n    (producao[\"pecas_produzidas\"] > 300),\n    [\"data\", \"turno\", \"pecas_produzidas\"]\n]\nprint(recorte.head())",
+    "guide": {
+      "objective": "Construir filtros e explicar o subconjunto selecionado.",
+      "sections": [
+        {
+          "title": "Rótulo ou posição",
+          "text": "loc usa rótulos, inclusive nas colunas; iloc usa posições inteiras. Não suponha que o índice continue sequencial depois de uma filtragem."
+        },
+        {
+          "title": "Condição vazia também informa",
+          "text": "Se o filtro não retorna linhas, confira os valores e o critério antes de concluir que não há ocorrências no processo."
+        }
+      ],
+      "steps": [
+        "Liste os turnos com unique.",
+        "Filtre Noite e produção acima de 300.",
+        "Compare a quantidade de linhas antes e depois."
+      ],
+      "expected": "Um recorte com as três colunas escolhidas e critérios explícitos.",
+      "sourceNote": "Base: Aula 02, páginas 23–26. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 4,
+    "title": "Resuma sem esconder a distribuição",
+    "pages": "27–29; 32",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "A média é um resumo; distribuição e tamanho da amostra dão contexto.",
+    "explain": "mean, median, min, max e describe descrevem aspectos distintos de uma variável. A média é sensível a valores extremos. O desvio padrão resume dispersão e deve ter sua convenção informada. Ordenar ajuda a localizar registros extremos, mas não explica sua causa.",
+    "example": "Nos cinco registros de motores do exemplo, a temperatura média é 75,6; a menor é 68 e a maior é 85. A unidade da temperatura não está especificada nesse exemplo do material.",
+    "question": "O registro de maior temperatura é necessariamente o mais representativo?",
+    "answer": "Não. Um extremo pode ser raro, erro de medição ou evento operacional real. É preciso investigar contexto, frequência e distribuição.",
+    "code": "df = pd.DataFrame({\"produto\": [\"Motor A\", \"Motor B\", \"Motor A\", \"Motor C\", \"Motor B\"],\n \"producao\": [100,120,110,90,130], \"defeitos\": [5,12,6,3,15],\n \"temperatura\": [70,82,73,68,85]})\nprint(df[\"temperatura\"].agg([\"mean\", \"median\", \"min\", \"max\"]))\nprint(df.sort_values(\"temperatura\", ascending=False))",
+    "guide": {
+      "objective": "Calcular estatísticas e interpretar seus limites.",
+      "sections": [
+        {
+          "title": "Compare resumos",
+          "text": "Média, mediana e extremos juntos ajudam a perceber assimetria. Para amostras pequenas, visualize os registros individuais."
+        },
+        {
+          "title": "Ordene com objetivo",
+          "text": "Ordenar pela temperatura permite inspecionar os maiores valores. Um ranking sozinho não demonstra relação causal com defeitos."
+        }
+      ],
+      "steps": [
+        "Execute a tabela de cinco motores.",
+        "Calcule média e mediana da temperatura.",
+        "Explique o que o máximo não permite concluir."
+      ],
+      "expected": "Média 75,6, mediana 73, mínimo 68 e máximo 85.",
+      "sourceNote": "Base: Aula 02, páginas 27–29; 32. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 5,
+    "title": "Agrupamentos e taxas com denominador correto",
+    "pages": "30–31; 35–44",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "Compare grupos por volume e taxa, sempre com o denominador à vista.",
+    "explain": "groupby separa registros em grupos e agg define os resumos. Para medir a fração total de peças defeituosas por turno, divida a soma de defeituosas pela soma de produzidas. Fazer a média das porcentagens de cada linha dá peso igual a registros com volumes diferentes.",
+    "example": "Um turno pode produzir mais e ter mais defeitos absolutos, mas uma taxa menor. O painel de laboratórios apresenta volume, defeitos e taxa por turno para a base local.",
+    "question": "A média simples das taxas por registro é sempre a taxa total?",
+    "answer": "Não. A taxa total equivale à média ponderada pelo volume produzido. A média simples só coincide em condições específicas, como denominadores iguais.",
+    "code": "resumo = producao.groupby(\"turno\").agg(\n produzidas=(\"pecas_produzidas\", \"sum\"),\n defeituosas=(\"pecas_defeituosas\", \"sum\"),\n media=(\"pecas_produzidas\", \"mean\"))\nresumo[\"taxa_pct\"] = 100 * resumo[\"defeituosas\"] / resumo[\"produzidas\"]\nprint(resumo)",
+    "guide": {
+      "objective": "Construir uma agregação e calcular a taxa ponderada de defeitos.",
+      "sections": [
+        {
+          "title": "Defina a métrica",
+          "text": "Total produzido, média por registro e taxa de defeitos respondem a perguntas diferentes. Nomeie a unidade de cada resultado."
+        },
+        {
+          "title": "Cheque o volume",
+          "text": "Um grupo com poucos registros tem uma taxa mais instável. Mostre a contagem de observações junto à comparação."
+        }
+      ],
+      "steps": [
+        "Some produção e defeitos por turno.",
+        "Calcule a taxa com os totais agregados.",
+        "Compare o ranking de volume com o ranking de taxa."
+      ],
+      "expected": "Uma tabela que distingue peças, peças por registro e percentual de defeitos.",
+      "sourceNote": "Base: Aula 02, páginas 30–31; 35–44. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 6,
+    "title": "Qualidade dos dados e transformações",
+    "pages": "13–17; 65; 71–72",
+    "category": "Pandas",
+    "minutes": 10,
+    "idea": "Tratar dados exige justificar escolhas e preservar o original.",
+    "explain": "Inspecione ausências, duplicatas e tipos antes de preencher ou excluir. Um valor ausente não significa zero; um outlier não é automaticamente erro. Copie a base para análise e registre cada transformação. Quando há modelagem, aprenda imputação e escalas usando apenas o conjunto de treinamento.",
+    "example": "manutencao.csv contém 5.050 linhas brutas. Há registros repetidos e valores ausentes: eles fazem parte da investigação. O relatório de qualidade em Laboratórios quantifica essas situações.",
+    "question": "Por que preencher todos os faltantes com zero pode distorcer uma análise?",
+    "answer": "Zero pode representar uma medição real. Substituir uma ausência por zero inventa essa medição e muda médias, correlações e decisões.",
+    "code": "manutencao = pd.read_csv(\"manutencao.csv\")\nprint(manutencao.isna().sum())\nprint(\"Duplicatas exatas:\", manutencao.duplicated().sum())\nbase = manutencao.drop_duplicates().copy()\nbase[\"timestamp\"] = pd.to_datetime(base[\"timestamp\"], errors=\"raise\")",
+    "guide": {
+      "objective": "Auditar a base e documentar um tratamento justificável.",
+      "sections": [
+        {
+          "title": "Duplicata depende da chave",
+          "text": "Duas linhas idênticas são diferentes de duas leituras da mesma máquina em horários distintos. Verifique a unidade de observação antes de remover."
+        },
+        {
+          "title": "Outliers precisam de domínio",
+          "text": "Limites estatísticos sinalizam observações para inspeção. Uma temperatura extrema pode ser precisamente o evento relevante para manutenção."
+        }
+      ],
+      "steps": [
+        "Conte ausências por coluna e duplicatas exatas.",
+        "Crie uma cópia sem duplicatas exatas.",
+        "Registre quantas linhas foram removidas e por quê."
+      ],
+      "expected": "Um relatório antes/depois, sem alteração silenciosa do arquivo original.",
+      "sourceNote": "Base: Aula 02, páginas 13–17; 65; 71–72. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 7,
+    "title": "Crie indicadores e investigue associações",
+    "pages": "33–34; 51",
+    "category": "Análise",
+    "minutes": 10,
+    "idea": "Uma variável derivada deve ter fórmula, unidade e interpretação.",
+    "explain": "A taxa de defeitos relaciona defeitos ao volume produzido. A correlação de Pearson mede associação linear e varia entre menos um e um. Ela depende do recorte, dos valores extremos e de outras variáveis. Correlação forte não estabelece causalidade nem garante capacidade de previsão fora da amostra.",
+    "example": "Nos cinco motores, temperatura e quantidade de defeitos variam juntas. Compare também a taxa, porque o volume produzido difere entre registros e produtos.",
+    "question": "Uma correlação alta entre produção e defeitos prova piora da qualidade?",
+    "answer": "Não. Produzir mais pode aumentar a contagem de defeitos sem aumentar sua proporção. Analise a taxa, o produto, o turno e o período.",
+    "code": "df[\"taxa_defeitos_pct\"] = 100 * df[\"defeitos\"] / df[\"producao\"].where(df[\"producao\"] > 0)\nprint(df[[\"temperatura\", \"defeitos\", \"taxa_defeitos_pct\"]].corr())",
+    "guide": {
+      "objective": "Criar uma taxa e distinguir associação de explicação causal.",
+      "sections": [
+        {
+          "title": "Proteja o denominador",
+          "text": "Se a produção for zero, a taxa não está definida. Marque a condição e investigue; não transforme divisão por zero em um percentual arbitrário."
+        },
+        {
+          "title": "Olhe o gráfico",
+          "text": "A mesma correlação pode esconder formatos diferentes. Um gráfico de dispersão ajuda a detectar grupos, extremos e relações não lineares."
+        }
+      ],
+      "steps": [
+        "Crie a taxa no exemplo de motores.",
+        "Compare correlação com contagem e com taxa.",
+        "Escreva uma conclusão que não afirme causalidade."
+      ],
+      "expected": "Indicador em porcentagem e interpretação limitada à associação observada.",
+      "sourceNote": "Base: Aula 02, páginas 33–34; 51. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 8,
+    "title": "Gráficos que respondem à pergunta",
+    "pages": "37–48",
+    "category": "Análise",
+    "minutes": 10,
+    "idea": "Escolha o gráfico pela comparação que deseja fazer.",
+    "explain": "Use barras para comparar categorias, linhas para evolução temporal e dispersão para associação entre variáveis. Em Matplotlib, Figure é a figura completa e Axes é a área de desenho. Rotule unidades e fonte; não deixe cor e decoração substituírem o significado.",
+    "example": "Barras de produção por turno mostram volume. Outra visualização mostra taxa de defeitos. Combinar ambos sem deixar as unidades claras pode induzir uma comparação errada.",
+    "question": "Por que ordenar datas como texto pode criar uma sequência incorreta?",
+    "answer": "Formatos textuais podem ordenar por dia ou mês antes do ano. Converta para datetime e ordene cronologicamente antes de desenhar.",
+    "code": "import matplotlib.pyplot as plt\nfig, ax = plt.subplots(figsize=(8, 5))\nresumo[\"taxa_pct\"].plot.bar(ax=ax, color=\"#157d8b\")\nax.set(xlabel=\"Turno\", ylabel=\"Peças defeituosas (%)\", title=\"Taxa por turno\")\nplt.tight_layout()\nplt.show()",
+    "guide": {
+      "objective": "Criar uma visualização com título, eixos e unidade.",
+      "sections": [
+        {
+          "title": "Uma pergunta por gráfico",
+          "text": "Um gráfico de volume e um de qualidade podem ficar lado a lado. Isso facilita distinguir quantidade absoluta e proporção."
+        },
+        {
+          "title": "Acessibilidade",
+          "text": "Inclua a tabela com os valores e use rótulos além de cores. Evite gráficos tridimensionais que deformam a percepção do tamanho."
+        }
+      ],
+      "steps": [
+        "Desenhe barras da taxa por turno.",
+        "Adicione o título e a unidade percentual.",
+        "Compare o resultado com a tabela agregada."
+      ],
+      "expected": "Barras consistentes com as taxas calculadas, sem confundir volume e qualidade.",
+      "sourceNote": "Base: Aula 02, páginas 37–48. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 9,
+    "title": "Laboratório: produção e qualidade por turno",
+    "pages": "35–48; 51",
+    "category": "Laboratórios",
+    "minutes": 15,
+    "idea": "Um turno eficiente precisa ser avaliado por produção e qualidade.",
+    "explain": "A base local registra 100 observações de produção. Responda às perguntas do material por total de peças, maior produção por turno, média por registro e maior taxa de defeitos. Depois investigue a correlação entre volume e contagem de defeitos sem transformá-la em causalidade.",
+    "example": "No laboratório interativo, alterne a métrica para ver como o ranking dos turnos muda. Confira o número de registros: os grupos não precisam ter o mesmo tamanho.",
+    "question": "Qual denominador usar para comparar a qualidade total dos turnos?",
+    "answer": "O total de peças produzidas em cada turno. Divida o total de peças defeituosas desse turno por esse denominador.",
+    "code": "print(\"Total:\", producao[\"pecas_produzidas\"].sum())\nprint(producao.groupby(\"turno\")[\"pecas_produzidas\"].agg([\"sum\", \"mean\", \"size\"]))\nprint(producao[\"pecas_produzidas\"].corr(producao[\"pecas_defeituosas\"]))",
+    "guide": {
+      "objective": "Responder ao exemplo de produção com cálculos reproduzíveis.",
+      "sections": [
+        {
+          "title": "Confira as identidades",
+          "text": "Aprovadas mais defeituosas deve ser igual a produzidas na base fornecida. Uma inconsistência requer investigação antes de calcular taxas."
+        },
+        {
+          "title": "Interprete o resultado",
+          "text": "A análise descreve o período fornecido. Comparar turnos também pode exigir controlar produto, equipamento e condições operacionais."
+        }
+      ],
+      "steps": [
+        "Abra Laboratórios e escolha Produção.",
+        "Responda às quatro perguntas antes de abrir as resoluções.",
+        "Reproduza os resultados no notebook."
+      ],
+      "expected": "Os números do painel e do notebook devem coincidir, respeitando arredondamentos.",
+      "sourceNote": "Base: Aula 02, páginas 35–48; 51. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 10,
+    "title": "Laboratório: eficiência energética das máquinas",
+    "pages": "49–50",
+    "category": "Laboratórios",
+    "minutes": 15,
+    "idea": "Mais produção não significa maior eficiência energética.",
+    "explain": "O exercício traz cinco máquinas com produção por turno e energia por turno. A razão produção dividida por energia expressa peças por quilowatt-hora. O indicador compara o rendimento observado, sem controlar diferenças de produto, capacidade ou carga.",
+    "example": "A máquina D produz 1.450 peças, o maior volume. A máquina C consome 390 kWh, o menor consumo. A máquina E tem a melhor razão: cerca de 3,259 peças por kWh.",
+    "question": "Por que escolher a máquina de menor consumo pode ser insuficiente?",
+    "answer": "Ela pode produzir menos. Para avaliar a relação entre saída e consumo, compare peças por kWh, além de capacidade e requisitos de qualidade.",
+    "code": "maquinas = pd.DataFrame({\"maquina\": [\"A\",\"B\",\"C\",\"D\",\"E\"],\n \"producao\": [1250,1380,1190,1450,1320], \"energia_kwh\": [420,465,390,510,405]})\nmaquinas[\"eficiencia\"] = maquinas[\"producao\"] / maquinas[\"energia_kwh\"]\nprint(maquinas.sort_values(\"eficiencia\", ascending=False))",
+    "guide": {
+      "objective": "Comparar produção, consumo e eficiência com unidades corretas.",
+      "sections": [
+        {
+          "title": "Médias do exercício",
+          "text": "A produção média é 1.318 peças por turno e o consumo médio é 438 kWh por turno. A média das razões não é a razão dos totais em geral."
+        },
+        {
+          "title": "Não confunda indicadores",
+          "text": "Peças por kWh aumenta quando há mais produção por unidade de energia. kWh por peça é o inverso e melhora quando diminui."
+        }
+      ],
+      "steps": [
+        "Calcule as sete respostas do slide 50.",
+        "Compare os rankings de produção e eficiência.",
+        "Explique a unidade do indicador."
+      ],
+      "expected": "Produção: D; menor consumo: C; melhor eficiência: E. Ranking de produção D, B, E, A, C.",
+      "sourceNote": "Base: Aula 02, páginas 49–50. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 11,
+    "title": "Laboratório: viagens, tempo e vendas",
+    "pages": "52–56",
+    "category": "Laboratórios",
+    "minutes": 18,
+    "idea": "Análise temporal exige datas válidas e agregações consistentes.",
+    "explain": "Na logística, investigue total de viagens, maior valor diário, média diária, agregação mensal e relação com distância. Nas vendas, calcule unidades, faturamento e evolução anual. As 100 linhas de vendas são meses, não dias; as de logística são datas diárias.",
+    "example": "base_p52.csv contém viagens e distância. base_p54.csv registra meses, preço, unidades e faturamento de um produto. A correlação entre preço e vendas pode refletir tendência temporal e não um efeito isolado do preço.",
+    "question": "O mês de maior faturamento precisa ser o mês de maior quantidade vendida?",
+    "answer": "Não. Faturamento depende da quantidade e do preço. Compare os dois e confira a consistência da multiplicação.",
+    "code": "viagens = pd.read_csv(\"base_p52.csv\", parse_dates=[\"data\"])\nviagens[\"mes\"] = viagens[\"data\"].dt.to_period(\"M\")\nprint(viagens.groupby(\"mes\")[\"quantidade_viagens\"].sum())\nvendas = pd.read_csv(\"base_p54.csv\")\nvendas[\"mes\"] = pd.to_datetime(vendas[\"mes\"], format=\"%Y-%m\")\nprint(vendas.groupby(vendas[\"mes\"].dt.year)[\"unidades_vendidas\"].sum())",
+    "guide": {
+      "objective": "Resolver as questões de logística e vendas com agrupamentos temporais.",
+      "sections": [
+        {
+          "title": "Nomeie a média",
+          "text": "Média por registro é média diária apenas quando cada dia tem um registro e a cobertura do período está adequada. Verifique duplicação de datas e lacunas."
+        },
+        {
+          "title": "Entrega",
+          "text": "O material solicita notebook Google com códigos e respostas dos exercícios 1, 2 e 3. Confira os requisitos no slide 56; o campus não envia atividades automaticamente."
+        }
+      ],
+      "steps": [
+        "Resolva as cinco perguntas de viagens.",
+        "Resolva as cinco perguntas de vendas.",
+        "Compare os resultados com as resoluções dos laboratórios."
+      ],
+      "expected": "Resultados reproduzíveis, datas convertidas e interpretação que reconhece os limites da correlação.",
+      "sourceNote": "Base: Aula 02, páginas 52–56. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais. Atenção: as imagens das tabelas nos slides 52 e 54 aparecem trocadas em relação aos enunciados. Identifique a base pelos nomes das colunas: viagens e distância para logística; preço, unidades e faturamento para vendas."
+    }
+  },
+  {
+    "id": 12,
+    "title": "Projeto S&M: exploração e preparação",
+    "pages": "57–72",
+    "category": "Projeto",
+    "minutes": 18,
+    "idea": "O projeto começa pela confiabilidade dos registros e pela definição de falha.",
+    "explain": "O caso S&M Industry apresenta cinco máquinas e registros de sensores. As duas primeiras etapas pedem compreender variáveis, distribuição, frequência de falhas, ausências, duplicatas e relações entre condições operacionais e falha. A taxa de registros com falha não é automaticamente uma taxa de incidentes independentes.",
+    "example": "A base bruta possui 5.050 registros. Antes de comparar máquinas, deduplique de forma justificada, conte faltantes e informe se a análise usa a base bruta ou tratada. O painel do projeto explicita esse recorte.",
+    "question": "É correto interpretar 20 registros consecutivos com falha como 20 paradas distintas?",
+    "answer": "Não necessariamente. Podem ser leituras repetidas durante o mesmo evento. Para contar paradas, é preciso uma definição de episódio e uma regra temporal.",
+    "code": "base = pd.read_csv(\"manutencao.csv\").drop_duplicates().copy()\nbase[\"timestamp\"] = pd.to_datetime(base[\"timestamp\"], errors=\"raise\")\nperfil = base.groupby(\"maquina_id\")[\"falha\"].agg([\"size\", \"sum\", \"mean\"])\nprint(perfil)\nprint(base.isna().sum())",
+    "guide": {
+      "objective": "Preparar as etapas 1 e 2 do projeto com um relatório auditável.",
+      "sections": [
+        {
+          "title": "Perguntas da exploração",
+          "text": "Conte registros e atributos, identifique tipos e distribuições e calcule o percentual de registros com falha por máquina."
+        },
+        {
+          "title": "Tratamento documentado",
+          "text": "Mantenha o arquivo bruto, registre decisões sobre duplicatas e faltantes e investigue extremos. Não use a variável falha para preencher sensores."
+        }
+      ],
+      "steps": [
+        "Abra Projeto industrial e leia as cinco etapas.",
+        "Execute o diagnóstico do notebook.",
+        "Registre três achados, suas limitações e uma próxima investigação."
+      ],
+      "expected": "Um diagnóstico com proveniência, regras de tratamento e taxas por equipamento.",
+      "sourceNote": "Base: Aula 02, páginas 57–72. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  },
+  {
+    "id": 13,
+    "title": "Projeto S&M: modelos, agrupamentos e escala",
+    "pages": "73–80",
+    "category": "Projeto",
+    "minutes": 20,
+    "idea": "O modelo apoia a decisão quando a avaliação representa o uso real.",
+    "explain": "As etapas finais pedem classificação supervisionada, K-Means e processamento com PySpark. Compare pelo menos dois classificadores com uma referência simples e métricas adequadas. Separe treino e teste antes de aprender transformações. Em dados temporais, evite que observações futuras ou instantes repetidos vazem para o treino.",
+    "example": "Um modelo que acerta a classe sem falha na maioria das vezes pode ter recall zero para falhas. Compare precisão, recall, F1 e matriz de confusão, relacionando falsos alarmes e falhas não detectadas ao custo operacional.",
+    "question": "Um cluster com mais falhas é automaticamente um modo de falha comprovado?",
+    "answer": "Não. É um agrupamento estatístico de condições observadas. A interpretação exige domínio, estabilidade e investigação; o rótulo falha não deve ser usado como entrada para construir os clusters.",
+    "code": "from sklearn.pipeline import make_pipeline\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.ensemble import RandomForestClassifier\n# X_treino e y_treino devem vir de uma separação documentada.\nmodelo = make_pipeline(SimpleImputer(strategy=\"median\"),\n RandomForestClassifier(n_estimators=100, random_state=42, class_weight=\"balanced\"))\n# modelo.fit(X_treino, y_treino)\n# Compare previsões no teste com uma referência majoritária.",
+    "guide": {
+      "objective": "Planejar avaliação, interpretar agrupamentos e justificar uso de PySpark.",
+      "sections": [
+        {
+          "title": "Três etapas, três objetivos",
+          "text": "Classificação estima o rótulo; K-Means descreve perfis após escala das variáveis; Spark executa transformações e agregações distribuídas. Um resultado não substitui o outro."
+        },
+        {
+          "title": "Entregáveis e avaliação",
+          "text": "O slide 79 solicita notebook com as cinco etapas, gráficos, interpretações e recomendações. O slide 80 distribui 100 pontos entre exploração, tratamento, análise, modelos, agrupamentos, Spark e recomendações."
+        }
+      ],
+      "steps": [
+        "Escolha pelo menos dois classificadores e uma estratégia de validação.",
+        "Defina como comparar candidatos a K e interpretar perfis.",
+        "Documente uma agregação em PySpark e as limitações do projeto."
+      ],
+      "expected": "Um roteiro completo e executável com justificativas; não há promessa de um modelo vencedor sem avaliação.",
+      "sourceNote": "Base: Aula 02, páginas 73–80. Explicações, verificações e práticas guiadas são complementos didáticos; resultados usam as bases locais identificadas em Materiais."
+    }
+  }
+]

@@ -1,0 +1,20 @@
+Imagens da Aula 02
+
+Figuras JPEG extraídas do PDF original fornecido pelo usuário. Nenhuma imagem gerada para esta revisão.
+Diagramas SVG e gráfico PNG: documentação oficial do projeto pandas. Arquivos originais preservados, licença BSD incluída em PANDAS-LICENSE.txt. Os exemplos da documentação não representam as bases industriais do curso.
+
+/course-art/aula02/curated/projeto.jpg — PDF da Aula 02, figura original da página 2.
+/course-art/aula02/curated/01_table_dataframe.svg — https://pandas.pydata.org/docs/getting_started/intro_tutorials/01_table_oriented.html
+/course-art/aula02/curated/02_io_readwrite.svg — https://pandas.pydata.org/docs/getting_started/intro_tutorials/02_read_write.html
+/course-art/aula02/curated/03_subset_columns_rows.svg — https://pandas.pydata.org/docs/getting_started/intro_tutorials/03_subset_data.html
+/course-art/aula02/curated/06_aggregate.svg — https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html
+/course-art/aula02/curated/06_groupby.svg — https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html
+/course-art/aula02/curated/qualidade.jpg — PDF da Aula 02, figura original da página 16.
+/course-art/aula02/curated/correlacao.jpg — PDF da Aula 02, figura original da página 34.
+/course-art/aula02/curated/graficos.jpg — PDF da Aula 02, figura original da página 45.
+/course-art/aula02/curated/turnos.jpg — PDF da Aula 02, figura original da página 48.
+/course-art/aula02/curated/energia.jpg — PDF da Aula 02, figura original da página 5.
+/course-art/aula02/curated/09_time_section.png — https://pandas.pydata.org/docs/getting_started/intro_tutorials/09_timeseries.html
+/course-art/aula02/curated/maquinas.jpg — PDF da Aula 02, figura original da página 59.
+/course-art/aula02/curated/clusters.jpg — PDF da Aula 02, figura original da página 6.
+Figuras adicionais: classificacao.jpg — PDF p. 5; spark.jpg — PDF p. 7; viagens.jpg — PDF p. 54; vendas.jpg — PDF p. 52. As tabelas dos slides 52 e 54 estão invertidas em relação aos enunciados; o campus sinaliza a inconsistência.

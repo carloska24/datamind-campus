@@ -23,7 +23,7 @@ export function createAudioCache({ directory, generate }) {
   return async (body) => {
     if (!body.apiKey || body.apiKey.trim().length < 10)
       throw Error("Configure a chave de API no servidor para gerar áudio.");
-    const text = getNarration(body.moduleId, body.sectionIndex);
+    const text = getNarration(body.moduleId, body.sectionIndex, body.courseId);
     const voices =
       body.provider === "openai"
         ? ["coral", "alloy", "nova", "onyx", "sage", "shimmer"]

@@ -1,3 +1,10 @@
+import { Aula02Intro } from "./components/Aula02Artwork";
+import { CourseContext, useCourse } from "./course-context";
+import { course as firstCourse, secondCourse } from "./data/course";
+import secondModules from "./data/aula02-modules.json";
+import Aula02Labs from "./components/Aula02Labs";
+import Aula02Project from "./components/Aula02Project";
+import Aula02Resources from "./components/Aula02Resources";
 import CourseBrand from "./components/CourseBrand";
 import { useEffect, useState } from "react";
 import {
@@ -63,6 +70,7 @@ import "./styles.css";
 import "./course-art.css";
 import "./campus-layout.css";
 import "./campus-premium.css";
+import "./aula02-visuals.css";
 import CampusOverview from "./components/CampusOverview";
 import {
   LessonNavigation,
@@ -116,6 +124,9 @@ function validState(s: unknown): s is StudyState {
     !!v.notes &&
     typeof v.notes === "object" &&
     !Array.isArray(v.notes) &&
+    (!v.courses ||
+      (Object.keys(v.courses).every((k) => k === "aula02") &&
+        (!v.courses.aula02 || validState(v.courses.aula02)))) &&
     Object.entries(v.notes).every(
       ([k, t]) => /^\d+$/.test(k) && +k < 14 && typeof t === "string",
     )
@@ -125,7 +136,12 @@ function initialState(): StudyState {
   try {
     for (const key of ["aula01-studio-v2", "aula01-carlos-v1"]) {
       const s = JSON.parse(localStorage.getItem(key) || "null");
-      if (validState(s)) return { done: [...new Set(s.done)], notes: s.notes };
+      if (validState(s))
+        return {
+          done: [...new Set(s.done)],
+          notes: s.notes,
+          courses: s.courses,
+        };
     }
   } catch {}
   return { done: [], notes: {} };
@@ -158,19 +174,22 @@ export default function App({
     .join("")
     .toUpperCase();
   const [route, setRoute] = useState<CampusRoute>(
-      () =>
-        parseRoute(window.location.hash, modules.length) ?? { page: "home" },
+      () => parseRoute(window.location.hash, 14) ?? { page: "home" },
     ),
     [lastActivity, setLastActivity] = useState<CampusRoute | null>(() =>
       initialRecord
         ? initialRecord.lastActivity
-          ? parseRoute(initialRecord.lastActivity, modules.length)
+          ? parseRoute(initialRecord.lastActivity, 14)
           : null
         : initialActivity(),
     ),
-    [study, setStudy] = useState<StudyState>(() =>
+    [campusStudy, setCampusStudy] = useState<StudyState>(() =>
       initialRecord
-        ? { done: initialRecord.done, notes: initialRecord.notes }
+        ? {
+            done: initialRecord.done,
+            notes: initialRecord.notes,
+            courses: initialRecord.courses,
+          }
         : initialState(),
     ),
     [query, setQuery] = useState(""),
@@ -181,35 +200,97 @@ export default function App({
     [theme, setTheme] = useState<"dark" | "light">(initialTheme),
     [palette, setPalette] = useState(false),
     [celebrate, setCelebrate] = useState(0);
-  const sync = useStudySync(study, lastActivity, initialRecord, account?.id);
+  const course = route.courseId === "aula02" ? secondCourse : firstCourse;
+  const isSecond = course.number === "02";
+  useEffect(() => {
+    document.title = `Indústria & Dados · UNISENAI · Aula ${course.number} · ${course.title}`;
+  }, [course.number]);
+  const modules: Module[] = isSecond ? secondModules : rawModules;
+  const categories = ["Todos", ...new Set(modules.map((m) => m.category))];
+  const study: StudyState = isSecond
+    ? (campusStudy.courses?.aula02 ?? { done: [], notes: {} })
+    : campusStudy;
+  function setStudy(
+    update: StudyState | ((previous: StudyState) => StudyState),
+  ) {
+    setCampusStudy((previous) => {
+      const active = isSecond
+        ? (previous.courses?.aula02 ?? { done: [], notes: {} })
+        : previous;
+      const next = typeof update === "function" ? update(active) : update;
+      return isSecond
+        ? {
+            ...previous,
+            courses: {
+              ...previous.courses,
+              aula02: { done: next.done, notes: next.notes },
+            },
+          }
+        : { ...previous, done: next.done, notes: next.notes };
+    });
+  }
+  const sync = useStudySync(
+    campusStudy,
+    lastActivity,
+    initialRecord,
+    account?.id,
+  );
   const next = modules.find((m) => !study.done.includes(m.id)) || modules[0];
   const page = route.page,
     current = route.moduleId ?? 0;
   const allDone = modules.every((m) => study.done.includes(m.id));
-  const resume = studyDestination(study.done, lastActivity, modules.length);
+  const matchingActivity =
+    lastActivity?.courseId === route.courseId ? lastActivity : null;
+  const resume = {
+    ...studyDestination(study.done, matchingActivity, modules.length),
+    ...(route.courseId ? { courseId: route.courseId } : {}),
+  };
+  const overviewCourse =
+    page === "home" && lastActivity
+      ? lastActivity.courseId === "aula02"
+        ? secondCourse
+        : firstCourse
+      : course;
+  const overviewStudy =
+    overviewCourse.number === "02"
+      ? (campusStudy.courses?.aula02 ?? { done: [], notes: {} })
+      : campusStudy;
+  const overviewResume =
+    page === "home" && lastActivity ? lastActivity : resume;
   const activityLabel = (r: CampusRoute) =>
-    r.page === "audio"
-      ? `${modules[r.moduleId ?? 0].title} · trecho ${(r.position ?? 0) + 1} de 4`
-      : r.page === "lesson"
-        ? modules[r.moduleId ?? 0].title
-        : r.page === "kdd"
-          ? `Explore o KDD · etapa ${(r.position ?? 0) + 1}`
-          : r.page === "labs"
-            ? (r.position ?? 0) === 0
-              ? "Temperatura e defeitos"
-              : "Produção e energia"
-            : `Cartões de revisão · ${modules[r.moduleId ?? 0].title}`;
+    r.courseId !== route.courseId
+      ? `Aula ${r.courseId === "aula02" ? "02" : "01"} · retomar atividade`
+      : r.page === "project"
+        ? `Projeto industrial · etapa ${(r.position ?? 0) + 1}`
+        : r.page === "audio"
+          ? `${modules[r.moduleId ?? 0].title} · trecho ${(r.position ?? 0) + 1} de 4`
+          : r.page === "lesson"
+            ? modules[r.moduleId ?? 0].title
+            : r.page === "kdd"
+              ? `Explore o KDD · etapa ${(r.position ?? 0) + 1}`
+              : r.page === "labs"
+                ? isSecond
+                  ? [
+                      "Produção e qualidade",
+                      "Eficiência energética",
+                      "Viagens e distância",
+                      "Vendas e faturamento",
+                    ][r.position ?? 0]
+                  : (r.position ?? 0) === 0
+                    ? "Temperatura e defeitos"
+                    : "Produção e energia"
+                : `Cartões de revisão · ${modules[r.moduleId ?? 0].title}`;
   const progress = study.done.length / 14;
   useEffect(() => {
     const hash = routeHash(
-      parseRoute(window.location.hash, modules.length) ?? { page: "home" },
+      parseRoute(window.location.hash, 14) ?? { page: "home" },
     );
     if (window.location.hash !== hash)
       window.history.replaceState(null, "", hash);
     const onHistory = () => {
-      setRoute(
-        parseRoute(window.location.hash, modules.length) ?? { page: "home" },
-      );
+      setRoute(parseRoute(window.location.hash, 14) ?? { page: "home" });
+      setFilter("Todos");
+      setQuery("");
       setMenu(false);
       window.scrollTo({ top: 0, behavior: "instant" });
     };
@@ -246,36 +327,65 @@ export default function App({
   useEffect(() => {
     if (account) return;
     try {
-      localStorage.setItem("aula01-studio-v2", JSON.stringify(study));
+      localStorage.setItem("aula01-studio-v2", JSON.stringify(campusStudy));
       setSaved(true);
     } catch {
       setSaved(false);
     }
-  }, [study, account]);
+  }, [campusStudy, account]);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(""), 4000);
     return () => clearTimeout(timer);
   }, [toast]);
   function navigate(destination: CampusRoute, replace = false, scroll = true) {
+    destination = {
+      ...destination,
+      ...(destination.courseId
+        ? {}
+        : route.courseId && !["home", "catalog"].includes(destination.page)
+          ? { courseId: route.courseId }
+          : {}),
+    };
     const hash = routeHash(destination);
+    if (destination.courseId !== route.courseId) {
+      setFilter("Todos");
+      setQuery("");
+    }
     if (hash !== window.location.hash)
       window.history[replace ? "replaceState" : "pushState"](null, "", hash);
     setRoute(destination);
     setMenu(false);
     if (scroll) window.scrollTo({ top: 0, behavior: "instant" });
   }
+  function navigateCourse(id: string, targetPage: Page = "course") {
+    const destination: CampusRoute = {
+      page: targetPage,
+      ...(id === "aula02" ? { courseId: "aula02" as const } : {}),
+    };
+    window.history.pushState(null, "", routeHash(destination));
+    setRoute(destination);
+    setFilter("Todos");
+    setQuery("");
+    setMenu(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
   function go(p: Page, id?: number) {
-    if (p === "audio" && id === undefined && lastActivity?.page === "audio") {
+    if (
+      p === "audio" &&
+      id === undefined &&
+      lastActivity?.page === "audio" &&
+      lastActivity.courseId === route.courseId
+    ) {
       navigate(lastActivity);
       return;
     }
     navigate({
       page: p,
       ...(["lesson", "audio", "review"].includes(p)
-        ? { moduleId: id ?? route.moduleId ?? lastActivity?.moduleId ?? 0 }
+        ? { moduleId: id ?? route.moduleId ?? matchingActivity?.moduleId ?? 0 }
         : {}),
-      ...(["audio", "kdd", "labs"].includes(p)
+      ...(["audio", "kdd", "labs", "project"].includes(p)
         ? { position: p === "labs" ? (id ?? 0) : 0 }
         : {}),
     });
@@ -305,7 +415,7 @@ export default function App({
     })),
     ...modules.map((m) => ({
       id: `mod-${m.id}`,
-      group: "Tópicos · Aula 01",
+      group: `Tópicos · Aula ${course.number}`,
       label: `${String(m.id + 1).padStart(2, "0")} · ${m.title}`,
       hint: m.category,
       keywords: `${m.idea} ${m.explain} ${m.question}`,
@@ -322,13 +432,19 @@ export default function App({
   ];
   function exportNotes() {
     const blob = new Blob(
-      [JSON.stringify({ format: "aula01-studio-v2", ...study }, null, 2)],
+      [
+        JSON.stringify(
+          { format: "datamind-campus-v3", ...campusStudy },
+          null,
+          2,
+        ),
+      ],
       { type: "application/json" },
     );
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Aula01_Meu_Caderno.json";
+    a.download = "Industria_Dados_Meu_Caderno.json";
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
@@ -336,13 +452,21 @@ export default function App({
     try {
       const s = JSON.parse(await file.text());
       if (
-        !["aula01-studio-v2", "aula01-carlos-v1"].includes(s.format) ||
+        ![
+          "datamind-campus-v3",
+          "aula01-studio-v2",
+          "aula01-carlos-v1",
+        ].includes(s.format) ||
         !validState(s)
       )
         throw Error();
       if (!confirm("Substituir o caderno atual pelos dados desta cópia?"))
         return;
-      setStudy({ done: [...new Set(s.done)], notes: s.notes });
+      setCampusStudy({
+        done: [...new Set(s.done)],
+        notes: s.notes,
+        courses: s.courses,
+      });
       setToast("Caderno importado com sucesso.");
     } catch {
       setToast("Arquivo inválido. Use uma cópia exportada pelo caderno.");
@@ -406,680 +530,808 @@ export default function App({
     </div>
   );
   return (
-    <div
-      className={`app-shell editorial-campus ${page === "lesson" ? "study-mode" : ""}`}
-    >
-      <div className="aurora" aria-hidden="true">
-        <span />
-        <i />
-      </div>
-      <ScrollProgress />
-      <aside className={`sidebar ${menu ? "open" : ""}`}>
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            go("home");
-          }}
-        >
-          <CourseBrand />
-        </a>
-        <button
-          className="close-nav icon-button"
-          aria-label="Fechar menu"
-          onClick={() => setMenu(false)}
-        >
-          <X />
-        </button>
-        <div className="sidebar-label">SEU ESPAÇO DE ESTUDO</div>
-        <nav>
-          {campusNav.map(([id, label, Icon]) => (
-            <button
-              key={id}
-              className={
-                page === id || (id === "catalog" && lessonPages.includes(page))
-                  ? "active"
-                  : ""
-              }
-              onClick={() => go(id)}
-              aria-current={
-                page === id || (id === "catalog" && lessonPages.includes(page))
-                  ? "page"
-                  : undefined
-              }
-            >
-              <Icon size={19} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-progress">
-          <ProgressRing value={progress} size={58} />
-          <div className="sidebar-progress-head">
-            <span>Aula 01</span>
-            <strong>{study.done.length}/14</strong>
-          </div>
-          <div className="progress-track">
-            <div style={{ width: `${progress * 100}%` }} />
-          </div>
-          <small>tópicos compreendidos</small>
-          <button onClick={() => navigate(resume)}>
-            {allDone
-              ? "Revisar a aula"
-              : lastActivity
-                ? "Retomar atividade"
-                : "Começar a estudar"}
-            <ArrowRight size={15} />
+    <CourseContext.Provider value={course}>
+      <div
+        className={`app-shell editorial-campus ${page === "lesson" ? "study-mode" : ""} ${isSecond ? "aula02-campus" : ""}`}
+      >
+        <div className="aurora" aria-hidden="true">
+          <span />
+          <i />
+        </div>
+        <ScrollProgress />
+        <aside className={`sidebar ${menu ? "open" : ""}`}>
+          <a
+            className="brand"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              go("home");
+            }}
+          >
+            <CourseBrand />
+          </a>
+          <button
+            className="close-nav icon-button"
+            aria-label="Fechar menu"
+            onClick={() => setMenu(false)}
+          >
+            <X />
           </button>
-        </div>
-        <div className="sidebar-bottom">
-          <span className="avatar">{initials}</span>
-          <div>
-            <strong>{displayName}</strong>
-            <small>
-              {account
-                ? account.role === "admin"
-                  ? "Administrador do campus"
-                  : "Aluno · Aula 01"
-                : "Modo portátil · estudo local"}
-            </small>
-          </div>
-          {account && (
-            <button
-              className="icon-button"
-              aria-label="Abrir minha conta"
-              onClick={() => {
-                setMenu(false);
-                setAccountOpen(true);
-              }}
-            >
-              <UserRound size={19} />
-            </button>
-          )}
-        </div>
-      </aside>
-      {menu && (
-        <button
-          className="menu-overlay"
-          aria-label="Fechar menu"
-          onClick={() => setMenu(false)}
-        />
-      )}
-      <div className="main-shell">
-        <header className="topbar">
-          <div className="breadcrumb">
-            <button
-              className="mobile-menu icon-button"
-              aria-label="Abrir menu"
-              onClick={() => setMenu(true)}
-            >
-              <Menu />
-            </button>
-            <span>Meu aprendizado</span>
-            <ChevronRight size={14} />
-            <strong>
-              {page === "lesson"
-                ? modules[current].title
-                : [...campusNav, ...navItems].find(([id]) => id === page)?.[1]}
-            </strong>
-          </div>
-          <div className="topbar-right">
-            <button
-              className="cmdk-trigger"
-              id="open-command-palette"
-              onClick={() => setPalette(true)}
-              aria-label="Buscar no campus (Ctrl+K)"
-            >
-              <Search size={16} />
-              <span className="label">Buscar módulo ou tela…</span>
-              <span className="kbd">Ctrl K</span>
-            </button>
-            <span className="course-pill">
-              <span />
-              Data Science &amp; Big Data
-            </span>
-            <button
-              className="theme-toggle"
-              id="theme-toggle"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              aria-label={
-                theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
-              }
-              title={theme === "dark" ? "Tema claro" : "Tema escuro"}
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            {account ? (
+          <div className="sidebar-label">SEU ESPAÇO DE ESTUDO</div>
+          <nav>
+            {campusNav.map(([id, label, Icon]) => (
               <button
-                className="avatar small account-trigger"
-                aria-label={
-                  account.role === "admin"
-                    ? "Gerenciar alunos e minha conta"
-                    : "Minha conta"
+                key={id}
+                className={
+                  page === id ||
+                  (id === "catalog" && lessonPages.includes(page))
+                    ? "active"
+                    : ""
                 }
-                onClick={() => setAccountOpen(true)}
+                onClick={() => go(id)}
+                aria-current={
+                  page === id ||
+                  (id === "catalog" && lessonPages.includes(page))
+                    ? "page"
+                    : undefined
+                }
               >
-                {initials}
+                <Icon size={19} />
+                <span>{label}</span>
               </button>
-            ) : (
-              <span className="avatar small">{initials}</span>
+            ))}
+          </nav>
+          <label className="a2-course-switch">
+            Aula selecionada
+            <select
+              value={course.number}
+              onChange={(e) =>
+                navigateCourse(
+                  e.target.value === "02" ? "aula02" : "aula01",
+                  ["notes", "resources", "progress", "course"].includes(page)
+                    ? page
+                    : "course",
+                )
+              }
+            >
+              <option value="01">01 · Fundamentos e KDD</option>
+              <option value="02">02 · Pandas e análise</option>
+            </select>
+          </label>
+          <div className="sidebar-progress">
+            <ProgressRing value={progress} size={58} />
+            <div className="sidebar-progress-head">
+              <span>Aula {course.number}</span>
+              <strong>{study.done.length}/14</strong>
+            </div>
+            <div className="progress-track">
+              <div style={{ width: `${progress * 100}%` }} />
+            </div>
+            <small>tópicos compreendidos</small>
+            <button onClick={() => navigate(resume)}>
+              {allDone
+                ? "Revisar a aula"
+                : lastActivity
+                  ? "Retomar atividade"
+                  : "Começar a estudar"}
+              <ArrowRight size={15} />
+            </button>
+          </div>
+          <div className="sidebar-bottom">
+            <span className="avatar">{initials}</span>
+            <div>
+              <strong>{displayName}</strong>
+              <small>
+                {account
+                  ? account.role === "admin"
+                    ? "Administrador do campus"
+                    : `Aluno · Aula ${course.number}`
+                  : "Modo portátil · estudo local"}
+              </small>
+            </div>
+            {account && (
+              <button
+                className="icon-button"
+                aria-label="Abrir minha conta"
+                onClick={() => {
+                  setMenu(false);
+                  setAccountOpen(true);
+                }}
+              >
+                <UserRound size={19} />
+              </button>
             )}
           </div>
-        </header>
-        <main>
-          {account && (
-            <div
-              className={`account-sync ${sync.status}`}
-              role={sync.error ? "alert" : "status"}
-            >
-              <span>
-                {sync.status === "saved"
-                  ? "Estudo salvo na sua conta"
-                  : sync.status === "saving"
-                    ? "Salvando seu estudo…"
-                    : sync.error}
+        </aside>
+        {menu && (
+          <button
+            className="menu-overlay"
+            aria-label="Fechar menu"
+            onClick={() => setMenu(false)}
+          />
+        )}
+        <div className="main-shell">
+          <header className="topbar">
+            <div className="breadcrumb">
+              <button
+                className="mobile-menu icon-button"
+                aria-label="Abrir menu"
+                onClick={() => setMenu(true)}
+              >
+                <Menu />
+              </button>
+              <span>Meu aprendizado</span>
+              <ChevronRight size={14} />
+              <strong>
+                {page === "lesson"
+                  ? modules[current].title
+                  : page === "project"
+                    ? "Projeto industrial"
+                    : [...campusNav, ...navItems].find(
+                        ([id]) => id === page,
+                      )?.[1]}
+              </strong>
+            </div>
+            <div className="topbar-right">
+              <button
+                className="cmdk-trigger"
+                id="open-command-palette"
+                onClick={() => setPalette(true)}
+                aria-label="Buscar no campus (Ctrl+K)"
+              >
+                <Search size={16} />
+                <span className="label">Buscar módulo ou tela…</span>
+                <span className="kbd">Ctrl K</span>
+              </button>
+              <span className="course-pill">
+                <span />
+                Data Science &amp; Big Data
               </span>
-              {sync.status === "error" && (
-                <div>
-                  <button className="text-link" onClick={exportNotes}>
-                    Exportar cópia
-                  </button>
-                  {!sync.conflict && (
-                    <button className="text-link" onClick={sync.retry}>
-                      Tentar salvar novamente
-                    </button>
-                  )}
-                  <button
-                    className="text-link"
-                    onClick={() => {
-                      if (
-                        confirm(
-                          "Exporte uma cópia antes de recarregar. As alterações ainda não salvas serão descartadas. Continuar?",
-                        )
-                      )
-                        window.location.reload();
-                    }}
-                  >
-                    Recarregar
-                  </button>
-                </div>
+              <button
+                className="theme-toggle"
+                id="theme-toggle"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                aria-label={
+                  theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"
+                }
+                title={theme === "dark" ? "Tema claro" : "Tema escuro"}
+              >
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              {account ? (
+                <button
+                  className="avatar small account-trigger"
+                  aria-label={
+                    account.role === "admin"
+                      ? "Gerenciar alunos e minha conta"
+                      : "Minha conta"
+                  }
+                  onClick={() => setAccountOpen(true)}
+                >
+                  {initials}
+                </button>
+              ) : (
+                <span className="avatar small">{initials}</span>
               )}
             </div>
-          )}
-          <div
-            className="page-enter"
-            key={`${page}-${page === "lesson" ? current : ""}`}
-          >
-            {(page === "home" || page === "catalog") && (
-              <CampusOverview
-                catalog={page === "catalog"}
-                name={displayName.split(" ")[0]}
-                completed={study.done.length}
-                total={modules.length}
-                resumeLabel={
-                  allDone
-                    ? "Hora de revisar suas descobertas"
-                    : lastActivity
-                      ? activityLabel(lastActivity)
-                      : next.title
-                }
-                onResume={() => navigate(resume)}
-                onNavigate={go}
-              />
-            )}
-            {page === "progress" && (
-              <>
-                {heading(
-                  "MEU APRENDIZADO",
-                  "Cada tópico, um passo adiante",
-                  `${study.done.length} de ${modules.length} tópicos da Aula 01 marcados como compreendidos.`,
-                )}
-                <p className="progress-explanation">
-                  Este registro representa sua autoavaliação de compreensão.
-                  Abra um tópico para estudar ou revisar.
-                </p>
-                {cards(modules)}
-              </>
-            )}
-            {lessonPages.includes(page) && (
-              <LessonNavigation page={page} onNavigate={go} />
-            )}
-            {page === "course" && (
-              <>
-                <section
-                  className="lesson-editorial-banner"
-                  aria-label="Apresentação da Aula 01"
-                >
-                  <FactoryArt />
+          </header>
+          <main>
+            {account && (
+              <div
+                className={`account-sync ${sync.status}`}
+                role={sync.error ? "alert" : "status"}
+              >
+                <span>
+                  {sync.status === "saved"
+                    ? "Estudo salvo na sua conta"
+                    : sync.status === "saving"
+                      ? "Salvando seu estudo…"
+                      : sync.error}
+                </span>
+                {sync.status === "error" && (
                   <div>
-                    <span className="eyebrow">
-                      AULA 01 · FUNDAMENTOS E PRÁTICA
-                    </span>
-                    <h2>
-                      Entenda os dados.
-                      <br />
-                      Enxergue possibilidades.
-                    </h2>
-                    <p>
-                      Do chão de fábrica ao raciocínio analítico: seu percurso
-                      começa aqui.
-                    </p>
-                    <button
-                      className="button white"
-                      onClick={() => navigate(resume)}
-                    >
-                      Continuar estudando <ArrowRight size={17} />
+                    <button className="text-link" onClick={exportNotes}>
+                      Exportar cópia
                     </button>
-                  </div>
-                </section>
-                {heading(
-                  "SEU PERCURSO · AULA 01",
-                  "Da teoria à prática industrial",
-                  "Explore os 14 tópicos desta aula, no seu ritmo.",
-                )}
-                <div className="path-overview">
-                  {[
-                    ["01", "Entender", "Fundamentos"],
-                    ["02", "Investigar", "KDD"],
-                    ["03", "Experimentar", "Pandas"],
-                    ["04", "Aplicar", "Laboratórios"],
-                  ].map(([n, title, cat]) => (
-                    <button
-                      key={n}
-                      onClick={() => setFilter(cat)}
-                      className={filter === cat ? "selected" : ""}
-                      aria-pressed={filter === cat}
-                    >
-                      <span>{n}</span>
-                      <div>
-                        <strong>{title}</strong>
-                        <small>{cat}</small>
-                      </div>
-                      <ArrowRight size={18} />
-                    </button>
-                  ))}
-                </div>
-                <div className="filters">
-                  <div className="filter-tabs">
-                    {categories.map((c) => (
-                      <button
-                        key={c}
-                        className={filter === c ? "active" : ""}
-                        aria-pressed={filter === c}
-                        onClick={() => setFilter(c)}
-                      >
-                        {c}
+                    {!sync.conflict && (
+                      <button className="text-link" onClick={sync.retry}>
+                        Tentar salvar novamente
                       </button>
-                    ))}
-                  </div>
-                  <label className="search">
-                    <Search size={17} />
-                    <input
-                      aria-label="Buscar módulos"
-                      placeholder="Buscar conceito…"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                  </label>
-                </div>
-                {listed.length ? (
-                  cards(listed)
-                ) : (
-                  <div className="panel empty">
-                    Nenhum módulo encontrado. Tente outra busca.
+                    )}
+                    <button
+                      className="text-link"
+                      onClick={() => {
+                        if (
+                          confirm(
+                            "Exporte uma cópia antes de recarregar. As alterações ainda não salvas serão descartadas. Continuar?",
+                          )
+                        )
+                          window.location.reload();
+                      }}
+                    >
+                      Recarregar
+                    </button>
                   </div>
                 )}
-              </>
-            )}
-            {page === "lesson" && (
-              <div className="study-layout">
-                <TopicOutline
-                  modules={modules}
-                  current={current}
-                  completed={study.done}
-                  onSelect={(id) => go("lesson", id)}
-                />
-                <div className="study-content">
-                  <Lesson
-                    module={modules[current]}
-                    done={study.done.includes(current)}
-                    note={study.notes[current] || ""}
-                    onMark={() => mark(current)}
-                    onNote={(text) =>
-                      setStudy((s) => ({
-                        ...s,
-                        notes: { ...s.notes, [current]: text },
-                      }))
-                    }
-                    onBack={() => go("course")}
-                    onNext={() => go("lesson", Math.min(13, current + 1))}
-                    onPrev={() => go("lesson", Math.max(0, current - 1))}
-                    onAudio={() => go("audio", current)}
-                    saved={account ? sync.status === "saved" : saved}
-                    onlineAccount={!!account}
-                  />
-                </div>
               </div>
             )}
-            {page === "kdd" && (
-              <Kdd
-                step={route.position ?? 0}
-                onStep={(position) =>
-                  navigate({ page: "kdd", position }, false, false)
-                }
-              />
-            )}
-            {page === "labs" && (
-              <Labs
-                lab={route.position ?? 0}
-                onLab={(position) =>
-                  navigate({ page: "labs", position }, false, false)
-                }
-              />
-            )}
-            {page === "audio" && (
-              <AudioStudio
-                canManageCredentials={account?.role === "admin"}
-                modules={modules}
-                initial={current}
-                initialSegment={route.position ?? 0}
-                onPositionChange={(moduleId, position) =>
-                  navigate({ page: "audio", moduleId, position }, true, false)
-                }
-              />
-            )}
-            {page === "review" && (
-              <Review
-                modules={modules}
-                id={current}
-                onCard={(moduleId) =>
-                  navigate({ page: "review", moduleId }, false, false)
-                }
-              />
-            )}
-            {page === "notes" && (
-              <>
-                {heading(
-                  "IDEIAS QUE VALEM GUARDAR",
-                  "Seu caderno de descobertas",
-                  "Registre hipóteses, dúvidas e conexões com o seu trabalho.",
-                )}
-                <div className="note-toolbar">
-                  <span>
-                    <ShieldSaved
-                      saved={account ? sync.status === "saved" : saved}
+            <div
+              className="page-enter"
+              key={`${page}-${page === "lesson" ? current : ""}`}
+            >
+              {(page === "home" || page === "catalog") && (
+                <CampusOverview
+                  catalog={page === "catalog"}
+                  name={displayName.split(" ")[0]}
+                  completed={overviewStudy.done.length}
+                  total={modules.length}
+                  course={overviewCourse}
+                  completedByCourse={{
+                    "01": campusStudy.done.length,
+                    "02": campusStudy.courses?.aula02?.done.length ?? 0,
+                  }}
+                  onSelectCourse={(id) => navigateCourse(id)}
+                  resumeLabel={
+                    allDone
+                      ? "Hora de revisar suas descobertas"
+                      : lastActivity
+                        ? activityLabel(lastActivity)
+                        : next.title
+                  }
+                  onResume={() => navigate(overviewResume)}
+                  onNavigate={(p) =>
+                    navigate({
+                      page: p,
+                      ...(overviewCourse.number === "02"
+                        ? { courseId: "aula02" }
+                        : {}),
+                    })
+                  }
+                />
+              )}
+              {page === "progress" && (
+                <>
+                  {heading(
+                    "MEU APRENDIZADO",
+                    "Cada tópico, um passo adiante",
+                    `${study.done.length} de ${modules.length} tópicos da Aula ${course.number} marcados como compreendidos.`,
+                  )}
+                  <p className="progress-explanation">
+                    Este registro representa sua autoavaliação de compreensão.
+                    Abra um tópico para estudar ou revisar.
+                  </p>
+                  {cards(modules)}
+                </>
+              )}
+              {lessonPages.includes(page) && (
+                <LessonNavigation page={page} onNavigate={go} />
+              )}
+              {page === "course" && (
+                <>
+                  {isSecond ? (
+                    <Aula02Intro
+                      onResume={() => navigate(resume)}
+                      onNavigate={go}
                     />
-                    {account
-                      ? sync.status === "saved"
-                        ? "Caderno salvo na sua conta"
-                        : sync.status === "saving"
-                          ? "Salvando caderno…"
-                          : "Caderno com alterações não salvas"
-                      : saved
-                        ? "Caderno salvo neste navegador"
-                        : "Armazenamento bloqueado; exporte uma cópia"}
-                  </span>
-                  <div className="button-row">
-                    <button className="button primary" onClick={exportNotes}>
-                      <Download size={16} />
-                      Exportar caderno
-                    </button>
-                    <label className="button secondary import-button">
-                      <Upload size={16} />
-                      Importar
+                  ) : (
+                    <section
+                      className="lesson-editorial-banner"
+                      aria-label={`Apresentação da Aula ${course.number}`}
+                    >
+                      <FactoryArt />
+                      <div>
+                        <span className="eyebrow">
+                          AULA {course.number} · FUNDAMENTOS E PRÁTICA
+                        </span>
+                        <h2>
+                          Entenda os dados.
+                          <br />
+                          Enxergue possibilidades.
+                        </h2>
+                        <p>
+                          Do chão de fábrica ao raciocínio analítico: seu
+                          percurso começa aqui.
+                        </p>
+                        <button
+                          className="button white"
+                          onClick={() => navigate(resume)}
+                        >
+                          Continuar estudando <ArrowRight size={17} />
+                        </button>
+                      </div>
+                    </section>
+                  )}
+                  {heading(
+                    `SEU PERCURSO · AULA ${course.number}`,
+                    isSecond
+                      ? "Aprender, investigar, aplicar"
+                      : "Da teoria à prática industrial",
+                    isSecond
+                      ? "Escolha um assunto. Cada imagem mostra o conceito que você vai explorar."
+                      : "Explore os 14 tópicos desta aula, no seu ritmo.",
+                  )}
+                  {!isSecond && (
+                    <div className="path-overview">
+                      {[
+                        ["01", "Entender", "Fundamentos"],
+                        ["02", "Investigar", "KDD"],
+                        ["03", "Experimentar", "Pandas"],
+                        ["04", "Aplicar", "Laboratórios"],
+                      ].map(([n, title, cat]) => (
+                        <button
+                          key={n}
+                          onClick={() => setFilter(cat)}
+                          className={filter === cat ? "selected" : ""}
+                          aria-pressed={filter === cat}
+                        >
+                          <span>{n}</span>
+                          <div>
+                            <strong>{title}</strong>
+                            <small>{cat}</small>
+                          </div>
+                          <ArrowRight size={18} />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="filters">
+                    <div className="filter-tabs">
+                      {categories.map((c) => (
+                        <button
+                          key={c}
+                          className={filter === c ? "active" : ""}
+                          aria-pressed={filter === c}
+                          onClick={() => setFilter(c)}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                    <label className="search">
+                      <Search size={17} />
                       <input
-                        aria-label="Importar caderno"
-                        type="file"
-                        accept=".json"
-                        onChange={(e) => {
-                          if (e.target.files?.[0])
-                            void importNotes(e.target.files[0]);
-                          e.target.value = "";
-                        }}
+                        aria-label="Buscar módulos"
+                        placeholder="Buscar conceito…"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
                       />
                     </label>
                   </div>
-                </div>
-                <p className="small-text">
-                  A cópia exportada contém apenas progresso e anotações. Chaves
-                  de API ficam fora do caderno. Cópias do primeiro HTML também
-                  podem ser importadas.
-                </p>
-                <div className="notes-grid">
-                  {modules.map((m) => (
-                    <section className="panel note-card" key={m.id}>
-                      <div>
-                        <span className="module-category">
-                          {m.category} · {String(m.id + 1).padStart(2, "0")}
-                        </span>
-                        {study.done.includes(m.id) && (
-                          <CheckCircle2 size={18} className="green" />
-                        )}
-                      </div>
-                      <h3>{m.title}</h3>
-                      <label className="sr-only" htmlFor={`note-${m.id}`}>
-                        Anotação para {m.title}
-                      </label>
-                      <textarea
-                        id={`note-${m.id}`}
-                        value={study.notes[m.id] || ""}
-                        placeholder="O que entendi? Onde isso aparece na fábrica? Qual dúvida ficou?"
-                        onChange={(e) =>
-                          setStudy((s) => ({
-                            ...s,
-                            notes: { ...s.notes, [m.id]: e.target.value },
-                          }))
-                        }
-                      />
-                      <button
-                        className="text-link"
-                        onClick={() => go("lesson", m.id)}
-                      >
-                        Revisitar o módulo
-                        <ArrowRight size={14} />
-                      </button>
-                    </section>
-                  ))}
-                </div>
-              </>
-            )}
-            {page === "resources" && (
-              <>
-                {heading(
-                  "TUDO NO MESMO LUGAR",
-                  "Sua biblioteca da aula",
-                  "Material original, caderno de estudo e laboratório em Python.",
-                )}
-                <div className="resource-grid">
-                  {[
-                    [
-                      "Aula original",
-                      "63 páginas · Prof. Me Daniel Vieira",
-                      "Aula01_Original.pdf",
-                      FileText,
-                    ],
-                    [
-                      "Caderno de estudo",
-                      "Guia revisado · explicações, práticas e respostas",
-                      "Aula01_Caderno_Estudo.pdf",
-                      BookOpen,
-                    ],
-                    [
-                      "Laboratório Python",
-                      "Notebook para Jupyter ou Colab",
-                      "Aula01_Laboratorio.ipynb",
-                      Code2,
-                    ],
-                  ].map(([title, desc, file, Icon]) => {
-                    const I = Icon as typeof FileText;
-                    return (
-                      <a
-                        className="panel resource-card"
-                        key={String(file)}
-                        href={`./materiais/${file}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        download
-                      >
-                        <span className="icon-box lavender">
-                          <I />
-                        </span>
-                        <h3>{String(title)}</h3>
-                        <p>{String(desc)}</p>
-                        <span className="text-link">
-                          <Download size={15} />
-                          Abrir ou baixar material
-                        </span>
-                      </a>
-                    );
-                  })}
-                </div>
-                <div className="panel">
-                  <h2>Bibliografia do curso · PDF 11–12</h2>
-                  <p>
-                    Hurwitz et al. · Big Data Para Leigos (2016); Tan, Steinbach
-                    e Kumar · Introdução ao Data Mining (2009); Pierson · Data
-                    Science Para Leigos (2019).
-                  </p>
-                  <p>
-                    Complementares: Grus · Data Science do Zero (2016); Fawcett
-                    e Provost · Data Science para negócios (2016); Foreman ·
-                    Data Smart (2016); Amaral · Introdução à Ciência de Dados
-                    (2016). Dados bibliográficos conforme o material original.
-                  </p>
-                  <h3>Documentação para estudar</h3>
-                  <div className="reference-list">
-                    <a
-                      href="https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <div>
-                        <strong>Pandas · documentação oficial</strong>
-                        <p>
-                          Leitura de tabelas, seleção, estatística e exportação.
-                        </p>
-                      </div>
-                      <ExternalLink size={18} />
-                    </a>
-                    <a
-                      href="https://cdn.aaai.org/KDD/1996/KDD96-014.pdf"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <div>
-                        <strong>KDD · Fayyad, Piatetsky-Shapiro e Smyth</strong>
-                        <p>
-                          Artigo de referência para o processo de descoberta de
-                          conhecimento (1996).
-                        </p>
-                      </div>
-                      <ExternalLink size={18} />
-                    </a>
+                  {isSecond && filter === "Todos" && !query.trim() ? (
+                    <div className="a2-topic-chapters">
+                      {[
+                        {
+                          title: "Prepare e organize seus dados",
+                          description:
+                            "Da pergunta inicial às ferramentas do Pandas.",
+                          ids: [0, 1, 2, 3, 4, 5, 6],
+                          number: "01",
+                        },
+                        {
+                          title: "Encontre e explique padrões",
+                          description:
+                            "Indicadores, associações e comunicação visual.",
+                          ids: [7, 8],
+                          number: "02",
+                        },
+                        {
+                          title: "Coloque a análise para trabalhar",
+                          description:
+                            "Quatro bases, problemas concretos e resultados verificáveis.",
+                          ids: [9, 10, 11],
+                          number: "03",
+                        },
+                        {
+                          title: "Seu projeto industrial",
+                          description:
+                            "Conecte exploração, modelos e decisões no caso S&M.",
+                          ids: [12, 13],
+                          number: "04",
+                        },
+                      ].map((chapter) => (
+                        <section
+                          className="a2-topic-chapter"
+                          key={chapter.number}
+                        >
+                          <header>
+                            <span>{chapter.number}</span>
+                            <div>
+                              <h2>{chapter.title}</h2>
+                              <p>{chapter.description}</p>
+                            </div>
+                          </header>
+                          {cards(
+                            modules.filter((m) => chapter.ids.includes(m.id)),
+                          )}
+                        </section>
+                      ))}
+                    </div>
+                  ) : listed.length ? (
+                    cards(listed)
+                  ) : (
+                    <div className="panel empty">
+                      Nenhum módulo encontrado. Tente outra busca.
+                    </div>
+                  )}
+                </>
+              )}
+              {page === "lesson" && (
+                <div className="study-layout">
+                  <TopicOutline
+                    modules={modules}
+                    current={current}
+                    completed={study.done}
+                    onSelect={(id) => go("lesson", id)}
+                  />
+                  <div className="study-content">
+                    <Lesson
+                      key={course.id}
+                      module={modules[current]}
+                      done={study.done.includes(current)}
+                      note={study.notes[current] || ""}
+                      onMark={() => mark(current)}
+                      onNote={(text) =>
+                        setStudy((s) => ({
+                          ...s,
+                          notes: { ...s.notes, [current]: text },
+                        }))
+                      }
+                      onBack={() => go("course")}
+                      onNext={() => go("lesson", Math.min(13, current + 1))}
+                      onPrev={() => go("lesson", Math.max(0, current - 1))}
+                      onAudio={() => go("audio", current)}
+                      saved={account ? sync.status === "saved" : saved}
+                      onlineAccount={!!account}
+                    />
                   </div>
                 </div>
-                <div className="panel">
-                  <h2>Referências que orientaram esta versão</h2>
-                  <div className="reference-list">
+              )}
+              {page === "kdd" && !isSecond && (
+                <Kdd
+                  step={route.position ?? 0}
+                  onStep={(position) =>
+                    navigate({ page: "kdd", position }, false, false)
+                  }
+                />
+              )}
+              {page === "project" && isSecond && (
+                <Aula02Project
+                  step={route.position ?? 0}
+                  onStep={(position) => navigate({ page: "project", position })}
+                />
+              )}
+              {page === "labs" && isSecond && (
+                <Aula02Labs
+                  lab={route.position ?? 0}
+                  onLab={(position) => navigate({ page: "labs", position })}
+                />
+              )}
+              {page === "labs" && !isSecond && (
+                <Labs
+                  lab={route.position ?? 0}
+                  onLab={(position) =>
+                    navigate({ page: "labs", position }, false, false)
+                  }
+                />
+              )}
+              {page === "audio" && (
+                <AudioStudio
+                  key={course.id}
+                  canManageCredentials={account?.role === "admin"}
+                  modules={modules}
+                  initial={current}
+                  initialSegment={route.position ?? 0}
+                  onPositionChange={(moduleId, position) =>
+                    navigate({ page: "audio", moduleId, position }, true, false)
+                  }
+                />
+              )}
+              {page === "review" && (
+                <Review
+                  key={course.id}
+                  modules={modules}
+                  id={current}
+                  onCard={(moduleId) =>
+                    navigate({ page: "review", moduleId }, false, false)
+                  }
+                />
+              )}
+              {page === "notes" && (
+                <>
+                  {heading(
+                    "IDEIAS QUE VALEM GUARDAR",
+                    "Seu caderno de descobertas",
+                    "Registre hipóteses, dúvidas e conexões com o seu trabalho.",
+                  )}
+                  <div className="note-toolbar">
+                    <span>
+                      <ShieldSaved
+                        saved={account ? sync.status === "saved" : saved}
+                      />
+                      {account
+                        ? sync.status === "saved"
+                          ? "Caderno salvo na sua conta"
+                          : sync.status === "saving"
+                            ? "Salvando caderno…"
+                            : "Caderno com alterações não salvas"
+                        : saved
+                          ? "Caderno salvo neste navegador"
+                          : "Armazenamento bloqueado; exporte uma cópia"}
+                    </span>
+                    <div className="button-row">
+                      <button className="button primary" onClick={exportNotes}>
+                        <Download size={16} />
+                        Exportar caderno
+                      </button>
+                      <label className="button secondary import-button">
+                        <Upload size={16} />
+                        Importar
+                        <input
+                          aria-label="Importar caderno"
+                          type="file"
+                          accept=".json"
+                          onChange={(e) => {
+                            if (e.target.files?.[0])
+                              void importNotes(e.target.files[0]);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <p className="small-text">
+                    A cópia exportada contém apenas progresso e anotações.
+                    Chaves de API ficam fora do caderno. Cópias do primeiro HTML
+                    também podem ser importadas.
+                  </p>
+                  <div className="notes-grid">
+                    {modules.map((m) => (
+                      <section className="panel note-card" key={m.id}>
+                        <div>
+                          <span className="module-category">
+                            {m.category} · {String(m.id + 1).padStart(2, "0")}
+                          </span>
+                          {study.done.includes(m.id) && (
+                            <CheckCircle2 size={18} className="green" />
+                          )}
+                        </div>
+                        <h3>{m.title}</h3>
+                        <label className="sr-only" htmlFor={`note-${m.id}`}>
+                          Anotação para {m.title}
+                        </label>
+                        <textarea
+                          id={`note-${m.id}`}
+                          value={study.notes[m.id] || ""}
+                          placeholder="O que entendi? Onde isso aparece na fábrica? Qual dúvida ficou?"
+                          onChange={(e) =>
+                            setStudy((s) => ({
+                              ...s,
+                              notes: { ...s.notes, [m.id]: e.target.value },
+                            }))
+                          }
+                        />
+                        <button
+                          className="text-link"
+                          onClick={() => go("lesson", m.id)}
+                        >
+                          Revisitar o módulo
+                          <ArrowRight size={14} />
+                        </button>
+                      </section>
+                    ))}
+                  </div>
+                </>
+              )}
+              {page === "resources" && isSecond && <Aula02Resources />}
+              {page === "resources" && !isSecond && (
+                <>
+                  {heading(
+                    "TUDO NO MESMO LUGAR",
+                    "Sua biblioteca da aula",
+                    "Material original, caderno de estudo e laboratório em Python.",
+                  )}
+                  <div className="resource-grid">
                     {[
                       [
-                        "Brilliant",
-                        "Aprendizagem visual, perguntas e interação",
-                        "https://brilliant.org/data/",
+                        "Aula original",
+                        "63 páginas · Prof. Me Daniel Vieira",
+                        "Aula01_Original.pdf",
+                        FileText,
                       ],
                       [
-                        "DataCamp",
-                        "Organização de trilhas e prática com dados",
-                        "https://www.datacamp.com/",
+                        "Caderno de estudo",
+                        "Guia revisado · explicações, práticas e respostas",
+                        "Aula01_Caderno_Estudo.pdf",
+                        BookOpen,
                       ],
                       [
-                        "OpenAI · áudio",
-                        "Integração de narração via API",
-                        "https://developers.openai.com/api/docs/guides/text-to-speech",
+                        "Laboratório Python",
+                        "Notebook para Jupyter ou Colab",
+                        "Aula01_Laboratorio.ipynb",
+                        Code2,
                       ],
-                      [
-                        "Google Gemini · áudio",
-                        "Integração de narração via API",
-                        "https://ai.google.dev/gemini-api/docs/speech-generation",
-                      ],
-                    ].map(([name, desc, url]) => (
-                      <a key={name} href={url} target="_blank" rel="noreferrer">
+                    ].map(([title, desc, file, Icon]) => {
+                      const I = Icon as typeof FileText;
+                      return (
+                        <a
+                          className="panel resource-card"
+                          key={String(file)}
+                          href={`./materiais/${file}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          download
+                        >
+                          <span className="icon-box lavender">
+                            <I />
+                          </span>
+                          <h3>{String(title)}</h3>
+                          <p>{String(desc)}</p>
+                          <span className="text-link">
+                            <Download size={15} />
+                            Abrir ou baixar material
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                  <div className="panel">
+                    <h2>Bibliografia do curso · PDF 11–12</h2>
+                    <p>
+                      Hurwitz et al. · Big Data Para Leigos (2016); Tan,
+                      Steinbach e Kumar · Introdução ao Data Mining (2009);
+                      Pierson · Data Science Para Leigos (2019).
+                    </p>
+                    <p>
+                      Complementares: Grus · Data Science do Zero (2016);
+                      Fawcett e Provost · Data Science para negócios (2016);
+                      Foreman · Data Smart (2016); Amaral · Introdução à Ciência
+                      de Dados (2016). Dados bibliográficos conforme o material
+                      original.
+                    </p>
+                    <h3>Documentação para estudar</h3>
+                    <div className="reference-list">
+                      <a
+                        href="https://pandas.pydata.org/docs/getting_started/intro_tutorials/index.html"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         <div>
-                          <strong>{name}</strong>
-                          <p>{desc}</p>
+                          <strong>Pandas · documentação oficial</strong>
+                          <p>
+                            Leitura de tabelas, seleção, estatística e
+                            exportação.
+                          </p>
                         </div>
                         <ExternalLink size={18} />
                       </a>
-                    ))}
+                      <a
+                        href="https://cdn.aaai.org/KDD/1996/KDD96-014.pdf"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <div>
+                          <strong>
+                            KDD · Fayyad, Piatetsky-Shapiro e Smyth
+                          </strong>
+                          <p>
+                            Artigo de referência para o processo de descoberta
+                            de conhecimento (1996).
+                          </p>
+                        </div>
+                        <ExternalLink size={18} />
+                      </a>
+                    </div>
                   </div>
-                </div>
-                <div className="notice">
-                  <Lightbulb size={20} />
-                  <p>
-                    O conteúdo vem da Aula 01. Os exemplos de PCBA, cinco Vs,
-                    cuidados estatísticos e roteiro de revisão são complementos
-                    didáticos. As ilustrações são próprias; este projeto não
-                    representa uma plataforma oficial do SENAI.
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
-        </main>
-        <footer className="app-footer">
-          <span>Indústria & Dados · UNISENAI</span>
-          <span>
-            Estudo guiado a partir do material do Prof. Me Daniel Vieira
-          </span>
-        </footer>
-      </div>
-      {toast && (
-        <div className="toast" role="status">
-          {toast}
+                  <div className="panel">
+                    <h2>Referências que orientaram esta versão</h2>
+                    <div className="reference-list">
+                      {[
+                        [
+                          "Brilliant",
+                          "Aprendizagem visual, perguntas e interação",
+                          "https://brilliant.org/data/",
+                        ],
+                        [
+                          "DataCamp",
+                          "Organização de trilhas e prática com dados",
+                          "https://www.datacamp.com/",
+                        ],
+                        [
+                          "OpenAI · áudio",
+                          "Integração de narração via API",
+                          "https://developers.openai.com/api/docs/guides/text-to-speech",
+                        ],
+                        [
+                          "Google Gemini · áudio",
+                          "Integração de narração via API",
+                          "https://ai.google.dev/gemini-api/docs/speech-generation",
+                        ],
+                      ].map(([name, desc, url]) => (
+                        <a
+                          key={name}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <div>
+                            <strong>{name}</strong>
+                            <p>{desc}</p>
+                          </div>
+                          <ExternalLink size={18} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="notice">
+                    <Lightbulb size={20} />
+                    <p>
+                      O conteúdo vem da Aula 01. Os exemplos de PCBA, cinco Vs,
+                      cuidados estatísticos e roteiro de revisão são
+                      complementos didáticos. As ilustrações são próprias; este
+                      projeto não representa uma plataforma oficial do SENAI.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          </main>
+          <footer className="app-footer">
+            <span>Indústria & Dados · UNISENAI</span>
+            <span>
+              Estudo guiado a partir do material do Prof. Me Daniel Vieira
+            </span>
+          </footer>
         </div>
-      )}
-      <CommandPalette
-        open={palette}
-        onClose={() => setPalette(false)}
-        commands={commands}
-      />
-      <Confetti fire={celebrate} />
-      {accountOpen && account && onLogout && (
-        <AccountPanel
-          user={account}
-          onClose={() => setAccountOpen(false)}
-          onLogout={async () => {
-            if (
-              sync.status !== "saved" &&
-              !confirm(
-                "Há alterações não salvas. Exporte uma cópia do caderno antes de sair. Sair mesmo assim?",
-              )
-            )
-              return false;
-            await onLogout();
-          }}
-          onRestore={() => {
-            const previous = initialState();
-            if (!previous.done.length && !Object.keys(previous.notes).length) {
-              setToast(
-                "Nenhum estudo anterior foi encontrado neste navegador.",
-              );
-              return;
-            }
-            if (
-              confirm(
-                "Importar seu estudo anterior? O progresso e o caderno desta conta serão substituídos.",
-              )
-            ) {
-              setStudy(previous);
-              setLastActivity(initialActivity());
-              setAccountOpen(false);
-            }
-          }}
+        {toast && (
+          <div className="toast" role="status">
+            {toast}
+          </div>
+        )}
+        <CommandPalette
+          open={palette}
+          onClose={() => setPalette(false)}
+          commands={commands}
         />
-      )}
-    </div>
+        <Confetti fire={celebrate} />
+        {accountOpen && account && onLogout && (
+          <AccountPanel
+            user={account}
+            onClose={() => setAccountOpen(false)}
+            onLogout={async () => {
+              if (
+                sync.status !== "saved" &&
+                !confirm(
+                  "Há alterações não salvas. Exporte uma cópia do caderno antes de sair. Sair mesmo assim?",
+                )
+              )
+                return false;
+              await onLogout();
+            }}
+            onRestore={() => {
+              const previous = initialState();
+              if (
+                !previous.done.length &&
+                !Object.keys(previous.notes).length
+              ) {
+                setToast(
+                  "Nenhum estudo anterior foi encontrado neste navegador.",
+                );
+                return;
+              }
+              if (
+                confirm(
+                  "Importar seu estudo anterior? O progresso e o caderno desta conta serão substituídos.",
+                )
+              ) {
+                setCampusStudy(previous);
+                setLastActivity(initialActivity());
+                setAccountOpen(false);
+              }
+            }}
+          />
+        )}
+      </div>
+    </CourseContext.Provider>
   );
 }
 function ShieldSaved({ saved }: { saved: boolean }) {
@@ -1110,6 +1362,7 @@ function Lesson({
   saved: boolean;
   onlineAccount: boolean;
 }) {
+  const course = useCourse();
   const [reveal, setReveal] = useState(false);
   useEffect(() => setReveal(false), [m.id]);
   useEffect(() => {
@@ -1200,9 +1453,9 @@ function Lesson({
                 </div>
                 <CodeBlock code={m.code} />
                 <p className="small-text">
-                  Código adaptado para estudo. No notebook de Materiais e
-                  referências, execute primeiro “Preparar os dados” para criar
-                  df e m. Este painel não executa Python.
+                  {course.number === "02"
+                    ? "Execute as células do notebook da Aula 02 em ordem: elas preparam df, producao, resumo e as bases do projeto. Este painel apresenta trechos e não executa Python."
+                    : "Código adaptado para estudo. No notebook de Materiais e referências, execute primeiro Preparar os dados para criar df e m. Este painel não executa Python."}
                 </p>
               </>
             )}

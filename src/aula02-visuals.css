@@ -1,0 +1,358 @@
+/* Aula 02: source-led editorial layouts. Whole diagrams retain axes and labels. */
+.a2-course-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+  margin: 8px 0 42px;
+  border: 1px solid var(--border-strong);
+  border-radius: 22px;
+  background: var(--surface-solid);
+}
+.a2-intro-copy {
+  padding: clamp(26px, 3vw, 44px);
+  align-self: center;
+}
+.editorial-campus .a2-intro-copy h2 {
+  color: var(--text);
+  font-size: clamp(38px, 4.4vw, 66px);
+  letter-spacing: -0.055em;
+  line-height: 1.02;
+  margin: 20px 0;
+}
+.a2-intro-copy p {
+  max-width: 370px;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.a2-intro-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 26px;
+}
+.a2-intro-facts span {
+  border: 1px solid var(--border-strong);
+  color: var(--text-2);
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.a2-intro-image {
+  display: grid;
+  align-content: center;
+  padding: 26px;
+  background: #f2f5f8;
+  margin: 0;
+  min-width: 0;
+  border-left: 1px solid var(--border);
+}
+.a2-intro-image img {
+  width: 100%;
+  max-height: 350px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+.a2-intro-image figcaption {
+  color: #526779;
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 13px;
+  text-align: center;
+}
+.a2-pathways {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--border-strong);
+}
+.a2-pathways button {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 13px;
+  padding: 24px;
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  border-right: 1px solid var(--border);
+}
+.a2-pathways button:last-child {
+  border-right: 0;
+}
+.a2-pathways button:hover {
+  background: var(--mint-soft);
+}
+.a2-pathways button > svg:first-of-type {
+  flex-shrink: 0;
+  color: var(--mint);
+}
+.a2-pathways button > svg:last-child {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.a2-pathways button > span:not(.a2-path-number) {
+  display: grid;
+  gap: 7px;
+}
+.a2-pathways strong {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.a2-pathways small {
+  color: var(--text-2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.a2-path-number {
+  align-self: flex-start;
+  color: var(--text-3);
+  font-size: 10px;
+}
+.editorial-campus.aula02-campus .module-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.editorial-campus.aula02-campus .module-card {
+  border-radius: 16px;
+}
+.editorial-campus.aula02-campus .module-art {
+  height: 225px;
+  background: #f7f8fa;
+}
+.editorial-campus.aula02-campus .module-content {
+  padding: 24px;
+}
+.editorial-campus.aula02-campus .module-content h3 {
+  font-size: 19px;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.editorial-campus.aula02-campus .module-card:hover .topic-art {
+  transform: none;
+}
+.editorial-campus.aula02-campus .a2-topic-art {
+  background: #f7f8fa;
+}
+.editorial-campus.aula02-campus .a2-topic-art img {
+  object-fit: contain;
+  object-position: center;
+  padding: 25px 20px 28px;
+  transition: transform 0.25s ease;
+}
+.editorial-campus.aula02-campus .module-card:hover .a2-topic-art img {
+  transform: scale(1.025);
+}
+.editorial-campus.aula02-campus .a2-art-photo {
+  background: #19384b;
+}
+.editorial-campus.aula02-campus .a2-art-photo img {
+  padding: 20px;
+}
+.editorial-campus.aula02-campus .a2-topic-art .course-cover-origin {
+  color: #526779;
+  background: #fffffff5;
+  border: 1px solid #dce3e9;
+  bottom: 9px;
+  right: 10px;
+  border-radius: 5px;
+  font-size: 9px;
+}
+.editorial-campus.aula02-campus .module-index {
+  background: #17394c;
+  color: white;
+  border: 0;
+  box-shadow: 0 2px 5px #17394c20;
+}
+.a2-topic-chapter {
+  margin: 32px 0 44px;
+}
+.a2-topic-chapter > header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+.a2-topic-chapter > header > span {
+  font-size: 12px;
+  color: var(--mint);
+  border-top: 2px solid var(--mint);
+  padding-top: 9px;
+  min-width: 34px;
+}
+.a2-topic-chapter > header h2 {
+  margin: 5px 0 8px;
+  font-size: 23px;
+  letter-spacing: -0.03em;
+}
+.a2-topic-chapter > header p {
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.editorial-campus.aula02-campus .concept-hero {
+  grid-template-columns: minmax(260px, 47%) minmax(0, 1fr);
+}
+.editorial-campus.aula02-campus .concept-hero .a2-topic-art {
+  min-height: 310px;
+}
+.editorial-campus.aula02-campus .concept-hero .a2-topic-art img {
+  padding: 28px 22px 34px;
+}
+.editorial-campus.aula02-campus .concept-hero > .a2-topic-art {
+  padding: 0;
+  align-self: stretch;
+}
+.a2-source-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 40%) minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+  margin: 26px 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-solid);
+}
+.a2-source-panel > img {
+  width: 100%;
+  height: 230px;
+  object-fit: contain;
+  background: #f7f8fa;
+  padding: 20px;
+}
+.a2-source-panel figcaption {
+  padding: 28px;
+  display: grid;
+  align-content: center;
+  gap: 14px;
+}
+.a2-source-panel figcaption strong {
+  font-size: 22px;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+.a2-source-panel figcaption span {
+  color: var(--text-2);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.editorial-campus .a2-catalog-card .course-cover {
+  min-height: 295px;
+  padding: 0;
+  display: block;
+  background: #f7f8fa;
+}
+.editorial-campus .a2-catalog-card .course-cover::after {
+  display: none;
+}
+.editorial-campus .a2-catalog-card .course-cover > span {
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  z-index: 2;
+  background: #16384b;
+  color: white;
+}
+.editorial-campus .a2-catalog-card .course-cover > small {
+  color: #526779;
+  top: 25px;
+  right: 22px;
+  text-shadow: none;
+}
+.a2-catalog-card .cover-caption {
+  display: none;
+}
+.a2-catalog-art {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  padding: 60px 26px 22px;
+}
+.a2-pandas-wordmark {
+  width: 140px;
+  height: 48px;
+  object-fit: contain;
+}
+.a2-catalog-diagram {
+  width: 100%;
+  height: 145px;
+  object-fit: contain;
+}
+.a2-image-credits {
+  margin-top: 24px;
+}
+.a2-image-credits summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.a2-image-credits ul {
+  padding-left: 22px;
+  line-height: 1.9;
+  color: var(--text-2);
+  font-size: 12px;
+  margin-top: 18px;
+}
+@media (max-width: 1200px) {
+  .editorial-campus.aula02-campus .module-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .a2-pathways button {
+    padding: 18px 14px;
+    gap: 10px;
+  }
+  .a2-path-number {
+    display: none;
+  }
+}
+@media (max-width: 800px) {
+  .a2-course-intro {
+    grid-template-columns: 1fr;
+  }
+  .a2-intro-image {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+  .a2-intro-image img {
+    max-height: 290px;
+  }
+  .a2-pathways {
+    grid-template-columns: 1fr;
+  }
+  .a2-pathways button {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 18px 24px;
+  }
+  .a2-pathways button:last-child {
+    border-bottom: 0;
+  }
+  .editorial-campus.aula02-campus .concept-hero {
+    grid-template-columns: 1fr;
+  }
+  .a2-source-panel {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 580px) {
+  .editorial-campus.aula02-campus .module-grid {
+    grid-template-columns: 1fr;
+  }
+  .editorial-campus.aula02-campus .module-art {
+    height: 230px;
+  }
+  .a2-intro-copy {
+    padding: 28px;
+  }
+  .a2-topic-chapter > header h2 {
+    font-size: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editorial-campus.aula02-campus .a2-topic-art img {
+    transition: none;
+    transform: none !important;
+  }
+}

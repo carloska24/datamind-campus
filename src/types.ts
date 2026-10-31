@@ -18,4 +18,9 @@ export type Module = {
     sourceNote: string;
   };
 };
-export type StudyState = { done: number[]; notes: Record<string, string> };
+export type StudyState = {
+  done: number[];
+  notes: Record<string, string>;
+  /** Legacy top-level fields belong to Aula 01; additional lessons are isolated. */
+  courses?: { aula02?: { done: number[]; notes: Record<string, string> } };
+};

@@ -1,3 +1,5 @@
+import { courseAsset } from "./Aula02Artwork";
+import { useCourse } from "../course-context";
 import { useEffect, useRef, useState } from "react";
 import {
   Headphones,
@@ -61,6 +63,7 @@ export default function AudioStudio({
   onPositionChange?: (moduleId: number, position: number) => void;
   canManageCredentials?: boolean;
 }) {
+  const course = useCourse();
   const [moduleId, setModuleId] = useState(initial),
     [provider, setProvider] = useState(() => preferredProvider() || "browser"),
     [apiKey, setApiKey] = useState(""),
@@ -273,7 +276,7 @@ export default function AudioStudio({
       return;
     }
     setStatus("loading");
-    const key = `${provider}-${model}-${voice}-${gemVoice}-${moduleId}-${n}`;
+    const key = `${course.id}-${provider}-${model}-${voice}-${gemVoice}-${moduleId}-${n}`;
     try {
       let blobUrl = cache.current.get(key);
       if (!blobUrl) {
@@ -285,6 +288,7 @@ export default function AudioStudio({
           body: JSON.stringify({
             provider,
             moduleId,
+            courseId: course.number === "02" ? "aula02" : "aula01",
             sectionIndex: n,
             voice: provider === "openai" ? voice : gemVoice,
             model: provider === "openai" ? "gpt-4o-mini-tts" : model,
@@ -361,7 +365,9 @@ export default function AudioStudio({
         <div>
           <div className="audio-cover">
             <div>
-              <span className="light-label">AULA 01 · NARRAÇÃO SINTÉTICA</span>
+              <span className="light-label">
+                AULA {course.number} · NARRAÇÃO SINTÉTICA
+              </span>
               <h2>
                 O conhecimento
                 <br />
@@ -375,7 +381,15 @@ export default function AudioStudio({
                 Um novo jeito de estudar.
               </p>
             </div>
-            <FactoryArt compact />
+            {course.number === "02" ? (
+              <img
+                className="factory-art course-factory-art compact"
+                src={courseAsset("/course-art/aula02/curated/maquinas.jpg")}
+                alt="Fotografias dos equipamentos industriais apresentados no caso S&M — PDF, página 59"
+              />
+            ) : (
+              <FactoryArt compact />
+            )}
           </div>
           <div className="panel audio-player">
             <div className="player-heading">
@@ -388,7 +402,7 @@ export default function AudioStudio({
               </div>
             </div>
             <label className="field">
-              Escolher aula
+              Escolher tópico
               <select
                 value={moduleId}
                 onChange={(e) => {
@@ -507,7 +521,7 @@ export default function AudioStudio({
                 <a
                   className="text-link"
                   href={url}
-                  download={`Aula01_${moduleId + 1}_Trecho${index + 1}.${provider === "openai" ? "mp3" : "wav"}`}
+                  download={`Aula${course.number}_${moduleId + 1}_Trecho${index + 1}.${provider === "openai" ? "mp3" : "wav"}`}
                 >
                   <Download size={15} />
                   Baixar este trecho
@@ -545,7 +559,7 @@ export default function AudioStudio({
           </div>
           <div className="section-title">
             <h2>Acompanhe a explicação</h2>
-            <span>4 trechos por aula</span>
+            <span>4 trechos por tópico</span>
           </div>
           <div className="transcript">
             {segments.map((s, n) => (

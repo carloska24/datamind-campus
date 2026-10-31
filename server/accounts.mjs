@@ -57,7 +57,7 @@ async function matches(value, encoded) {
   const key = await derive(value, encoded.salt, 64, hashOptions);
   return timingSafeEqual(key, Buffer.from(encoded.hash, "hex"));
 }
-export function validateStudy(body) {
+export function validateStudy(body, nested = false) {
   if (
     !Array.isArray(body.done) ||
     body.done.some((id) => !Number.isInteger(id) || id < 0 || id >= 14)
@@ -83,14 +83,42 @@ export function validateStudy(body) {
   if (
     activity !== null &&
     (typeof activity !== "string" ||
-      !/^#\/(?:aula\/(?:[1-9]|1[0-4])|audio\/(?:[1-9]|1[0-4])\/[1-4]|kdd\/[1-5]|laboratorios\/[1-2]|revisao\/(?:[1-9]|1[0-4]))$/.test(
+      !/^#\/(?:aula02\/)?(?:projeto\/[1-5]|aula\/(?:[1-9]|1[0-4])|audio\/(?:[1-9]|1[0-4])\/[1-4]|kdd\/[1-5]|laboratorios\/[1-4]|revisao\/(?:[1-9]|1[0-4]))$/.test(
         activity,
       ))
   )
     throw accountError(400, "Atividade inválida.");
   if (!Number.isInteger(body.revision) || body.revision < 0)
     throw accountError(400, "Versão do estudo inválida.");
+  if (
+    typeof activity === "string" &&
+    !activity.startsWith("#/aula02/") &&
+    (/^#\/laboratorios\/[34]$/.test(activity) ||
+      activity.startsWith("#/projeto/"))
+  )
+    throw accountError(400, "Atividade inválida.");
+  if (typeof activity === "string" && activity.startsWith("#/aula02/kdd/"))
+    throw accountError(400, "Atividade inválida.");
+  const courses = {};
+  if (body.courses !== undefined) {
+    if (
+      nested ||
+      !body.courses ||
+      typeof body.courses !== "object" ||
+      Array.isArray(body.courses) ||
+      Object.keys(body.courses).some((key) => key !== "aula02")
+    )
+      throw accountError(400, "Aula inválida.");
+    if (body.courses.aula02) {
+      const validated = validateStudy(
+        { ...body.courses.aula02, lastActivity: null, revision: 0 },
+        true,
+      );
+      courses.aula02 = { done: validated.done, notes: validated.notes };
+    }
+  }
   return {
+    ...(Object.keys(courses).length ? { courses } : {}),
     done: [...new Set(body.done)],
     notes: { ...body.notes },
     lastActivity: activity,
@@ -241,6 +269,9 @@ export async function createAccountStore({
           );
         const record = {
           ...study,
+          ...(body.courses === undefined && previous.courses
+            ? { courses: previous.courses }
+            : {}),
           revision: previous.revision + 1,
           updatedAt: new Date(now()).toISOString(),
         };
@@ -254,6 +285,10 @@ export async function createAccountStore({
         return {
           ...publicUser(user),
           completed: study.done.length,
+          completedByCourse: {
+            aula01: study.done.length,
+            aula02: study.courses?.aula02?.done.length ?? 0,
+          },
           updatedAt: study.updatedAt,
         };
       });

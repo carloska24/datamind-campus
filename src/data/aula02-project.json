@@ -1,0 +1,114 @@
+{
+  "steps": [
+    {
+      "short": "Exploração",
+      "title": "Compreensão e exploração dos dados",
+      "pages": "69–70",
+      "objective": "Conhecer a estrutura, as distribuições e a frequência de falhas.",
+      "questions": [
+        "Quantos registros e atributos existem?",
+        "Quais variáveis e tipos estão disponíveis?",
+        "Como se distribuem os sensores?",
+        "Qual o percentual de registros com falha?",
+        "Qual equipamento tem maior taxa?"
+      ],
+      "code": "base = pd.read_csv(\"manutencao.csv\")\nprint(base.shape)\nbase.info()\nprint(base.describe())\nprint(base.groupby(\"maquina_id\")[\"falha\"].agg([\"size\", \"sum\", \"mean\"]))",
+      "deliverable": "Dicionário dos oito atributos, estatísticas, visualizações e contagens de falha; informe a versão bruta ou tratada.",
+      "caution": "Inspecione primeiro o arquivo bruto. Use a mesma regra de deduplicação ao comparar seus resultados com o diagnóstico do campus."
+    },
+    {
+      "short": "Preparação",
+      "title": "Preparação e mineração de dados",
+      "pages": "71–72",
+      "objective": "Auditar qualidade e investigar padrões operacionais associados a falha.",
+      "questions": [
+        "Há ausentes, duplicatas e possíveis outliers?",
+        "Que tratamentos foram usados e por quê?",
+        "Temperatura e vibração se associam a falhas?",
+        "Horas de operação e corrente elétrica mudam entre classes?",
+        "Quais correlações merecem investigação?"
+      ],
+      "code": "print(base.isna().sum())\nprint(base.duplicated().sum())\nlimpa = base.drop_duplicates().copy()\nprint(limpa.groupby(\"falha\")[[\"temperatura_c\", \"vibracao_mm_s\", \"corrente_a\"]].median())",
+      "deliverable": "Relatório de qualidade antes/depois e hipóteses apoiadas por tabelas e gráficos.",
+      "caution": "Não descarte outliers automaticamente. Para modelos, ajuste imputação e escala só no treino; correlação não demonstra causa."
+    },
+    {
+      "short": "Classificação",
+      "title": "Machine Learning supervisionado",
+      "pages": "73–74",
+      "objective": "Treinar e avaliar pelo menos dois classificadores e uma referência simples.",
+      "questions": [
+        "Quais atributos entram no modelo e por quê?",
+        "Como separar treino, validação e teste?",
+        "Qual algoritmo tem melhor desempenho no critério escolhido?",
+        "O que mostram acurácia, precisão, recall e F1?",
+        "Que variáveis contribuem e qual o custo dos falsos positivos e negativos?"
+      ],
+      "code": "from sklearn.dummy import DummyClassifier\nfrom sklearn.metrics import classification_report\n# Prepare X_treino, X_teste, y_treino e y_teste sem vazamento temporal.\nreferencia = DummyClassifier(strategy=\"most_frequent\")\nreferencia.fit(X_treino, y_treino)\nprint(classification_report(y_teste, referencia.predict(X_teste), zero_division=0))",
+      "deliverable": "Comparação entre Árvore de Decisão, Random Forest ou Regressão Logística, matriz de confusão e justificativa da escolha.",
+      "caution": "O notebook oferece um exemplo de teste temporal. Ele classifica o rótulo do registro, não demonstra previsão antecipada de parada; escolha por validação, não pelo teste final."
+    },
+    {
+      "short": "Agrupamento",
+      "title": "Machine Learning não supervisionado",
+      "pages": "75–76",
+      "objective": "Identificar perfis operacionais com K-Means e interpretar os grupos.",
+      "questions": [
+        "Há perfis de operação distintos?",
+        "Como justificar o número de clusters?",
+        "Quais variáveis caracterizam cada grupo?",
+        "A frequência de falha difere entre grupos?",
+        "Como os perfis podem orientar monitoramento?"
+      ],
+      "code": "from sklearn.cluster import KMeans\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.pipeline import make_pipeline\n# sensores não inclui falha nem identificadores.\npreparacao = make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler())\nZ = preparacao.fit_transform(limpa[sensores])\nclusters = KMeans(n_clusters=3, n_init=10, random_state=42).fit_predict(Z)",
+      "deliverable": "Comparação de candidatos a K, perfis dos clusters e análise posterior das taxas de falha.",
+      "caution": "K=3 aqui é apenas ponto de partida. Compare inércia, silhueta e interpretação. Um agrupamento não prova um mecanismo de falha."
+    },
+    {
+      "short": "Spark e decisão",
+      "title": "Big Data e tomada de decisão",
+      "pages": "77–79",
+      "objective": "Reproduzir operações com PySpark e consolidar recomendações fundamentadas.",
+      "questions": [
+        "Como ler e explorar o CSV em PySpark?",
+        "Como selecionar, filtrar e agrupar?",
+        "Como Pandas e PySpark diferem?",
+        "Quando processamento distribuído ajuda?",
+        "Que recomendações as evidências permitem e quais são suas limitações?"
+      ],
+      "code": "from pyspark.sql import SparkSession, functions as F\nspark = SparkSession.builder.master(\"local[*]\").appName(\"Aula02\").getOrCreate()\nsdf = spark.read.csv(\"manutencao.csv\", header=True, inferSchema=True).dropDuplicates()\nsdf.groupBy(\"maquina_id\").agg(F.count(\"*\").alias(\"registros\"),\n F.avg(\"falha\").alias(\"taxa_falha\")).show()\nspark.stop()",
+      "deliverable": "Notebook com as cinco etapas, transformações e agregações em Spark, gráficos e recomendações técnicas.",
+      "caution": "A base pequena é didática. Duplicar linhas aumenta volume sintético, mas não cria evidência nem diversidade; não misture duplicações com validação dos modelos."
+    }
+  ],
+  "rubric": [
+    {
+      "name": "Exploração e compreensão dos dados",
+      "points": 15
+    },
+    {
+      "name": "Preparação e tratamento",
+      "points": 15
+    },
+    {
+      "name": "Análise exploratória e mineração",
+      "points": 15
+    },
+    {
+      "name": "Machine Learning supervisionado",
+      "points": 25
+    },
+    {
+      "name": "Machine Learning não supervisionado",
+      "points": 10
+    },
+    {
+      "name": "Big Data com PySpark",
+      "points": 10
+    },
+    {
+      "name": "Interpretação e recomendações",
+      "points": 10
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "classificacao": {
+    "file": "/course-art/aula02/curated/classificacao.jpg",
+    "page": 5,
+    "label": "PDF · p. 5",
+    "source": "PDF da Aula 02, figura da página 5.",
+    "alt": "Ilustração do PDF sobre classificação de uma máquina por vibração e corrente.",
+    "caption": "Uma classificação começa por variáveis e critérios",
+    "kind": "pdf"
+  },
+  "spark": {
+    "file": "/course-art/aula02/curated/spark.jpg",
+    "page": 7,
+    "label": "PDF · p. 7",
+    "source": "PDF da Aula 02, figura da página 7.",
+    "alt": "Ecossistema Apache Spark e ferramentas relacionadas apresentado no PDF.",
+    "caption": "Processamento e integração com Apache Spark",
+    "kind": "pdf"
+  },
+  "viagens": {
+    "file": "/course-art/aula02/curated/viagens.jpg",
+    "page": 54,
+    "label": "PDF · p. 54",
+    "source": "PDF da Aula 02, figura da página 54.",
+    "alt": "Tabela do PDF com datas, viagens e distância percorrida.",
+    "caption": "Confira datas, viagens e distância",
+    "kind": "pdf"
+  },
+  "vendas": {
+    "file": "/course-art/aula02/curated/vendas.jpg",
+    "page": 52,
+    "label": "PDF · p. 52",
+    "source": "PDF da Aula 02, figura da página 52.",
+    "alt": "Tabela do PDF com meses, unidades vendidas, preço e faturamento.",
+    "caption": "Preço, quantidade e faturamento ao longo do tempo",
+    "kind": "pdf"
+  }
+}

@@ -1,0 +1,142 @@
+[
+  {
+    "moduleId": 0,
+    "file": "/course-art/aula02/page-02.jpg",
+    "page": 2,
+    "caption": "Comece pela pergunta, termine com uma decisão",
+    "alt": "Slide 2 do PDF original da Aula 02, relacionado a Comece pela pergunta, termine com uma decisão.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 1,
+    "file": "/course-art/aula02/page-10.jpg",
+    "page": 10,
+    "caption": "Pandas: Series, DataFrame e índice",
+    "alt": "Slide 10 do PDF original da Aula 02, relacionado a Pandas: Series, DataFrame e índice.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 2,
+    "file": "/course-art/aula02/page-13.jpg",
+    "page": 13,
+    "caption": "Importe e conheça seus dados",
+    "alt": "Slide 13 do PDF original da Aula 02, relacionado a Importe e conheça seus dados.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 3,
+    "file": "/course-art/aula02/page-26.jpg",
+    "page": 26,
+    "caption": "Selecione colunas e filtre observações",
+    "alt": "Slide 26 do PDF original da Aula 02, relacionado a Selecione colunas e filtre observações.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 4,
+    "file": "/course-art/aula02/page-27.jpg",
+    "page": 27,
+    "caption": "Resuma sem esconder a distribuição",
+    "alt": "Slide 27 do PDF original da Aula 02, relacionado a Resuma sem esconder a distribuição.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 5,
+    "file": "/course-art/aula02/page-30.jpg",
+    "page": 30,
+    "caption": "Agrupamentos e taxas com denominador correto",
+    "alt": "Slide 30 do PDF original da Aula 02, relacionado a Agrupamentos e taxas com denominador correto.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 6,
+    "file": "/course-art/aula02/page-16.jpg",
+    "page": 16,
+    "caption": "Qualidade dos dados e transformações",
+    "alt": "Slide 16 do PDF original da Aula 02, relacionado a Qualidade dos dados e transformações.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 7,
+    "file": "/course-art/aula02/page-34.jpg",
+    "page": 34,
+    "caption": "Crie indicadores e investigue associações",
+    "alt": "Slide 34 do PDF original da Aula 02, relacionado a Crie indicadores e investigue associações.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 8,
+    "file": "/course-art/aula02/page-46.jpg",
+    "page": 46,
+    "caption": "Gráficos que respondem à pergunta",
+    "alt": "Slide 46 do PDF original da Aula 02, relacionado a Gráficos que respondem à pergunta.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 9,
+    "file": "/course-art/aula02/page-35.jpg",
+    "page": 35,
+    "caption": "Laboratório: produção e qualidade por turno",
+    "alt": "Slide 35 do PDF original da Aula 02, relacionado a Laboratório: produção e qualidade por turno.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 10,
+    "file": "/course-art/aula02/page-49.jpg",
+    "page": 49,
+    "caption": "Laboratório: eficiência energética das máquinas",
+    "alt": "Slide 49 do PDF original da Aula 02, relacionado a Laboratório: eficiência energética das máquinas.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 11,
+    "file": "/course-art/aula02/curated/viagens.jpg",
+    "page": 54,
+    "caption": "Tabela de viagens e distância do material",
+    "alt": "Tabela de data, dia da semana, quantidade de viagens e distância total em quilômetros.",
+    "note": "O PDF apresenta esta tabela no slide 54, cujo texto menciona vendas; no slide 52 ocorre a inversão. Use as colunas e a base correspondente para identificar o exercício.",
+    "width": 771,
+    "height": 292
+  },
+  {
+    "moduleId": 12,
+    "file": "/course-art/aula02/page-61.jpg",
+    "page": 61,
+    "caption": "Projeto S&M: exploração e preparação",
+    "alt": "Slide 61 do PDF original da Aula 02, relacionado a Projeto S&M: exploração e preparação.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  },
+  {
+    "moduleId": 13,
+    "file": "/course-art/aula02/page-67.jpg",
+    "page": 67,
+    "caption": "Projeto S&M: modelos, agrupamentos e escala",
+    "alt": "Slide 67 do PDF original da Aula 02, relacionado a Projeto S&M: modelos, agrupamentos e escala.",
+    "note": "Reprodução do slide original. Amplie a figura ou consulte o PDF para ler os detalhes. As explicações do tópico são complementos didáticos.",
+    "width": 1400,
+    "height": 788
+  }
+]

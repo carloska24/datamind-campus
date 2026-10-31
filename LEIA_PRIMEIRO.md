@@ -1,6 +1,10 @@
-# DataMind — Aula 01
+# Indústria & Dados — Aulas 01 e 02
 
-Um campus de estudo visual e narrado da aula de Data Science e Big Data na Indústria, com contas individuais de alunos e administração local.
+Um ambiente de estudo visual e narrado de Data Science e Big Data na Indústria, com contas individuais de alunos e administração local.
+
+O catálogo inclui a Aula 01 e a Aula 02. A Aula 02 reúne 14 tópicos, quatro laboratórios, 56 trechos de narração, revisão e o roteiro do projeto S&M em cinco etapas. Os materiais estão em `public/materiais/aula02` e, após a compilação, em `dist/materiais/aula02`. Veja [Integração da Aula 02](docs/AULA02.md).
+
+Após atualizar o código, execute `npm run build` e reinicie o servidor: a atualização inclui seleção da aula na geração de áudio e persistência do caderno. As notas e o progresso da Aula 01 mantêm o formato anterior.
 
 ## Campus com login
 

@@ -1,0 +1,22 @@
+{
+  "base_p52.csv": {
+    "sha256": "648d4e018280a6ed596e85cc3b3aa34f523efa4305fcdc17810ec53621dae9f8",
+    "bytes": 2885,
+    "origem": "Pasta local Aula02/dados fornecida pelo usuário; correspondência com links externos ainda não verificada"
+  },
+  "base_p54.csv": {
+    "sha256": "7a73d128bfb5f041a2a929606139eda4698a79c72cd11397084451d4b01d5ffc",
+    "bytes": 3800,
+    "origem": "Pasta local Aula02/dados fornecida pelo usuário; correspondência com links externos ainda não verificada"
+  },
+  "manutencao.csv": {
+    "sha256": "acb2f83ef2e974bf12115ce234f03cf5ebdfc1ade782891a5fd7edc9b9aad3ae",
+    "bytes": 270198,
+    "origem": "Pasta local Aula02/dados fornecida pelo usuário; correspondência com links externos ainda não verificada"
+  },
+  "producao.csv": {
+    "sha256": "df91c3a5ef9a63bc05e632e20d6991ffbb201c7b03d24dbb201994da2e6442fe",
+    "bytes": 4753,
+    "origem": "Pasta local Aula02/dados fornecida pelo usuário; correspondência com links externos ainda não verificada"
+  }
+}

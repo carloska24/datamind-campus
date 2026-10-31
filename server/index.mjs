@@ -293,7 +293,7 @@ if (
   });
   server.listen(config.port, config.host, () =>
     console.log(
-      `DataMind disponível em ${config.publicOrigin || `http://127.0.0.1:${config.port}`}`,
+      `Indústria & Dados disponível em ${config.publicOrigin || `http://127.0.0.1:${config.port}`}`,
     ),
   );
 }

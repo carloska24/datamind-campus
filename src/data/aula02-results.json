@@ -1,0 +1,220 @@
+{
+  "producao": {
+    "rows": [
+      {
+        "grupo": "Manhã",
+        "registros": 34,
+        "pecas_produzidas": 10777.0,
+        "pecas_defeituosas": 358.0,
+        "media": 316.97058823529414,
+        "taxa": 3.3218892084995826
+      },
+      {
+        "grupo": "Noite",
+        "registros": 33,
+        "pecas_produzidas": 8765.0,
+        "pecas_defeituosas": 277.0,
+        "media": 265.6060606060606,
+        "taxa": 3.1602966343411296
+      },
+      {
+        "grupo": "Tarde",
+        "registros": 33,
+        "pecas_produzidas": 9937.0,
+        "pecas_defeituosas": 306.0,
+        "media": 301.1212121212121,
+        "taxa": 3.079400221394787
+      }
+    ],
+    "total": 29479,
+    "correlacao": 0.3696564216740086
+  },
+  "maquinas": [
+    {
+      "maquina": "Máquina A",
+      "producao": 1250,
+      "energia_kwh": 420,
+      "eficiencia": 2.9761904761904763
+    },
+    {
+      "maquina": "Máquina B",
+      "producao": 1380,
+      "energia_kwh": 465,
+      "eficiencia": 2.967741935483871
+    },
+    {
+      "maquina": "Máquina C",
+      "producao": 1190,
+      "energia_kwh": 390,
+      "eficiencia": 3.051282051282051
+    },
+    {
+      "maquina": "Máquina D",
+      "producao": 1450,
+      "energia_kwh": 510,
+      "eficiencia": 2.843137254901961
+    },
+    {
+      "maquina": "Máquina E",
+      "producao": 1320,
+      "energia_kwh": 405,
+      "eficiencia": 3.259259259259259
+    }
+  ],
+  "viagens": {
+    "rows": [
+      {
+        "grupo": "2026-01",
+        "registros": 31,
+        "quantidade_viagens": 901.0,
+        "distancia_total_km": 17162.6
+      },
+      {
+        "grupo": "2026-02",
+        "registros": 28,
+        "quantidade_viagens": 816.0,
+        "distancia_total_km": 14671.9
+      },
+      {
+        "grupo": "2026-03",
+        "registros": 31,
+        "quantidade_viagens": 895.0,
+        "distancia_total_km": 17236.1
+      },
+      {
+        "grupo": "2026-04",
+        "registros": 10,
+        "quantidade_viagens": 281.0,
+        "distancia_total_km": 5309.1
+      }
+    ],
+    "total": 2893,
+    "media": 28.93,
+    "maior_dia": {
+      "data": "2026-02-26",
+      "dia_semana": "Quinta",
+      "quantidade_viagens": "48",
+      "distancia_total_km": "969.1",
+      "mes": "2026-02"
+    },
+    "correlacao": 0.8693500045093389
+  },
+  "vendas": {
+    "rows": [
+      {
+        "grupo": "2018",
+        "registros": 12,
+        "unidades_vendidas": 2330.0,
+        "faturamento_rs": 96102.82
+      },
+      {
+        "grupo": "2019",
+        "registros": 12,
+        "unidades_vendidas": 2363.0,
+        "faturamento_rs": 103923.92
+      },
+      {
+        "grupo": "2020",
+        "registros": 12,
+        "unidades_vendidas": 2600.0,
+        "faturamento_rs": 121596.05
+      },
+      {
+        "grupo": "2021",
+        "registros": 12,
+        "unidades_vendidas": 2800.0,
+        "faturamento_rs": 138671.63
+      },
+      {
+        "grupo": "2022",
+        "registros": 12,
+        "unidades_vendidas": 3102.0,
+        "faturamento_rs": 162233.85
+      },
+      {
+        "grupo": "2023",
+        "registros": 12,
+        "unidades_vendidas": 3280.0,
+        "faturamento_rs": 180556.83
+      },
+      {
+        "grupo": "2024",
+        "registros": 12,
+        "unidades_vendidas": 3370.0,
+        "faturamento_rs": 194789.93
+      },
+      {
+        "grupo": "2025",
+        "registros": 12,
+        "unidades_vendidas": 3511.0,
+        "faturamento_rs": 212661.26
+      },
+      {
+        "grupo": "2026",
+        "registros": 4,
+        "unidades_vendidas": 1143.0,
+        "faturamento_rs": 71242.88
+      }
+    ],
+    "total_unidades": 24499,
+    "total_faturamento": 1281779.17,
+    "maior_mes": {
+      "mes": "2025-11",
+      "produto": "Produto A",
+      "unidades_vendidas": "366",
+      "preco_unitario_rs": "61.52",
+      "faturamento_rs": "22516.32",
+      "ano": "2025"
+    },
+    "correlacao": 0.7713452839650174
+  },
+  "manutencao": {
+    "brutos": 5050,
+    "duplicatas": 50,
+    "tratados": 5000,
+    "atributos": 8,
+    "ausentes": {
+      "timestamp": 0,
+      "maquina_id": 0,
+      "temperatura_c": 52,
+      "vibracao_mm_s": 50,
+      "pressao_bar": 51,
+      "corrente_a": 50,
+      "horas_operacao": 51,
+      "falha": 0
+    },
+    "rows": [
+      {
+        "grupo": "M01",
+        "registros": 1000,
+        "falha": 175.0,
+        "taxa": 17.5
+      },
+      {
+        "grupo": "M02",
+        "registros": 1000,
+        "falha": 178.0,
+        "taxa": 17.8
+      },
+      {
+        "grupo": "M03",
+        "registros": 1000,
+        "falha": 181.0,
+        "taxa": 18.099999999999998
+      },
+      {
+        "grupo": "M04",
+        "registros": 1000,
+        "falha": 189.0,
+        "taxa": 18.9
+      },
+      {
+        "grupo": "M05",
+        "registros": 1000,
+        "falha": 180.0,
+        "taxa": 18.0
+      }
+    ],
+    "total_falhas": 903
+  }
+}

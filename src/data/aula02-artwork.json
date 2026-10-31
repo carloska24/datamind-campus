@@ -1,0 +1,142 @@
+[
+  {
+    "moduleId": 0,
+    "file": "/course-art/aula02/curated/projeto.jpg",
+    "alt": "As cinco etapas do projeto de Data Science, da definição do problema à interpretação.",
+    "label": "PDF · p. 2",
+    "source": "PDF da Aula 02, figura original da página 2.",
+    "caption": "Pergunta → preparação → modelo → avaliação",
+    "kind": "pdf",
+    "page": 2
+  },
+  {
+    "moduleId": 1,
+    "file": "/course-art/aula02/curated/01_table_dataframe.svg",
+    "alt": "Diagrama oficial do Pandas: linhas e colunas formam um DataFrame.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/01_table_oriented.html",
+    "caption": "Uma tabela, dois eixos",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 2,
+    "file": "/course-art/aula02/curated/02_io_readwrite.svg",
+    "alt": "Diagrama oficial do Pandas: leitura e escrita de formatos de dados.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/02_read_write.html",
+    "caption": "Arquivos entram. Tabelas ganham estrutura.",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 3,
+    "file": "/course-art/aula02/curated/03_subset_columns_rows.svg",
+    "alt": "Diagrama oficial do Pandas: seleção de linhas e colunas de uma tabela.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/03_subset_data.html",
+    "caption": "Escolha exatamente o seu recorte",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 4,
+    "file": "/course-art/aula02/curated/06_aggregate.svg",
+    "alt": "Diagrama oficial do Pandas: redução de valores em estatísticas resumidas.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html",
+    "caption": "Dos registros ao resumo",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 5,
+    "file": "/course-art/aula02/curated/06_groupby.svg",
+    "alt": "Diagrama oficial do Pandas: separar grupos, calcular e combinar os resultados.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/06_calculate_statistics.html",
+    "caption": "Separar. Calcular. Comparar.",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 6,
+    "file": "/course-art/aula02/curated/qualidade.jpg",
+    "alt": "Quadro do PDF com mediana, desvio padrão, ausências, limpeza e transformação de dados.",
+    "label": "PDF · p. 16",
+    "source": "PDF da Aula 02, figura original da página 16.",
+    "caption": "Antes do cálculo, confira a qualidade",
+    "kind": "pdf",
+    "page": 16
+  },
+  {
+    "moduleId": 7,
+    "file": "/course-art/aula02/curated/correlacao.jpg",
+    "alt": "Matriz de correlação entre produção, defeitos e temperatura do exemplo de motores.",
+    "label": "PDF · p. 34",
+    "source": "PDF da Aula 02, figura original da página 34.",
+    "caption": "Associação exige interpretação",
+    "kind": "pdf",
+    "page": 34
+  },
+  {
+    "moduleId": 8,
+    "file": "/course-art/aula02/curated/graficos.jpg",
+    "alt": "Figura do material que diferencia a figura completa e a área dos eixos de um gráfico.",
+    "label": "PDF · p. 45",
+    "source": "PDF da Aula 02, figura original da página 45.",
+    "caption": "Um gráfico, uma pergunta clara",
+    "kind": "pdf",
+    "page": 45
+  },
+  {
+    "moduleId": 9,
+    "file": "/course-art/aula02/curated/turnos.jpg",
+    "alt": "Gráfico original de taxa de defeitos por turno, em porcentagem.",
+    "label": "PDF · p. 48",
+    "source": "PDF da Aula 02, figura original da página 48.",
+    "caption": "Volume e qualidade são comparações diferentes",
+    "kind": "pdf",
+    "page": 48
+  },
+  {
+    "moduleId": 10,
+    "file": "/course-art/aula02/curated/energia.jpg",
+    "alt": "Ilustração original do PDF sobre classificação da eficiência de máquinas por consumo de energia.",
+    "label": "PDF · p. 5",
+    "source": "PDF da Aula 02, figura original da página 5.",
+    "caption": "Produção por unidade de energia",
+    "kind": "pdf",
+    "page": 5
+  },
+  {
+    "moduleId": 11,
+    "file": "/course-art/aula02/curated/09_time_section.png",
+    "alt": "Gráfico oficial do Pandas que destaca um recorte de uma série temporal.",
+    "label": "Pandas · oficial",
+    "source": "https://pandas.pydata.org/docs/getting_started/intro_tutorials/09_timeseries.html",
+    "caption": "O tempo também faz parte da análise",
+    "kind": "pandas",
+    "page": null
+  },
+  {
+    "moduleId": 12,
+    "file": "/course-art/aula02/curated/maquinas.jpg",
+    "alt": "Três fotografias de equipamentos industriais apresentadas no caso S&M do PDF.",
+    "label": "PDF · p. 59",
+    "source": "PDF da Aula 02, figura original da página 59.",
+    "caption": "Do sensor à investigação de falhas",
+    "kind": "photo",
+    "page": 59
+  },
+  {
+    "moduleId": 13,
+    "file": "/course-art/aula02/curated/clusters.jpg",
+    "alt": "Ilustração original do PDF sobre agrupamentos de máquinas com perfis semelhantes.",
+    "label": "PDF · p. 6",
+    "source": "PDF da Aula 02, figura original da página 6.",
+    "caption": "Descubra perfis de operação",
+    "kind": "pdf",
+    "page": 6
+  }
+]

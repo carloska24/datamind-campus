@@ -1,8 +1,17 @@
 import { readFileSync } from "node:fs";
-export function getNarration(moduleId, sectionIndex) {
+export function getNarration(moduleId, sectionIndex, courseId = "aula01") {
+  if (!["aula01", "aula02"].includes(courseId)) throw Error("Aula inválida.");
   // Read the same lesson source as the current build, even after a content update.
   const modules = JSON.parse(
-    readFileSync(new URL("../src/data/modules.json", import.meta.url), "utf8"),
+    readFileSync(
+      new URL(
+        courseId === "aula02"
+          ? "../src/data/aula02-modules.json"
+          : "../src/data/modules.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
   );
   if (
     !Number.isInteger(moduleId) ||
@@ -112,7 +121,7 @@ async function requestSpeech(body, fetchImpl, signal) {
     /[\r\n]/.test(apiKey)
   )
     throw Error("Insira uma chave de API válida.");
-  const text = getNarration(moduleId, sectionIndex);
+  const text = getNarration(moduleId, sectionIndex, body.courseId);
   let response;
   if (provider === "openai") {
     const voice = [

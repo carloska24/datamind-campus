@@ -49,6 +49,7 @@ export function useStudySync(
   const snapshot = JSON.stringify({
     done: study.done,
     notes: study.notes,
+    courses: study.courses ?? {},
     lastActivity: activity ? routeHash(activity) : null,
   });
   const revision = useRef(initial?.revision ?? 0);
@@ -57,6 +58,7 @@ export function useStudySync(
       ? JSON.stringify({
           done: initial.done,
           notes: initial.notes,
+          courses: initial.courses ?? {},
           lastActivity: initial.lastActivity,
         })
       : "",

@@ -7,12 +7,16 @@ if (!scriptMatch || !cssMatch) throw Error("Assets de build não encontrados.");
 let js = await readFile(path.join("dist", scriptMatch[1]), "utf8");
 // Inline course images as well as code so ABRIR.html remains self-contained.
 const imagePaths = new Set(
-  js.match(/\/course-art\/[a-zA-Z0-9_./-]+\.(?:png|jpg)/g) ?? [],
+  js.match(/\/course-art\/[a-zA-Z0-9_./-]+\.(?:png|jpg|svg)/g) ?? [],
 );
 const embeddedImages = [];
 for (const file of imagePaths) {
   const bytes = await readFile(path.join("dist", file.slice(1)));
-  const mime = file.endsWith(".png") ? "image/png" : "image/jpeg";
+  const mime = file.endsWith(".svg")
+    ? "image/svg+xml"
+    : file.endsWith(".png")
+      ? "image/png"
+      : "image/jpeg";
   const name = `__datamindCourseImage${embeddedImages.length}`;
   embeddedImages.push(
     `const ${name}="data:${mime};base64,${bytes.toString("base64")}";`,
@@ -23,7 +27,7 @@ for (const file of imagePaths) {
   }
 }
 js = embeddedImages.join("\n") + "\n" + js;
-if (/\/course-art\/[a-zA-Z0-9_./-]+\.(?:png|jpg)/.test(js)) {
+if (/\/course-art\/[a-zA-Z0-9_./-]+\.(?:png|jpg|svg)/.test(js)) {
   throw Error("Uma imagem do curso não foi incorporada no HTML portátil.");
 }
 const css = await readFile(path.join("dist", cssMatch[1]), "utf8");
