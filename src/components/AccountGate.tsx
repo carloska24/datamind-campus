@@ -1,3 +1,4 @@
+import CourseBrand from "./CourseBrand";
 import { useEffect, useState } from "react";
 import {
   BrainCircuit,
@@ -170,13 +171,7 @@ export default function AccountGate() {
       </div>
       <section className="entry-story">
         <div className="brand">
-          <span className="brand-icon">
-            <BrainCircuit size={25} />
-          </span>
-          <span>
-            Data<span className="brand-accent">Mind</span>
-            <small>INDUSTRY LEARNING STUDIO</small>
-          </span>
+          <CourseBrand />
         </div>
         <div className="entry-copy">
           <span className="eyebrow">SEU CAMPUS DE APRENDIZAGEM</span>

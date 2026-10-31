@@ -1,4 +1,6 @@
 export type Page =
+  | "catalog"
+  | "progress"
   | "home"
   | "course"
   | "lesson"
@@ -10,6 +12,8 @@ export type Page =
   | "resources";
 export type CampusRoute = { page: Page; moduleId?: number; position?: number };
 const slugs: Record<Page, string> = {
+  catalog: "aulas",
+  progress: "progresso",
   home: "inicio",
   course: "trilha",
   lesson: "aula",

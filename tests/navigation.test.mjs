@@ -69,3 +69,10 @@ test("busca normaliza acento, caixa e espaços nas duas entradas", () => {
     ),
   );
 });
+
+test("campus tem catálogo e progresso sem alterar links existentes da Aula 01", () => {
+  for (const page of ["catalog", "progress"]) {
+    assert.deepEqual(parseRoute(routeHash({ page }), 14), { page });
+  }
+  assert.equal(routeHash({ page: "lesson", moduleId: 0 }), "#/aula/1");
+});

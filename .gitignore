@@ -6,3 +6,6 @@ node_modules/
 tmp/
 output/
 *.log
+
+.npm-cache/
+work/

@@ -1,5 +1,5 @@
+import CourseBrand from "./components/CourseBrand";
 import { useEffect, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -55,14 +55,20 @@ import {
   CodeBlock,
   CommandPalette,
   Confetti,
-  MiniScatter,
   ProgressRing,
   ScrollProgress,
-  pearson,
   type Command,
 } from "./components/Campus";
 import "./styles.css";
 import "./course-art.css";
+import "./campus-layout.css";
+import "./campus-premium.css";
+import CampusOverview from "./components/CampusOverview";
+import {
+  LessonNavigation,
+  TopicOutline,
+  lessonPages,
+} from "./components/LessonNavigation";
 const modules: Module[] = rawModules;
 const categories = [
   "Todos",
@@ -72,6 +78,13 @@ const categories = [
   "Laboratórios",
   "Aplicação",
 ];
+const campusNav = [
+  ["home", "Início", LayoutDashboard],
+  ["catalog", "Aulas", BookOpen],
+  ["resources", "Biblioteca", FolderOpen],
+  ["notes", "Meu caderno", NotebookPen],
+  ["progress", "Meu progresso", ChartNoAxesCombined],
+] as const;
 const navItems = [
   ["home", "Visão geral", LayoutDashboard],
   ["course", "Trilha de aprendizagem", BookOpen],
@@ -85,16 +98,6 @@ const navItems = [
 /* Tom de cor por categoria: violeta, ciano, azul, menta, âmbar. */
 const toneOf = (category: string) =>
   Math.max(0, categories.indexOf(category) - 1);
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
-}
-/* Destaque que segue o cursor nos cards bento. */
-function spotlight(e: ReactMouseEvent<HTMLElement>) {
-  const r = e.currentTarget.getBoundingClientRect();
-  e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-  e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-}
 function initialTheme(): "dark" | "light" {
   try {
     const t = localStorage.getItem("datamind-theme");
@@ -280,7 +283,7 @@ export default function App({
   function mark(id: number) {
     if (!study.done.includes(id)) {
       setCelebrate((c) => c + 1);
-      setToast("Módulo marcado como compreendido. Continue assim!");
+      setToast("Tópico marcado como compreendido. Continue assim!");
     }
     setStudy((s) => ({
       ...s,
@@ -290,7 +293,10 @@ export default function App({
     }));
   }
   const commands: Command[] = [
-    ...navItems.map(([id, label, Icon]) => ({
+    ...[
+      ...campusNav,
+      ...navItems.filter(([id]) => lessonPages.includes(id)),
+    ].map(([id, label, Icon]) => ({
       id: `nav-${id}`,
       group: "Telas",
       label,
@@ -299,7 +305,7 @@ export default function App({
     })),
     ...modules.map((m) => ({
       id: `mod-${m.id}`,
-      group: "Módulos",
+      group: "Tópicos · Aula 01",
       label: `${String(m.id + 1).padStart(2, "0")} · ${m.title}`,
       hint: m.category,
       keywords: `${m.idea} ${m.explain} ${m.question}`,
@@ -400,7 +406,9 @@ export default function App({
     </div>
   );
   return (
-    <div className="app-shell">
+    <div
+      className={`app-shell editorial-campus ${page === "lesson" ? "study-mode" : ""}`}
+    >
       <div className="aurora" aria-hidden="true">
         <span />
         <i />
@@ -415,13 +423,7 @@ export default function App({
             go("home");
           }}
         >
-          <span className="brand-icon">
-            <BrainCircuit size={25} />
-          </span>
-          <span>
-            Data<span className="brand-accent">Mind</span>
-            <small>INDUSTRY LEARNING STUDIO</small>
-          </span>
+          <CourseBrand />
         </a>
         <button
           className="close-nav icon-button"
@@ -432,37 +434,36 @@ export default function App({
         </button>
         <div className="sidebar-label">SEU ESPAÇO DE ESTUDO</div>
         <nav>
-          {navItems.map(([id, label, Icon]) => (
+          {campusNav.map(([id, label, Icon]) => (
             <button
               key={id}
               className={
-                page === id || (id === "course" && page === "lesson")
+                page === id || (id === "catalog" && lessonPages.includes(page))
                   ? "active"
                   : ""
               }
               onClick={() => go(id)}
               aria-current={
-                page === id || (id === "course" && page === "lesson")
+                page === id || (id === "catalog" && lessonPages.includes(page))
                   ? "page"
                   : undefined
               }
             >
               <Icon size={19} />
               <span>{label}</span>
-              {id === "audio" && <span className="nav-new">ÁUDIO</span>}
             </button>
           ))}
         </nav>
         <div className="sidebar-progress">
           <ProgressRing value={progress} size={58} />
           <div className="sidebar-progress-head">
-            <span>Sua jornada</span>
+            <span>Aula 01</span>
             <strong>{study.done.length}/14</strong>
           </div>
           <div className="progress-track">
             <div style={{ width: `${progress * 100}%` }} />
           </div>
-          <small>módulos compreendidos</small>
+          <small>tópicos compreendidos</small>
           <button onClick={() => navigate(resume)}>
             {allDone
               ? "Revisar a aula"
@@ -520,7 +521,7 @@ export default function App({
             <strong>
               {page === "lesson"
                 ? modules[current].title
-                : navItems.find(([id]) => id === page)?.[1]}
+                : [...campusNav, ...navItems].find(([id]) => id === page)?.[1]}
             </strong>
           </div>
           <div className="topbar-right">
@@ -610,345 +611,72 @@ export default function App({
             className="page-enter"
             key={`${page}-${page === "lesson" ? current : ""}`}
           >
-            {page === "home" && (
+            {(page === "home" || page === "catalog") && (
+              <CampusOverview
+                catalog={page === "catalog"}
+                name={displayName.split(" ")[0]}
+                completed={study.done.length}
+                total={modules.length}
+                resumeLabel={
+                  allDone
+                    ? "Hora de revisar suas descobertas"
+                    : lastActivity
+                      ? activityLabel(lastActivity)
+                      : next.title
+                }
+                onResume={() => navigate(resume)}
+                onNavigate={go}
+              />
+            )}
+            {page === "progress" && (
               <>
                 {heading(
-                  "DATAMIND CAMPUS · AULA 01",
-                  `${greeting()}, ${displayName.split(" ")[0]}`,
-                  "Vamos transformar a experiência da fábrica em raciocínio com dados.",
+                  "MEU APRENDIZADO",
+                  "Cada tópico, um passo adiante",
+                  `${study.done.length} de ${modules.length} tópicos da Aula 01 marcados como compreendidos.`,
                 )}
-                {lastActivity && !allDone && (
-                  <div className="resume-study panel">
-                    <span className="icon-box lavender">
-                      <Play size={20} />
-                    </span>
-                    <div>
-                      <span className="eyebrow">DE ONDE VOCÊ PAROU</span>
-                      <strong>{activityLabel(lastActivity)}</strong>
-                    </div>
-                    <button
-                      className="button secondary"
-                      onClick={() => navigate(resume)}
-                    >
-                      Retomar atividade <ArrowRight size={16} />
-                    </button>
-                  </div>
-                )}
-                <section className="hero">
-                  <div className="hero-copy">
-                    <span className="hero-tag">
-                      <Sparkles size={14} />
-                      AULA 01 · FUNDAMENTOS E PRÁTICA
-                    </span>
-                    <h2>
-                      Data Science
-                      <br />
-                      & Big Data
-                      <br />
-                      <em>na indústria.</em>
-                    </h2>
-                    <p>
-                      Entenda os conceitos, explore os processos e experimente
-                      com os dados da sua primeira aula.
-                    </p>
-                    <div className="hero-actions">
-                      <button
-                        className="button white"
-                        onClick={() => navigate(resume)}
-                      >
-                        {allDone
-                          ? "Revisar a aula"
-                          : lastActivity
-                            ? "Retomar atividade"
-                            : "Começar a estudar"}
-                        <ArrowRight size={17} />
-                      </button>
-                      <button
-                        className="button ghost-white"
-                        onClick={() => go("audio", next.id)}
-                      >
-                        <Headphones size={18} />
-                        Ouvir a aula
-                      </button>
-                    </div>
-                    <div className="hero-meta">
-                      <span>
-                        <BookOpen size={15} />
-                        14 módulos
-                      </span>
-                      <span>
-                        <FlaskConical size={15} />2 laboratórios
-                      </span>
-                      <span>
-                        <FileText size={15} />
-                        63 páginas de origem
-                      </span>
-                    </div>
-                  </div>
-                  <div className="hero-visual">
-                    <FactoryArt />
-                  </div>
-                  <span className="hero-dot dot-one" />
-                  <span className="hero-dot dot-two" />
-                  <div className="hero-progress">
-                    <ProgressRing value={progress} size={52} stroke={5} />
-                    <div>
-                      <strong>{study.done.length} de 14 módulos</strong>
-                      <small>
-                        {allDone
-                          ? "Trilha concluída · hora de revisar"
-                          : `Próximo módulo: ${next.title}`}
-                      </small>
-                    </div>
-                  </div>
-                </section>
-                <div className="bento">
-                  <button
-                    className="bento-card wide"
-                    onMouseMove={spotlight}
-                    onClick={() => go("kdd")}
-                  >
-                    <header>
-                      <span className="eyebrow">Processo KDD · PDF 25–31</span>
-                      <Layers3 size={18} />
-                    </header>
-                    <h3>Dos dados ao conhecimento, em 5 etapas</h3>
-                    <div className="mini-kdd">
-                      {[
-                        "Seleção",
-                        "Pré-proc.",
-                        "Transformação",
-                        "Mineração",
-                        "Avaliação",
-                      ].map((s, i) => (
-                        <div key={s}>
-                          <i>{i + 1}</i>
-                          {s}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bento-foot">
-                      Explorar cada etapa
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                  <button
-                    className="bento-card"
-                    onMouseMove={spotlight}
-                    onClick={() => go("labs")}
-                  >
-                    <header>
-                      <span className="eyebrow">Laboratório 1</span>
-                      <FlaskConical size={18} />
-                    </header>
-                    <h3>Temperatura × defeitos</h3>
-                    <MiniScatter />
-                    <div className="bento-foot">
-                      <span>
-                        r ={" "}
-                        <strong className="metric-big" style={{ fontSize: 20 }}>
-                          {pearson}
-                        </strong>
-                      </span>
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                  <button
-                    className="bento-card"
-                    onMouseMove={spotlight}
-                    onClick={() => go("review")}
-                  >
-                    <header>
-                      <span className="eyebrow">Cartão do dia</span>
-                      <BrainCircuit size={18} />
-                    </header>
-                    <p
-                      style={{
-                        color: "var(--text)",
-                        fontFamily: "var(--font-display)",
-                        fontSize: 17,
-                      }}
-                    >
-                      {modules[new Date().getDate() % 14].question}
-                    </p>
-                    <div className="bento-foot">
-                      Tentar responder
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                  <button
-                    className="bento-card"
-                    onMouseMove={spotlight}
-                    onClick={() => go("course")}
-                  >
-                    <header>
-                      <span className="eyebrow">Trilha</span>
-                      <BookOpen size={18} />
-                    </header>
-                    <span className="metric-big">
-                      {Math.round(progress * 100)}%
-                    </span>
-                    <p>
-                      Conceito → exemplo na fábrica → pergunta. 14 módulos, um
-                      de cada vez.
-                    </p>
-                    <div className="bento-foot">
-                      Ver trilha completa
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                  <button
-                    className="bento-card"
-                    onMouseMove={spotlight}
-                    onClick={() => go("labs", 1)}
-                  >
-                    <header>
-                      <span className="eyebrow">Laboratório 2</span>
-                      <Factory size={18} />
-                    </header>
-                    <h3>Produção × energia</h3>
-                    <p>
-                      Quem produz mais nem sempre é quem usa melhor a energia.
-                    </p>
-                    <div className="bento-foot">
-                      <span>
-                        Máquina E ·{" "}
-                        <strong style={{ color: "var(--mint)" }}>
-                          3,26 peças/kWh
-                        </strong>
-                      </span>
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                  <button
-                    className="bento-card wide"
-                    onMouseMove={spotlight}
-                    onClick={() => go("audio", next.id)}
-                  >
-                    <header>
-                      <span className="eyebrow">Estúdio de áudio</span>
-                      <Headphones size={18} />
-                    </header>
-                    <h3>Dê uma pausa à leitura: ouça “{next.title}”</h3>
-                    <div className="mini-wave" aria-hidden="true">
-                      {Array.from({ length: 56 }, (_, i) => (
-                        <i
-                          key={i}
-                          style={{
-                            height: 8 + ((i * 37) % 36),
-                            animationDelay: `${(i % 14) * 0.07}s`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <div className="bento-foot">
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <Play size={15} /> Narração em português
-                      </span>
-                      <ArrowRight size={16} />
-                    </div>
-                  </button>
-                </div>
-                <div className="dashboard-grid">
-                  <section>
-                    <div className="section-title">
-                      <div>
-                        <h2>Uma ideia de cada vez</h2>
-                        <p>Comece pelos fundamentos da aula.</p>
-                      </div>
-                      <button
-                        className="text-link"
-                        onClick={() => go("course")}
-                      >
-                        Ver trilha completa
-                        <ArrowRight size={15} />
-                      </button>
-                    </div>
-                    {cards(modules.slice(0, 3))}
-                    <div className="factory-banner">
-                      <span className="icon-box mint">
-                        <Factory />
-                      </span>
-                      <div>
-                        <h3>
-                          Você já conhece o processo. Agora, investigue os
-                          dados.
-                        </h3>
-                        <p>Conecte a aula a SMT, AOI, SPI e solda seletiva.</p>
-                      </div>
-                      <button
-                        className="icon-button"
-                        aria-label="Abrir aplicação industrial"
-                        onClick={() => go("lesson", 12)}
-                      >
-                        <ArrowRight />
-                      </button>
-                    </div>
-                  </section>
-                  <aside className="right-column">
-                    <div className="panel focus-card">
-                      <span className="tag">
-                        <Target size={14} />
-                        {allDone
-                          ? "Sua trilha concluída"
-                          : "Próximo módulo recomendado"}
-                      </span>
-                      <h3>
-                        {allDone ? "Reconstrua o que aprendeu" : next.title}
-                      </h3>
-                      <p>
-                        {allDone
-                          ? "Revise os conceitos e retorne às ideias que precisam de prática."
-                          : next.idea}
-                      </p>
-                      <div className="focus-line">
-                        <Clock size={15} />
-                        {allDone
-                          ? "14 módulos compreendidos"
-                          : `${next.minutes} minutos sugeridos`}
-                      </div>
-                      <button
-                        className="button primary full"
-                        onClick={() =>
-                          allDone ? go("review", 0) : go("lesson", next.id)
-                        }
-                      >
-                        {allDone ? "Abrir revisão" : "Abrir módulo"}
-                        <ArrowRight size={16} />
-                      </button>
-                    </div>
-                    <div className="insight-card">
-                      <Lightbulb size={25} />
-                      <span className="eyebrow">MUDE A PERGUNTA</span>
-                      <h3>
-                        “Tenho dados”
-                        <br />é só o começo.
-                      </h3>
-                      <p>
-                        O que você quer descobrir? Qual decisão pode melhorar
-                        com essa resposta?
-                      </p>
-                      <button className="text-link" onClick={() => go("kdd")}>
-                        Explorar o caminho
-                        <ArrowRight size={15} />
-                      </button>
-                    </div>
-                  </aside>
-                </div>
+                <p className="progress-explanation">
+                  Este registro representa sua autoavaliação de compreensão.
+                  Abra um tópico para estudar ou revisar.
+                </p>
+                {cards(modules)}
               </>
+            )}
+            {lessonPages.includes(page) && (
+              <LessonNavigation page={page} onNavigate={go} />
             )}
             {page === "course" && (
               <>
+                <section
+                  className="lesson-editorial-banner"
+                  aria-label="Apresentação da Aula 01"
+                >
+                  <FactoryArt />
+                  <div>
+                    <span className="eyebrow">
+                      AULA 01 · FUNDAMENTOS E PRÁTICA
+                    </span>
+                    <h2>
+                      Entenda os dados.
+                      <br />
+                      Enxergue possibilidades.
+                    </h2>
+                    <p>
+                      Do chão de fábrica ao raciocínio analítico: seu percurso
+                      começa aqui.
+                    </p>
+                    <button
+                      className="button white"
+                      onClick={() => navigate(resume)}
+                    >
+                      Continuar estudando <ArrowRight size={17} />
+                    </button>
+                  </div>
+                </section>
                 {heading(
-                  "DO CONCEITO À APLICAÇÃO",
-                  "Sua trilha de aprendizagem",
-                  "14 módulos organizados para conectar teoria, raciocínio e prática.",
+                  "SEU PERCURSO · AULA 01",
+                  "Da teoria à prática industrial",
+                  "Explore os 14 tópicos desta aula, no seu ritmo.",
                 )}
                 <div className="path-overview">
                   {[
@@ -1005,24 +733,34 @@ export default function App({
               </>
             )}
             {page === "lesson" && (
-              <Lesson
-                module={modules[current]}
-                done={study.done.includes(current)}
-                note={study.notes[current] || ""}
-                onMark={() => mark(current)}
-                onNote={(text) =>
-                  setStudy((s) => ({
-                    ...s,
-                    notes: { ...s.notes, [current]: text },
-                  }))
-                }
-                onBack={() => go("course")}
-                onNext={() => go("lesson", Math.min(13, current + 1))}
-                onPrev={() => go("lesson", Math.max(0, current - 1))}
-                onAudio={() => go("audio", current)}
-                saved={account ? sync.status === "saved" : saved}
-                onlineAccount={!!account}
-              />
+              <div className="study-layout">
+                <TopicOutline
+                  modules={modules}
+                  current={current}
+                  completed={study.done}
+                  onSelect={(id) => go("lesson", id)}
+                />
+                <div className="study-content">
+                  <Lesson
+                    module={modules[current]}
+                    done={study.done.includes(current)}
+                    note={study.notes[current] || ""}
+                    onMark={() => mark(current)}
+                    onNote={(text) =>
+                      setStudy((s) => ({
+                        ...s,
+                        notes: { ...s.notes, [current]: text },
+                      }))
+                    }
+                    onBack={() => go("course")}
+                    onNext={() => go("lesson", Math.min(13, current + 1))}
+                    onPrev={() => go("lesson", Math.max(0, current - 1))}
+                    onAudio={() => go("audio", current)}
+                    saved={account ? sync.status === "saved" : saved}
+                    onlineAccount={!!account}
+                  />
+                </div>
+              </div>
             )}
             {page === "kdd" && (
               <Kdd
@@ -1290,7 +1028,7 @@ export default function App({
           </div>
         </main>
         <footer className="app-footer">
-          <span>DataMind · Aula 01</span>
+          <span>Indústria & Dados · UNISENAI</span>
           <span>
             Estudo guiado a partir do material do Prof. Me Daniel Vieira
           </span>
@@ -1394,12 +1132,12 @@ function Lesson({
     <>
       <button className="text-link back-link" onClick={onBack}>
         <ArrowLeft size={16} />
-        Voltar à trilha
+        Visão geral da aula
       </button>
       <div className="lesson-header">
         <div>
           <span className="eyebrow">
-            MÓDULO {String(m.id + 1).padStart(2, "0")} / 14 ·{" "}
+            TÓPICO {String(m.id + 1).padStart(2, "0")} / 14 ·{" "}
             {m.category.toUpperCase()}
           </span>
           <h1>
@@ -1419,7 +1157,7 @@ function Lesson({
         </div>
         <button className="button primary" onClick={onAudio}>
           <Headphones size={18} />
-          Ouvir esta aula
+          Ouvir este tópico
         </button>
       </div>
       <div className="lesson-grid">
@@ -1437,7 +1175,7 @@ function Lesson({
             </span>
             <h2>Entenda, com calma.</h2>
             <div className="lesson-objective">
-              <span className="eyebrow">AO FINAL DESTE MÓDULO</span>
+              <span className="eyebrow">AO FINAL DESTE TÓPICO</span>
               <p>{m.guide.objective}</p>
             </div>
             <p>{m.explain}</p>
